@@ -25,25 +25,21 @@ $(document).ready(function() {
 
     function draw() {
         cube = new THREE.Mesh(
-            new THREE.CubeGeometry(10, 10, 10),
-            new THREE.MeshPhongMaterial({ color: 0x00ff00 })
+            new THREE.SphereGeometry(10, 30, 20),
+            new THREE.MeshLambertMaterial({
+                ambient: 0x00ff00,
+                color: 0x00ff00,
+                shading: THREE.FlatShading
+            })
         );
         scene.add(cube);
 
-        light = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.8);
-        light.position.set(15, 15, 15);
+        scene.add(new THREE.AmbientLight(0x404040));
+        light = new THREE.DirectionalLight(0xffffff, 0.5);
+        light.position.set(15, 15, 0);
         scene.add(light);
 
-        if (debug) {
-            var lightDot = new THREE.Mesh(
-                new THREE.SphereGeometry(0.5, 16, 8),
-                new THREE.MeshBasicMaterial({ color: 0xffffff })
-            );
-            lightDot.position = light.position;
-            scene.add(lightDot);
-        }
-
-        camera.position.z = 5;
+        camera.position.z = 30;
     }
 
     function animate() {
