@@ -36,7 +36,7 @@ $(document).ready(function() {
 
         scene.add(new THREE.AmbientLight(0x404040));
         light = new THREE.DirectionalLight(0xffffff, 0.5);
-        light.position.set(15, 15, 0);
+        light.position.set(15, 15, 20);
         scene.add(light);
 
         camera.position.z = 30;
