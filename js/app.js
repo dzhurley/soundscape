@@ -12,6 +12,7 @@ define([
     return function() {
         var app = {
             container: $('#scape'),
+            mesh: mesh,
 
             init: function() {
                 this.draw();
@@ -20,7 +21,8 @@ define([
 
             draw: function() {
                 this.container.append(renderer.domElement);
-                scene.add(mesh);
+                scene.add(mesh.globe);
+                scene.add(mesh.stars);
                 scene.add(light.ambient);
                 scene.add(light.directional);
             },
@@ -28,7 +30,8 @@ define([
             animate: function() {
                 window.requestAnimationFrame(app.animate);
                 renderer.render(scene, camera);
-                mesh.rotation.y -= 0.01;
+                mesh.globe.rotation.y -= 0.005;
+                mesh.stars.rotation.y -= 0.005;
                 controls.update();
             }
         };
