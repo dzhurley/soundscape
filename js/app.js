@@ -1,61 +1,38 @@
-$(document).ready(function() {
-    var $container = $('body'), debug = false;
-    var scene, camera, controls, light, renderer;
-    var cube;
+define([
+    'jquery',
+    'orbital',
+    'renderer',
+    'camera',
+    'scene',
+    'light',
+    'mesh'
+], function($, THREE, renderer, camera, scene, light, mesh) {
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-    function initialize() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+    return function() {
+        var app = {
+            container: $('#scape'),
 
-        $container.append(renderer.domElement);
-        bindEvents();
-    }
+            init: function() {
+                this.draw();
+                this.animate();
+            },
 
-    function bindEvents() {
-        $(window).resize(function() {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
+            draw: function() {
+                this.container.append(renderer.domElement);
+                scene.add(mesh);
+                scene.add(light.ambient);
+                scene.add(light.directional);
+            },
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-    }
+            animate: function() {
+                window.requestAnimationFrame(app.animate);
+                renderer.render(scene, camera);
+                mesh.rotation.y -= 0.01;
+                controls.update();
+            }
+        };
 
-    function draw() {
-        cube = new THREE.Mesh(
-            new THREE.SphereGeometry(10, 30, 20),
-            new THREE.MeshLambertMaterial({
-                ambient: 0x00ff00,
-                color: 0x00ff00,
-                shading: THREE.FlatShading
-            })
-        );
-        scene.add(cube);
-
-        scene.add(new THREE.AmbientLight(0x404040));
-        light = new THREE.DirectionalLight(0xffffff, 0.5);
-        light.position.set(15, 15, 20);
-        scene.add(light);
-
-        camera.position.z = 30;
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-        controls.update();
-    }
-
-    var App = window.App = {
-        init: function(options) {
-            if (options && options.debug) debug = true; 
-            initialize();
-            draw();
-            animate();
-        }
+        return app;
     };
-
-    return App.init({debug: true});
 });

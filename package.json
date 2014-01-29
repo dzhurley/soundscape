@@ -2,13 +2,13 @@
   "name": "soundscape",
   "version": "0.0.0",
   "description": "map your music",
-  "main": "js/app.js",
+  "main": "js/main.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/dzhurley/soundscape.git"
   },
   "author": "dzhurley",
-  "homepage": "https://github.com/dzhurley/soundscape",
+  "homepage": "https://shiftfoc.us/soundscape",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-cli": "~0.1.13",
