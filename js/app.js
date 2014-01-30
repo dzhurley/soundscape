@@ -5,34 +5,42 @@ define([
     'camera',
     'scene',
     'light',
-    'mesh'
-], function($, THREE, renderer, camera, scene, light, mesh) {
+    'mesh',
+    'last'
+], function($, THREE, renderer, camera, scene, light, mesh, last) {
     var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     return function() {
         var app = {
             container: $('#scape'),
+            last: last,
             mesh: mesh,
+            spin: true,
 
-            init: function() {
-                this.draw();
-                this.animate();
+            toggleSpin: function() {
+                this.spin = this.spin ? false : true;
             },
 
-            draw: function() {
+            init: function() {
                 this.container.append(renderer.domElement);
-                scene.add(mesh.globe);
-                scene.add(mesh.stars);
-                scene.add(light.ambient);
-                scene.add(light.directional);
+                mesh.addToScene();
+                light.addToScene();
+
+                this.animate();
+                this.last.getArtists();
             },
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                renderer.render(scene, camera);
-                mesh.globe.rotation.y -= 0.005;
-                mesh.stars.rotation.y -= 0.005;
+                var x = camera.position.x;
+                var z = camera.position.z;
+                if (app.spin) {
+                    camera.position.x = x * Math.cos(0.005) + z * Math.sin(0.005);
+                    camera.position.z = z * Math.cos(0.005) - x * Math.sin(0.005);
+                }
+                camera.lookAt(scene.position);
                 controls.update();
+                renderer.render(scene, camera);
             }
         };
 
