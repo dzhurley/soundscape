@@ -13,10 +13,19 @@ define([
         });
     };
 
+    var updateFaces = function(artists) {
+        var faces = App.mesh.globe.geometry.faces;
+        for(var i in faces) {
+            faces[i].color.setRGB(Math.random(), Math.random(), Math.random());
+        }
+    };
+
     return {
         getArtists: function() {
             $.getJSON(lastUrl, _.bind(function(data) {
                 this.artists = parseData(data);
+                updateFaces(this.artists);
+                App.mesh.update();
             }, this));
         }
     };

@@ -32,13 +32,9 @@ define([
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                var x = camera.position.x;
-                var z = camera.position.z;
-                if (app.spin) {
-                    camera.position.x = x * Math.cos(0.005) + z * Math.sin(0.005);
-                    camera.position.z = z * Math.cos(0.005) - x * Math.sin(0.005);
-                }
-                camera.lookAt(scene.position);
+                camera.onRender(scene, {
+                    spin: app.spin
+                });
                 controls.update();
                 renderer.render(scene, camera);
             }

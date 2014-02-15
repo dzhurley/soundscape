@@ -21,17 +21,23 @@ define([
         globe: new THREE.Mesh(
             new THREE.SphereGeometry(10, 30, 20),
             new THREE.MeshLambertMaterial({
-                ambient: 0x00ff00,
-                color: 0x00ff00,
-                shading: THREE.FlatShading
+                shading: THREE.FlatShading,
+                side: THREE.DoubleSide,
+                vertexColors: THREE.FaceColors
             })
         ),
+
         stars: stars,
+
         addToScene: function() {
             scene.add(mesh.globe);
             $.map(mesh.stars, function(star) {
                 scene.add(star);
             });
+        },
+
+        update: function() {
+            this.globe.geometry.colorsNeedUpdate = true;
         }
     };
 

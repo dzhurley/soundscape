@@ -13,5 +13,16 @@ define([
     camera.position.y = 20;
     camera.position.z = 30;
 
+    THREE.Camera.prototype.onRender = function(scene, options) {
+        options = options || {};
+        if (options.spin) {
+            var x = camera.position.x;
+            var z = camera.position.z;
+            camera.position.x = x * Math.cos(0.0025) + z * Math.sin(0.0025);
+            camera.position.z = z * Math.cos(0.0025) - x * Math.sin(0.0025);
+        }
+        camera.lookAt(scene.position);
+    };
+
     return camera;
 });
