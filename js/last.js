@@ -1,7 +1,8 @@
 define([
     'underscore',
-    'three'
-], function(_, THREE) {
+    'three',
+    'processor'
+], function(_, THREE, processor) {
     var lastUrl = 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=bd366f79f01332a48ae8ce061dba05a9&user=stutterbug42&format=json&limit=300';
 
     var parseData = function(data) {
@@ -13,27 +14,22 @@ define([
         });
     };
 
-    var updateFaces = function(artists) {
-        var faces = App.mesh.globe.geometry.faces;
-        for(var i in faces) {
-            // earth: #3C9251, ocean: #6370FD
-            faces[i].color.setHex(_.sample([0x3C9251, 0x6370FD]));
-            faces[i].data = {
-                name: i,
-                color: '#' + faces[i].color.getHexString()
-            };
-        }
-    };
-
     return {
         getArtists: function() {
-            updateFaces();
-            App.mesh.update();
-            // $.getJSON(lastUrl, _.bind(function(data) {
-            //     this.artists = parseData(data);
-            //     updateFaces(this.artists);
-            //     App.mesh.update();
-            // }, this));
+            if (!this.artists) {
+                this.artists = localStorage['artists'] && JSON.parse(localStorage['artists']);
+            }
+
+            if (this.artists) {
+                processor.process(this.artists);
+                return;
+            }
+
+            $.getJSON(lastUrl, _.bind(function(data) {
+                this.artists = parseData(data);
+                processor.process(this.artists);
+                localStorage['artists'] = JSON.stringify(this.artists);
+            }, this));
         }
     };
 });
