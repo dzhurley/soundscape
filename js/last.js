@@ -18,16 +18,22 @@ define([
         for(var i in faces) {
             // earth: #3C9251, ocean: #6370FD
             faces[i].color.setHex(_.sample([0x3C9251, 0x6370FD]));
+            faces[i].data = {
+                name: i,
+                color: '#' + faces[i].color.getHexString()
+            };
         }
     };
 
     return {
         getArtists: function() {
-            $.getJSON(lastUrl, _.bind(function(data) {
-                this.artists = parseData(data);
-                updateFaces(this.artists);
-                App.mesh.update();
-            }, this));
+            updateFaces();
+            App.mesh.update();
+            // $.getJSON(lastUrl, _.bind(function(data) {
+            //     this.artists = parseData(data);
+            //     updateFaces(this.artists);
+            //     App.mesh.update();
+            // }, this));
         }
     };
 });

@@ -1,9 +1,33 @@
+@font-face {
+    font-family: "Inconsolata";
+    font-style: normal;
+    font-weight: normal;
+    src: url("http://themes.googleusercontent.com/static/fonts/inconsolata/v3/BjAYBlHtW3CJxDcjzrnZCIbN6UDyHWBl620a-IRfuBk.woff") format("woff");
+}
+
 body {
     margin: 0;
     padding: 0;
+    position: relative;
+    font-family: "Inconsolata";
 }
 
 canvas {
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
+
+#heads-up {
+    display: none;
+    padding: 10px;
+    color: #d7d7d7;
+    background-color: #272727;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#heads-up span { display: block; }
