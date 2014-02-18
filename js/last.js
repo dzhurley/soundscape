@@ -16,7 +16,8 @@ define([
     var updateFaces = function(artists) {
         var faces = App.mesh.globe.geometry.faces;
         for(var i in faces) {
-            faces[i].color.setRGB(Math.random(), Math.random(), Math.random());
+            // earth: #3C9251, ocean: #6370FD
+            faces[i].color.setHex(_.sample([0x3C9251, 0x6370FD]));
         }
     };
 
