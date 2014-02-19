@@ -11,7 +11,7 @@ define([
     });
 
     camera.position.y = 20;
-    camera.position.z = 30;
+    camera.position.z = 10;
 
     THREE.Camera.prototype.onRender = function(scene, options) {
         options = options || {};

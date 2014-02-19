@@ -9,7 +9,7 @@ define([
         return _.map(data.artists.artist, function(artist) {
             return {
                 name: artist.name,
-                playCount: artist.playcount
+                playCount: parseInt(artist.playcount, 10)
             };
         });
     };
