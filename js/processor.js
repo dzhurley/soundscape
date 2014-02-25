@@ -1,21 +1,8 @@
 define([
     'underscore',
+    'helpers',
     'three'
-], function(_, THREE) {
-    var normalize = function(data) {
-        var counts = _.map(data, function(artist) {
-            return parseInt(artist.playCount, 10);
-        });
-
-        var max = Math.max.apply(this, counts),
-            min = Math.min.apply(this, counts),
-            denom = max - min;
-
-        _.each(data, function(artist) {
-            artist.normCount = (artist.playCount - min) / denom;
-        });
-    };
-
+], function(_, h, THREE) {
     var facesPerArtist = function(artist, faces, total) {
         return Math.floor(artist.playCount * faces.length / total);
     };
@@ -38,7 +25,7 @@ define([
                 artist = data[artistIndex];
                 facesPer += facesPerArtist(artist, faces, totalPlays);
             }
-            faces[i].color.setHex(0x00ff00);
+            faces[i].color.setHex(h.spacedColor(data.length, artistIndex));
             faces[i].color.multiplyScalar(artist.normCount);
             faces[i].data = {
                 name: artist.name,
@@ -50,7 +37,6 @@ define([
 
     return {
         process: function(data) {
-            normalize(data);
             updateFaces(data);
             App.mesh.update();
         }

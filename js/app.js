@@ -1,16 +1,15 @@
 define([
     'jquery',
-    'orbital',
+    'fly',
     'renderer',
     'camera',
     'scene',
+    'controls',
     'light',
     'mesh',
     'last',
     'headsUp'
-], function($, THREE, renderer, camera, scene, light, mesh, last, headsUp) {
-    var controls = new THREE.OrbitControls(camera, renderer.domElement);
-
+], function($, THREE, renderer, camera, scene, controls, light, mesh, last, headsUp) {
     return function() {
         var app = {
             $container: $('#scape'),
@@ -18,43 +17,31 @@ define([
             last: last,
             mesh: mesh,
 
+            // TODO: dat.gui
             spin: false,
             showHeadsUp: true,
             debug: true,
 
-            bindOptions: function() {
-                $(document).keydown(_.bind(function(evt) {
-                    switch (evt.keyCode) {
-                        case 83: // 's'
-                            this.spin = this.spin ? false : true;
-                            break;
-                        case 84: // 't'
-                            this.showHeadsUp = this.showHeadsUp ? false : true;
-                            break;
-                    }
-                }, this));
-            },
-
             init: function() {
                 this.$container.append(renderer.domElement);
-                this.bindOptions();
                 mesh.addToScene();
                 light.addToScene();
 
                 this.animate();
                 this.last.getArtists();
                 headsUp.bindHeadsUp();
+                controls.bindControls();
 
                 if (this.debug) {
                     this.exposeTHREE();
                 }
+                camera.lookAt(scene.position);
             },
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                camera.onRender(scene, { spin: app.spin });
                 app.showHeadsUp ? app.$headsUp.show() : app.$headsUp.hide();
-                controls.update();
+                controls.update(1);
                 renderer.render(scene, camera);
             },
 

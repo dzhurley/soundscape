@@ -5,11 +5,17 @@ requirejs.config({
         underscore: '../bower_components/underscore-amd/underscore-min',
 
         three: '../bower_components/threejs/build/three.min',
+        fly: './lib/FlyControls',
         orbital: './lib/OrbitControls'
     },
 
     shim: {
         three: {
+            exports: 'THREE'
+        },
+
+        fly: {
+            deps: ['three'],
             exports: 'THREE'
         },
 
