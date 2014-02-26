@@ -31,6 +31,7 @@ define([
                 datum[saveAs] = (datum[key] - min) / denom;
             });
         }
+        return data;
     };
 
     return {
