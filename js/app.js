@@ -17,10 +17,7 @@ define([
             last: last,
             mesh: mesh,
 
-            // TODO: dat.gui
-            spin: false,
             showHeadsUp: true,
-            debug: true,
 
             init: function() {
                 this.$container.append(renderer.domElement);
@@ -32,9 +29,7 @@ define([
                 headsUp.bindHeadsUp();
                 controls.bindControls();
 
-                if (this.debug) {
-                    this.exposeTHREE();
-                }
+                this.exposeTHREE();
                 camera.lookAt(scene.position);
             },
 

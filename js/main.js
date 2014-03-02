@@ -40,7 +40,5 @@ requirejs([
     app.init();
 
     var gui = new dat.GUI();
-    gui.add(app, 'spin');
     gui.add(app, 'showHeadsUp');
-    gui.add(app, 'debug');
 });

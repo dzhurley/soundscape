@@ -3,35 +3,72 @@ define([
     'helpers',
     'three'
 ], function(_, h, THREE) {
-    var facesPerArtist = function(artist, faces, total) {
-        return Math.floor(artist.playCount * faces.length / total);
+    var nextArtistCallCount = 0;
+    var artist;
+
+    var stopSearching = function(totalArtists) {
+        return totalArtists === nextArtistCallCount;
+    };
+
+    var nextArtist = function(artistIndex, data) {
+        if (artistIndex === data.length) {
+            artistIndex = 0;
+        }
+        artist = data[artistIndex];
+        if (artist.faces === 0) {
+            if (stopSearching(data.length)) {
+                return false;
+            }
+            nextArtist(artistIndex + 1, data);
+        }
+        artist.faces--;
+        nextArtistCallCount = 0;
+        return {
+            artist: artist,
+            currentArtistIndex: artistIndex
+        };
+    };
+
+    var setFace = function(face, totalArtists, artistIndex, artist) {
+        face.color.setHex(h.spacedColor(totalArtists, artistIndex));
+        face.color.multiplyScalar(artist.normCount);
+        face.data = {
+            name: artist.name,
+            plays: artist.playCount
+        };
     };
 
     var updateFaces = function(data) {
         var artistIndex = 0,
-            artist = data[artistIndex],
-            faces = App.mesh.globe.geometry.faces;
+            faces = App.mesh.globe.geometry.faces,
+            randos = h.randomBoundedArray(0, faces.length - 1);
+
         var totalPlays = _.reduce(data, function(memo, d) {
             return memo + d.playCount;
         }, 0);
 
-        var facesPer = facesPerArtist(artist, faces, totalPlays);
+        _.map(data, function(artist) {
+            artist.faces = Math.floor(artist.playCount * faces.length / totalPlays);
+            return artist;
+        });
 
-        for(var i in faces) {
-            if (i == facesPer) {
-                if (++artistIndex >= data.length) {
-                    return;
-                }
-                artist = data[artistIndex];
-                facesPer += facesPerArtist(artist, faces, totalPlays);
+        for(var i in randos) {
+            /*
+             * TODO: remember where a used artist was to place in same area
+             *
+             * loop 0 -> faces.length - 1
+             * if face free:
+             *     - decrement facesPerArtist
+             *     - move to next artist (rollover if needed)
+             *     - paint with artist
+             *     - note artist on each of the 3 vertices
+             */
+            artistInfo = nextArtist(artistIndex, data);
+            if (!artistInfo) {
+                return;
             }
-            faces[i].color.setHex(h.spacedColor(data.length, artistIndex));
-            faces[i].color.multiplyScalar(artist.normCount);
-            faces[i].data = {
-                name: artist.name,
-                plays: artist.playCount,
-                number: i
-            };
+            artistIndex = artistInfo.currentArtistIndex;
+            setFace(faces[randos[i]], data.length, artistIndex, artistInfo.artist);
         }
     };
 

@@ -1,6 +1,33 @@
 define([
     'underscore'
 ], function(_) {
+    var normalize = function(data, key, saveAs) {
+        var counts = _.pluck(data, key);
+
+        var max = Math.max.apply(this, counts),
+            min = Math.min.apply(this, counts),
+            denom = max - min;
+
+        if (saveAs) {
+            _.each(data, function(datum) {
+                datum[saveAs] = (datum[key] - min) / denom;
+            });
+        }
+        return data;
+    };
+
+    var randomBoundedArray = function(min, max) {
+        min = min || 0;
+        max = max || 0;
+
+        var bounded = [];
+        for (var i = min; i <= max; ++i) {
+            bounded.push(i);
+        }
+
+        return _.shuffle(bounded);
+    };
+
     var spacedColor = function(numOfSteps, step) {
         // http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html
         var r, g, b;
@@ -19,23 +46,9 @@ define([
         return "0x" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
     };
 
-    var normalize = function(data, key, saveAs) {
-        var counts = _.pluck(data, key);
-
-        var max = Math.max.apply(this, counts),
-            min = Math.min.apply(this, counts),
-            denom = max - min;
-
-        if (saveAs) {
-            _.each(data, function(datum) {
-                datum[saveAs] = (datum[key] - min) / denom;
-            });
-        }
-        return data;
-    };
-
     return {
         normalize: normalize,
+        randomBoundedArray: randomBoundedArray,
         spacedColor: spacedColor
     };
 });
