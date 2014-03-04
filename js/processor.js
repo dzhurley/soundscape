@@ -19,7 +19,8 @@ define([
             if (stopSearching(data.length)) {
                 return false;
             }
-            nextArtist(artistIndex + 1, data);
+            nextArtistCallCount++;
+            return nextArtist(artistIndex + 1, data);
         }
         artist.faces--;
         nextArtistCallCount = 0;
@@ -53,16 +54,6 @@ define([
         });
 
         for(var i in randos) {
-            /*
-             * TODO: remember where a used artist was to place in same area
-             *
-             * loop 0 -> faces.length - 1
-             * if face free:
-             *     - decrement facesPerArtist
-             *     - move to next artist (rollover if needed)
-             *     - paint with artist
-             *     - note artist on each of the 3 vertices
-             */
             artistInfo = nextArtist(artistIndex, data);
             if (!artistInfo) {
                 return;
