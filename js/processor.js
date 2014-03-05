@@ -12,19 +12,27 @@ define([
     var totalArtists;
 
     var nextArtist = function(artistIndex, data) {
+        // rollover to beginning of artists
         if (artistIndex === totalArtists) {
             artistIndex = 0;
         }
         artist = data[artistIndex];
         if (artist.faces === 0) {
             if (nextArtistCallCount === totalArtists) {
+                // when we've recursed to confirm every `artist.faces` is 0,
+                // we are done painting and return
                 return false;
             }
+            // if there aren't any faces left to paint for this artist, check
+            // the next artist and record how far we've recursed
             nextArtistCallCount++;
             return nextArtist(artistIndex + 1, data);
         }
+        // log that this artist painted a face
         artist.faces--;
+        // set up next call for next artist
         artistIndex++;
+        // reset recursive logging
         nextArtistCallCount = 0;
         return {
             artist: artist,
@@ -38,6 +46,7 @@ define([
     };
 
     var setFace = function(face, artistIndex, artist) {
+        // paint face with artist color and info
         face.color.setHex(h.spacedColor(totalArtists, artistIndex));
         face.color.multiplyScalar(artist.normCount);
         face.data = {
@@ -55,13 +64,16 @@ define([
         }, 0);
 
         _.map(data, function(artist) {
+            // faces available for a given artist to paint
             artist.faces = Math.round(artist.playCount * faces.length / totalPlays);
             return artist;
         });
 
+        // choose random face for each face to paint
         for(var i in randos) {
             artistInfo = nextArtist(artistIndex, data);
             if (!artistInfo) {
+                // no more faces left for any artist to paint
                 return;
             }
             artistIndex = artistInfo.currentArtistIndex;

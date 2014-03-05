@@ -33,12 +33,8 @@ requirejs.config({
 });
 
 requirejs([
-    'app',
-    'dat'
-], function(App, dat) {
+    'app'
+], function(App) {
     var app = window.App = new App();
     app.init();
-
-    var gui = new dat.GUI();
-    gui.add(app, 'showHeadsUp');
 });

@@ -2,21 +2,31 @@ define([
     'underscore'
 ], function(_) {
     var normalize = function(data, key, saveAs) {
-        var counts = _.pluck(data, key);
+        // normalizes values in `data` at `data[key]` and optionally saves
+        // them on each item as `data[saveAs]`, returning `data` when saving
+        // and Array of normalized values when not
 
-        var max = Math.max.apply(this, counts),
-            min = Math.min.apply(this, counts),
-            denom = max - min;
+        var counts = _.pluck(data, key);
+        var max = Math.max.apply(this, counts);
+        var min = Math.min.apply(this, counts);
+        var denom = max - min;
 
         if (saveAs) {
             _.each(data, function(datum) {
                 datum[saveAs] = (datum[key] - min) / denom;
             });
+            return data;
+        } else {
+            return _.map(data, function(datum) {
+                return (datum[key] - min) / denom;
+            });
         }
-        return data;
     };
 
     var randomBoundedArray = function(min, max) {
+        // enumerates numbers between `min` and `max` inclusive and returns
+        // the array in shuffled order
+
         min = min || 0;
         max = max || 0;
 
@@ -43,7 +53,11 @@ define([
             case 4: r = f, g = 0, b = 1; break;
             case 5: r = 1, g = 0, b = q; break;
         }
-        return "0x" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+
+        var first = ("00" + (~ ~(r * 255)).toString(16)).slice(-2);
+        var second = ("00" + (~ ~(g * 255)).toString(16)).slice(-2);
+        var third = ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+        return "0x" + first + second + third;
     };
 
     return {

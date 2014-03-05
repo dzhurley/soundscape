@@ -24,13 +24,14 @@ define([
                 mesh.addToScene();
                 light.addToScene();
 
+                this.exposeTHREE();
                 this.animate();
-                this.last.getArtists();
+
                 headsUp.bindHeadsUp();
                 controls.bindControls();
-
-                this.exposeTHREE();
                 camera.lookAt(scene.position);
+
+                this.last.getArtists();
             },
 
             animate: function() {
