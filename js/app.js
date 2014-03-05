@@ -18,6 +18,7 @@ define([
             mesh: mesh,
 
             showHeadsUp: true,
+            watchItPaint: true,
 
             init: function() {
                 this.$container.append(renderer.domElement);

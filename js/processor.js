@@ -53,6 +53,7 @@ define([
             name: artist.name,
             plays: artist.playCount
         };
+        App.mesh.update();
     };
 
     var updateFaces = function(data) {
@@ -69,8 +70,8 @@ define([
             return artist;
         });
 
-        // choose random face for each face to paint
-        for(var i in randos) {
+        function loopLogic(i) {
+            // choose random face for each face to paint
             artistInfo = nextArtist(artistIndex, data);
             if (!artistInfo) {
                 // no more faces left for any artist to paint
@@ -79,6 +80,20 @@ define([
             artistIndex = artistInfo.currentArtistIndex;
             faceToSet = nextFace(artist, randos[i]);
             setFace(faceToSet, artistIndex, artistInfo.artist);
+        }
+
+        if (App.watchItPaint) {
+            (function myLoop (i) {
+                // watch it paint each face
+                loopLogic(i);
+                setTimeout(function () {
+                    if (--i) myLoop(i);
+                }, 0);
+            })(randos.length - 1);
+        } else {
+            for(var i in randos) {
+                loopLogic(i);
+            }
         }
     };
 
