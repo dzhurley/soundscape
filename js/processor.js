@@ -4,15 +4,18 @@ define([
     'three'
 ], function(_, h, THREE) {
     var artist;
+    var artistIndex = 0;
     var artistInfo;
     var face;
-    var faces;
     var faceInfo;
+    var faces;
     var nextArtistCallCount = 0;
+    var paintedFaces = [];
+    var retry = false;
     var totalArtists;
     var vertices;
 
-    var nextArtist = function(artistIndex, data) {
+    var nextArtist = function(data) {
         // rollover to beginning of artists
         if (artistIndex === totalArtists) {
             artistIndex = 0;
@@ -27,7 +30,8 @@ define([
             // if there aren't any faces left to paint for this artist, check
             // the next artist and record how far we've recursed
             nextArtistCallCount++;
-            return nextArtist(artistIndex + 1, data);
+            artistIndex++;
+            return nextArtist(data);
         }
         // log that this artist painted a face
         artist.faces--;
@@ -35,20 +39,20 @@ define([
         artistIndex++;
         // reset recursive logging
         nextArtistCallCount = 0;
-        return {
-            artist: artist,
-            currentArtistIndex: artistIndex
-        };
+        return artist;
     };
 
     var nextFace = function(artist, rando) {
+        var retry = false;
         face = faces[rando];
-        var savedRando = false;
 
         function findAdjacentFace(artist) {
-            // use first `artist.edges` to find an adjacent unpainted `face`
-            var edge = artist.edges[0];
-            var possibleFaces = _.filter(faces, function(f) {
+            // use random `artist.edges` to find an adjacent unpainted `face`
+            var edge = _.sample(artist.edges);
+            var swapCandidates = [];
+            var swapper;
+
+            face = _.find(faces, function(f) {
                 var valid = false;
                 if (f.a === edge.v1) {
                     valid = f.b === edge.v2 || f.c === edge.v2;
@@ -58,21 +62,26 @@ define([
                     valid = f.a === edge.v2 || f.b === edge.v2;
                 }
 
-                // make sure `face` hasn't been painted yet
-                return valid ? _.isUndefined(f.data.artist) : valid;
+                if (valid && !_.isUndefined(f.data.artist)) {
+                    // if it's adjacent but taken, remember it in case we
+                    // don't find a free face so we can swap in place
+                    swapCandidates.push(f);
+                }
+                return valid;
             });
 
-            if (!possibleFaces.length) {
-                // this feels like a pain point
+            if (!face) {
+                // pick an existing adjacent and swap in place, updating
+                // face and artist.edges data, and transfer face color
+                swapper = _.sample(swapCandidates);
+                debugger;
                 face.data.artist = artist.name;
-                savedRando = rando;
-                return;
+                return face;
             }
 
             // update `face` and `artist.edges`
-            face = _.sample(possibleFaces);
             face.data.artist = artist.name;
-            artist.edges.shift(edge);
+            artist.edges.splice(artist.edges.indexOf(edge), 1);
             if (face.a !== edge.v1 && face.a !== edge.v2) {
                 artist.edges.push({v1: face.a, v2: face.b},
                                   {v1: face.a, v2: face.c});
@@ -83,12 +92,12 @@ define([
                 artist.edges.push({v1: face.a, v2: face.c},
                                   {v1: face.b, v2: face.c});
             }
-
-            // keep `rando` around for next `runLoop`
-            savedRando = rando;
+            retry = true;
+            return face;
         }
 
         if (_.isUndefined(face.data.artist)) {
+            // unmarked face
             if (_.isUndefined(artist.edges)) {
                 face.data.artist = artist.name;
                 artist.edges = [];
@@ -96,21 +105,18 @@ define([
                                   {v1: face.b, v2: face.c},
                                   {v1: face.a, v2: face.c});
             } else {
-                findAdjacentFace(artist);
+                // artist has been painted somewhere else
+                face = findAdjacentFace(artist);
             }
-        } else if (face.data.artist === artist.name) {
-            findAdjacentFace(artist);
         } else {
-            face = false;
+            // shouldn't hit here
+            debugger;
         }
 
-        return {
-            face: face,
-            savedRando: savedRando
-        };
+        return {face: face, retry: retry};
     };
 
-    var setFace = function(face, artistIndex, artist) {
+    var setFace = function(face, artist) {
         if (!face) {
             return;
         }
@@ -121,43 +127,26 @@ define([
         App.mesh.update();
     };
 
-    var runLoop = function(artistIndex, data, randos) {
-        var savedRandos = [];
-
-        function loopLogic(i) {
-            // choose random face for each face to paint
-            artistInfo = nextArtist(artistIndex, data);
-            if (!artistInfo) {
-                // no more faces left for any artist to paint
-                return;
-            }
-            artistIndex = artistInfo.currentArtistIndex;
-            faceInfo = nextFace(artist, randos[i]);
-            if (faceInfo.savedRando) {
-                savedRandos.push(faceInfo.savedRando);
-            }
-            setFace(faceInfo.face, artistIndex, artistInfo.artist);
+    var runLoop = function(rando, data, randos) {
+        if (_.contains(paintedFaces, rando)) {
+            return false;
         }
-
-        if (App.watchItPaint) {
-            (function myLoop (i) {
-                // watch it paint each face
-                loopLogic(i);
-                setTimeout(function () {
-                    if (--i) myLoop(i);
-                }, 0);
-            })(randos.length - 1);
-        } else {
-            for(var i in randos) {
-                loopLogic(i);
-            }
+        // choose random face for each face to paint
+        artist = nextArtist(data);
+        if (!artist) {
+            // no more faces left for any artist to paint
+            return false;
         }
+        faceInfo = nextFace(artist, rando);
+        paintedFaces.push(faces.indexOf(faceInfo.face));
+        setFace(faceInfo.face, artist);
 
-        return savedRandos.length ? runLoop(artistIndex, data, savedRandos) : false;
+        if (faceInfo.retry) {
+            return runLoop(rando, data, randos);
+        }
     };
 
     var updateFaces = function(data) {
-        var artistIndex = 0;
         var randos = h.randomBoundedArray(0, faces.length - 1);
 
         _.map(faces, function(face) {
@@ -174,7 +163,9 @@ define([
             return artist;
         });
 
-        runLoop(artistIndex, data, randos);
+        for(var i in randos) {
+            runLoop(randos[i], data, randos);
+        }
     };
 
     return {

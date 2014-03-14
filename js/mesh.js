@@ -19,7 +19,7 @@ define([
 
     var mesh = {
         globe: new THREE.Mesh(
-            new THREE.SphereGeometry(10, 100, 100),
+            new THREE.SphereGeometry(10, 50, 50),
             new THREE.MeshLambertMaterial({
                 shading: THREE.FlatShading,
                 side: THREE.DoubleSide,
