@@ -5,6 +5,7 @@ requirejs.config({
         underscore: '../bower_components/underscore-amd/underscore-min',
 
         dat: '../bower_components/dat.gui/dat.gui.min',
+        eventbus: '../bower_components/EventBus/dist/EventBus.min',
 
         three: '../bower_components/threejs/build/three.min',
         fly: './lib/FlyControls',
@@ -14,6 +15,10 @@ requirejs.config({
     shim: {
         dat: {
             exports: 'dat'
+        },
+
+        eventbus: {
+            exports: 'EventBus'
         },
 
         three: {

@@ -168,13 +168,15 @@ define([
         }
     };
 
-    return {
-        process: function(data) {
-            faces = App.mesh.globe.geometry.faces;
-            vertices = App.mesh.globe.geometry.vertices;
-            totalArtists = data.length;
-            updateFaces(data);
-            App.mesh.update();
-        }
+    return function() {
+        return {
+            process: function(data) {
+                faces = App.mesh.globe.geometry.faces;
+                vertices = App.mesh.globe.geometry.vertices;
+                totalArtists = data.length;
+                updateFaces(data);
+                App.mesh.update();
+            }
+        };
     };
 });

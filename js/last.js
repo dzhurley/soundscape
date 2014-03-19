@@ -1,9 +1,7 @@
 define([
     'underscore',
-    'helpers',
-    'three',
-    'processor'
-], function(_, h, THREE, processor) {
+    'helpers'
+], function(_, h) {
     var parseData = function(data) {
         var baseData =  _.map(data.artists.artist, function(artist) {
             return {
@@ -23,13 +21,13 @@ define([
             }
 
             if (this.artists) {
-                processor.process(this.artists);
+                App.vent.trigger('fetched.artists', this.artists);
                 return;
             }
 
             $.getJSON(this.lastUrl, _.bind(function(data) {
                 this.artists = parseData(data);
-                processor.process(this.artists);
+                App.vent.trigger('fetched.artists', this.artists);
                 localStorage.artists = JSON.stringify(this.artists);
             }, this));
         }

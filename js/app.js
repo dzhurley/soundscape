@@ -1,5 +1,6 @@
 define([
     'jquery',
+    'eventbus',
     'fly',
     'renderer',
     'camera',
@@ -8,8 +9,9 @@ define([
     'light',
     'mesh',
     'last',
+    'processing/main',
     'headsUp'
-], function($, THREE, renderer, camera, scene, controls, light, mesh, last, headsUp) {
+], function($, EventBus, THREE, renderer, camera, scene, controls, light, mesh, last, Processor, headsUp) {
     return function() {
         var app = {
             $container: $('#scape'),
@@ -20,6 +22,9 @@ define([
             showHeadsUp: true,
 
             init: function() {
+                this.vent = new EventBus();
+                this.processor = new Processor();
+
                 this.$container.append(renderer.domElement);
                 mesh.addToScene();
                 light.addToScene();
