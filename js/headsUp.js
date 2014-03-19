@@ -1,9 +1,10 @@
 define([
+    'underscore',
     'three',
     'camera',
     'mesh',
     'scene'
-], function(THREE, camera, mesh, scene) {
+], function(_, THREE, camera, mesh, scene) {
     var projector = new THREE.Projector();
     var mouse = { x: 0, y: 0 };
     var active;
@@ -20,30 +21,33 @@ define([
         return ray.intersectObjects([mesh.globe]);
     };
 
-    var updateActive = function(intersects) {
-        if (intersects.length === 0) {
-            active = null;
-        } else if (intersects[0].face != active) {
-            active = intersects[0].face;
 
-            if(active.data){
-                var html = '';
-                _.each(_.keys(active.data), function(key) {
-                    html += '<span>' + key + ': ' + active.data[key] + '</span>';
-                });
-                App.$headsUp.html(html);
-                return App.showHeadsUp ? App.$headsUp.show() : App.$headsUp.hide();
+    var headsUp = {
+        bindHeadsUp: function() {
+            $(document).click(_.bind(function(evt) {
+                updateMouse(evt);
+                var intersects = findIntersects();
+                this.updateActive(intersects);
+            }, this));
+        },
+
+        updateActive: function(intersects) {
+            if (intersects.length === 0) {
+                active = null;
+            } else if (intersects[0].face != active) {
+                active = intersects[0].face;
+
+                if(active.data){
+                    var html = '';
+                    _.each(_.keys(active.data), function(key) {
+                        html += '<span>' + key + ': ' + active.data[key] + '</span>';
+                    });
+                    App.$headsUp.html(html);
+                    return App.showHeadsUp ? App.$headsUp.show() : App.$headsUp.hide();
+                }
             }
         }
     };
 
-    return {
-        bindHeadsUp: function() {
-            $(document).click(function(evt) {
-                updateMouse(evt);
-                var intersects = findIntersects();
-                updateActive(intersects);
-            });
-        }
-    };
+    return headsUp;
 });

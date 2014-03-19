@@ -4,8 +4,6 @@ define([
     'three',
     'processor'
 ], function(_, h, THREE, processor) {
-    var lastUrl = 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=bd366f79f01332a48ae8ce061dba05a9&user=stutterbug42&format=json&limit=300';
-
     var parseData = function(data) {
         var baseData =  _.map(data.artists.artist, function(artist) {
             return {
@@ -17,6 +15,8 @@ define([
     };
 
     return {
+        lastUrl: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=bd366f79f01332a48ae8ce061dba05a9&user=stutterbug42&format=json&limit=300',
+
         getArtists: function() {
             if (!this.artists) {
                 this.artists = JSON.parse(localStorage.artists || null);
@@ -27,7 +27,7 @@ define([
                 return;
             }
 
-            $.getJSON(lastUrl, _.bind(function(data) {
+            $.getJSON(this.lastUrl, _.bind(function(data) {
                 this.artists = parseData(data);
                 processor.process(this.artists);
                 localStorage.artists = JSON.stringify(this.artists);
