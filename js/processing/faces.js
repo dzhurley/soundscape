@@ -1,7 +1,7 @@
 define([
     'underscore',
     'helpers',
-    'three'
+    'threejs'
 ], function(_, h, THREE) {
     var artist;
     var artistIndex = 0;
@@ -124,7 +124,7 @@ define([
         face.color.setHex(h.spacedColor(totalArtists, artistIndex));
         face.color.multiplyScalar(artist.normCount);
         face.data.plays = artist.playCount;
-        App.mesh.update();
+        App.three.mesh.update();
     };
 
     var runLoop = function(rando, data, randos) {
@@ -171,11 +171,11 @@ define([
     return function() {
         return {
             process: function(data) {
-                faces = App.mesh.globe.geometry.faces;
-                vertices = App.mesh.globe.geometry.vertices;
+                faces = App.three.mesh.globe.geometry.faces;
+                vertices = App.three.mesh.globe.geometry.vertices;
                 totalArtists = data.length;
                 updateFaces(data);
-                App.mesh.update();
+                App.three.mesh.update();
             }
         };
     };

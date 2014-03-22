@@ -7,7 +7,7 @@ requirejs.config({
         dat: '../bower_components/dat.gui/dat.gui.min',
         eventbus: '../bower_components/EventBus/dist/EventBus.min',
 
-        three: '../bower_components/threejs/build/three.min',
+        threejs: '../bower_components/threejs/build/three.min',
         fly: './lib/FlyControls',
         orbital: './lib/OrbitControls'
     },
@@ -21,17 +21,17 @@ requirejs.config({
             exports: 'EventBus'
         },
 
-        three: {
+        threejs: {
             exports: 'THREE'
         },
 
         fly: {
-            deps: ['three'],
+            deps: ['threejs'],
             exports: 'THREE'
         },
 
         orbital: {
-            deps: ['three'],
+            deps: ['threejs'],
             exports: 'THREE'
         }
     }
@@ -40,6 +40,6 @@ requirejs.config({
 requirejs([
     'app'
 ], function(App) {
-    var app = window.App = new App();
-    app.init();
+    window.App = new App();
+    window.App.init();
 });

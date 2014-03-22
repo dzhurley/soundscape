@@ -1,5 +1,5 @@
 define([
-    'three'
+    'threejs'
 ], function(THREE) {
     return new THREE.Scene();
 });

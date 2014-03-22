@@ -1,6 +1,6 @@
 define([
     'fly',
-    'camera'
+    './camera'
 ], function(THREE, camera) {
     var controls = new THREE.FlyControls(camera);
 

@@ -1,6 +1,6 @@
 define([
-    'three',
-    'scene'
+    'threejs',
+    './scene'
 ], function(THREE, scene) {
 
     var stars = [], star;
