@@ -3,10 +3,10 @@ define([
     'eventbus',
     'fly',
     'three/main',
-    'last',
     'processing/main',
+    'last',
     'headsUp'
-], function($, EventBus, THREE, Threes, Last, Processor, HeadsUp) {
+], function($, EventBus, THREE, Threes, Processor, Last, HeadsUp) {
     return function() {
         var app = {
             $container: $('#scape'),
@@ -16,8 +16,8 @@ define([
 
             init: function() {
                 this.vent = new EventBus();
-                this.processor = new Processor();
                 this.three = new Threes();
+                this.processor = new Processor();
                 this.headsUp = new HeadsUp();
 
                 this.$container.append(this.three.renderer.domElement);
