@@ -3,48 +3,22 @@ define([
     'helpers',
     'threejs',
     './artists',
-    './faces'
-], function(_, h, THREE, ArtistProcessor, FaceProcessor) {
+    './faces',
+    './looper'
+], function(_, h, THREE, ArtistProcessor, FaceProcessor, Looper) {
     return function() {
-        var paintedFaces = [];
         var facer = new FaceProcessor();
         var artister = new ArtistProcessor();
+        var looper = new Looper();
 
         var processor = {
             facer: facer,
             artister: artister,
+            looper: looper,
 
-            setFace: function(face, artist) {
-                if (!face) {
-                    return;
-                }
-                // paint face with artist color and info
-                face.color.setHex(h.spacedColor(artister.totalArtists, artister.artistIndex));
-                face.color.multiplyScalar(artist.normCount);
-                face.data.plays = artist.playCount;
-                App.three.mesh.update();
-            },
-
-            runLoop: function(rando) {
-                var artist;
-                var faceInfo;
-
-                if (_.contains(paintedFaces, rando)) {
-                    return false;
-                }
-                // choose random face for each face to paint
-                artist = artister.nextArtist();
-                if (!artist) {
-                    // no more faces left for any artist to paint
-                    return false;
-                }
-                faceInfo = facer.nextFace(artist, rando);
-                paintedFaces.push(facer.faces.indexOf(faceInfo.face));
-                this.setFace(faceInfo.face, artist);
-
-                if (faceInfo.retry) {
-                    return processor.runLoop(rando);
-                }
+            init: function() {
+                this.looper.setRefs(this.facer, this.artister);
+                App.vent.on('fetched.artists', _.bind(this.process, this));
             },
 
             process: function(evt, data) {
@@ -66,15 +40,14 @@ define([
                 });
 
                 for(var i in this.randos) {
-                    this.runLoop(this.randos[i]);
+                    this.looper.runLoop(this.randos[i]);
                 }
 
                 App.three.mesh.update();
             }
         };
 
-        App.vent.on('fetched.artists', _.bind(processor.process, processor));
-
+        processor.init();
         return processor;
     };
 });
