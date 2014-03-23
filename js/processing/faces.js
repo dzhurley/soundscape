@@ -8,11 +8,8 @@ define([
             faces: App.three.mesh.globe.geometry.faces,
             vertices: App.three.mesh.globe.geometry.vertices,
 
-            findAdjacentFace: function(artist) {
-                // use random `artist.edges` to find an adjacent unpainted `face`
-                var edge = _.sample(artist.edges);
+            validFace: function(artist, edge) {
                 var swapCandidates = [];
-                var swapper;
 
                 var face = _.find(this.faces, function(f) {
                     var valid = false;
@@ -32,15 +29,10 @@ define([
                     return valid;
                 });
 
-                if (!face) {
-                    // pick an existing adjacent and swap in place, updating
-                    // face and artist.edges data, and transfer face color
-                    swapper = _.sample(swapCandidates);
-                    debugger;
-                    face.data.artist = artist.name;
-                    return {face: face, retry: false};
-                }
+                return face ? face : swapCandidates;
+            },
 
+            updateFaceAndArtist: function(face, artist, edge) {
                 // update `face` and `artist.edges`
                 face.data.artist = artist.name;
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
@@ -54,7 +46,31 @@ define([
                     artist.edges.push({v1: face.a, v2: face.c},
                                       {v1: face.b, v2: face.c});
                 }
-                return {face: face, retry: true};
+            },
+
+            findAdjacentFace: function(artist) {
+                // use random `artist.edges` to find an adjacent unpainted `face`
+                var edge = _.sample(artist.edges);
+                var swapper;
+
+                var faceOrSwapCandidates = this.validFace(artist, edge);
+
+                if (_.isArray(faceOrSwapCandidates)) {
+                    // pick an existing adjacent and swap in place, updating
+                    // face and artist.edges data, and transfer face color
+                    swapper = _.sample(swapCandidates);
+                    debugger;
+                    face.data.artist = artist.name;
+                    return {face: face, index: this.faces.indexOf(face), retry: false};
+                }
+
+                this.updateFaceAndArtist(faceOrSwapCandidates, artist, edge);
+
+                return {
+                    face: faceOrSwapCandidates,
+                    index: this.faces.indexOf(faceOrSwapCandidates),
+                    retry: true
+                };
             },
 
             nextFace: function(artist, rando) {
@@ -77,7 +93,7 @@ define([
                     debugger;
                 }
 
-                return {face: face, retry: false};
+                return {face: face, index: this.faces.indexOf(face), retry: false};
             }
         };
 

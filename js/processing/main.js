@@ -17,7 +17,7 @@ define([
             looper: looper,
 
             init: function() {
-                this.looper.setRefs(this.facer, this.artister);
+                this.looper.init(this.facer, this.artister);
                 App.vent.on('fetched.artists', _.bind(this.process, this));
             },
 
@@ -39,11 +39,7 @@ define([
                     return artist;
                 });
 
-                for(var i in this.randos) {
-                    this.looper.runLoop(this.randos[i]);
-                }
-
-                App.three.mesh.update();
+                this.looper.loop(null, this.randos);
             }
         };
 
