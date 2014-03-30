@@ -7,31 +7,28 @@ define(function() {
 
             setData: function(data) {
                 this.artists = data;
-                this.totalArtists = data.length;
             },
 
             nextArtist: function() {
                 var artist;
 
                 // rollover to beginning of artists
-                if (this.artistIndex === this.totalArtists) {
+                if (this.artistIndex === this.artists.length) {
                     this.artistIndex = 0;
                 }
                 artist = this.artists[this.artistIndex];
                 if (artist.faces === 0) {
-                    if (nextArtistCallCount === this.totalArtists) {
+                    if (nextArtistCallCount === this.artists.length) {
                         // when we've recursed to confirm every `artist.faces` is 0,
                         // we are done painting and return
                         return false;
                     }
-                    // if there aren't any faces left to paint for this artist, check
-                    // the next artist and record how far we've recursed
+                    // if there aren't any faces left to paint for this artist,
+                    // remove them, and record how far we've recursed
+                    this.artists.splice(this.artists.indexOf(artist), 1);
                     nextArtistCallCount++;
-                    this.artistIndex++;
-                    return artister.nextArtist(this.artists);
+                    return artister.nextArtist();
                 }
-                // log that this artist painted a face
-                artist.faces--;
                 // set up next call for next artist
                 this.artistIndex++;
                 // reset recursive logging

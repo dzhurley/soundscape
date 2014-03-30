@@ -9,9 +9,9 @@ define([
             vertices: App.three.mesh.globe.geometry.vertices,
 
             validFace: function(artist, edge) {
-                var swapCandidates = [];
+                var swappers = [];
 
-                var face = _.find(this.faces, function(f) {
+                var face = _.filter(this.faces, function(f) {
                     var valid = false;
                     if (f.a === edge.v1) {
                         valid = f.b === edge.v2 || f.c === edge.v2;
@@ -24,12 +24,19 @@ define([
                     if (valid && !_.isUndefined(f.data.artist)) {
                         // if it's adjacent but taken, remember it in case we
                         // don't find a free face so we can swap in place
-                        swapCandidates.push(f);
+                        swappers.push(f);
+                        return false;
                     }
                     return valid;
                 });
 
-                return face ? face : swapCandidates;
+                if (face.length === 1) {
+                    return face[0];
+                }
+                return _.without(swappers, _.find(swappers, function(f) {
+                    // make sure one of the candidates isn't for the same artist
+                    return f.data.artist === artist.name;
+                }));
             },
 
             updateFaceAndArtist: function(face, artist, edge) {
@@ -50,25 +57,42 @@ define([
 
             findAdjacentFace: function(artist) {
                 // use random `artist.edges` to find an adjacent unpainted `face`
-                var edge = _.sample(artist.edges);
+                var edges = _.clone(artist.edges);
+                var edge;
                 var swapper;
+                var faceOrSwap;
 
-                var faceOrSwapCandidates = this.validFace(artist, edge);
+                while (edges.length) {
+                    edge = _.sample(edges);
+                    faceOrSwap = this.validFace(artist, edge);
 
-                if (_.isArray(faceOrSwapCandidates)) {
+                    if (!_.isArray(faceOrSwap)) {
+                        // found valid face, stop looking for more
+                        break;
+                    }
+
+                    if (edges.length) {
+                        // we found a boundary with another artist, but there are more
+                        // edges available to check, retry with another random edge
+                        edges.splice(edges.indexOf(edge), 1);
+                        if (edges.length) {
+                            continue;
+                        }
+                    }
+
                     // pick an existing adjacent and swap in place, updating
                     // face and artist.edges data, and transfer face color
-                    swapper = _.sample(swapCandidates);
+                    swapper = _.sample(faceOrSwap);
                     debugger;
                     face.data.artist = artist.name;
                     return {face: face, index: this.faces.indexOf(face), retry: false};
                 }
 
-                this.updateFaceAndArtist(faceOrSwapCandidates, artist, edge);
+                this.updateFaceAndArtist(faceOrSwap, artist, edge);
 
                 return {
-                    face: faceOrSwapCandidates,
-                    index: this.faces.indexOf(faceOrSwapCandidates),
+                    face: faceOrSwap,
+                    index: this.faces.indexOf(faceOrSwap),
                     retry: true
                 };
             },
@@ -76,24 +100,26 @@ define([
             nextFace: function(artist, rando) {
                 var face = this.faces[rando];
 
-                if (_.isUndefined(face.data.artist)) {
-                    // unmarked face
-                    if (_.isUndefined(artist.edges)) {
-                        face.data.artist = artist.name;
-                        artist.edges = [];
-                        artist.edges.push({v1: face.a, v2: face.b},
-                                          {v1: face.b, v2: face.c},
-                                          {v1: face.a, v2: face.c});
-                    } else {
-                        // artist has been painted somewhere else
-                        return this.findAdjacentFace(artist);
-                    }
-                } else {
+                if (face.data.artist) {
                     // shouldn't hit here
                     debugger;
                 }
 
-                return {face: face, index: this.faces.indexOf(face), retry: false};
+                // unmarked face
+                if (_.isUndefined(artist.edges)) {
+                    face.data.artist = artist.name;
+                    artist.edges = [];
+                    artist.edges.push({v1: face.a, v2: face.b},
+                                      {v1: face.b, v2: face.c},
+                                      {v1: face.a, v2: face.c});
+                    return {
+                        face: face,
+                        index: this.faces.indexOf(face),
+                        retry: false
+                    };
+                }
+                // artist has been painted somewhere else
+                return this.findAdjacentFace(artist);
             }
         };
 

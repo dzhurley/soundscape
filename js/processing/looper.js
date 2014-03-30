@@ -18,10 +18,11 @@ define([
                     return;
                 }
                 // paint face with artist color and info
-                face.color.setHex(h.spacedColor(this.artister.totalArtists,
+                face.color.setHex(h.spacedColor(this.artister.artists.length,
                                                 this.artister.artistIndex));
                 face.color.multiplyScalar(artist.normCount);
                 face.data.plays = artist.playCount;
+                artist.faces--;
             },
 
             runIteration: function(rando) {
@@ -53,15 +54,19 @@ define([
                 }
             },
 
-            loop: function(evt, randos) {
+            loop: function(randos) {
                 this.remaining = randos;
                 var i = 0;
 
                 while (this.remaining.length) {
                     var start = this.remaining.length;
+                    var done;
 
                     for (i in this.remaining) {
-                        this.runIteration(this.remaining[i]);
+                        if (this.runIteration(this.remaining[i])) {
+                            // we're done with all the faces
+                            return;
+                        }
                     }
                     i = 0;
 

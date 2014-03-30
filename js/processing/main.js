@@ -39,7 +39,7 @@ define([
                     return artist;
                 });
 
-                this.looper.loop(null, this.randos);
+                this.looper.loop(this.randos);
             }
         };
 
