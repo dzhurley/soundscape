@@ -29,15 +29,22 @@ define([
             },
 
             updateActive: function(intersects) {
+                var data;
                 if (intersects.length === 0) {
                     active = null;
                 } else if (intersects[0].face != active) {
                     active = intersects[0].face;
 
-                    if(active.data){
+                    data = _.extend({}, active.data, {
+                        'face a': active.a,
+                        'face b': active.b,
+                        'face c': active.c
+                    });
+
+                    if(data){
                         var html = '';
-                        _.each(_.keys(active.data), function(key) {
-                            html += '<span>' + key + ': ' + active.data[key] + '</span>';
+                        _.each(_.keys(data), function(key) {
+                            html += '<span>' + key + ': ' + data[key] + '</span>';
                         });
                         App.$headsUp.html(html);
                         return App.showHeadsUp ? App.$headsUp.show() : App.$headsUp.hide();

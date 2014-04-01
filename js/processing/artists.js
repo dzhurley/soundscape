@@ -24,9 +24,9 @@ define(function() {
                         return false;
                     }
                     // if there aren't any faces left to paint for this artist,
-                    // remove them, and record how far we've recursed
-                    this.artists.splice(this.artists.indexOf(artist), 1);
+                    // look towards the next artist and record how far we've recursed
                     nextArtistCallCount++;
+                    this.artistIndex++;
                     return artister.nextArtist();
                 }
                 // set up next call for next artist
