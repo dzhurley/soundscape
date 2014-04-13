@@ -22,6 +22,9 @@ define([
                 face.color.setHex(h.spacedColor(this.artister.artists.length, index));
                 face.color.multiplyScalar(artist.normCount);
                 face.data.plays = artist.playCount;
+                if (artist.faces === 0) {
+                    debugger;
+                }
                 artist.faces--;
             },
 
@@ -29,10 +32,6 @@ define([
                 var artist;
                 var faceInfo;
                 var remainingIndex;
-
-                if (!_.contains(this.remaining, rando)) {
-                    return false;
-                }
 
                 // choose random face for each face to paint
                 artist = this.artister.nextArtist();
@@ -47,32 +46,28 @@ define([
                     this.remaining.splice(remainingIndex, 1);
                 }
                 this.setFace(faceInfo.face, artist);
-
-                if (faceInfo.retry) {
-                    // this face at this index is still blank, so try again
-                    return looper.runIteration(rando);
-                }
+                return false;
             },
 
             loop: function(randos) {
                 this.remaining = randos;
+                var currentPass;
                 var i = 0;
 
                 while (this.remaining.length) {
-                    var start = this.remaining.length;
-                    var done;
+                    currentPass = _.clone(this.remaining);
 
-                    for (i in this.remaining) {
-                        if (this.runIteration(this.remaining[i])) {
+                    for (i in currentPass) {
+                        if (this.runIteration(currentPass[i])) {
                             // we're done with all the faces
-                            debugger;
                             return;
                         }
                     }
                     i = 0;
 
-                    if (start === this.remaining.length) {
+                    if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
+                        debugger;
                         return;
                     }
                 }

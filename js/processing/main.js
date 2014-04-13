@@ -12,34 +12,33 @@ define([
         var looper = new Looper();
 
         var processor = {
-            facer: facer,
-            artister: artister,
-            looper: looper,
-
             init: function() {
+                this.facer = facer,
+                this.artister = artister,
+                this.looper = looper;
                 this.looper.init(this.facer, this.artister);
                 App.vent.on('fetched.artists', _.bind(this.process, this));
             },
 
             process: function(evt, data) {
-                this.artister.setData(data);
-                this.randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
-
                 var totalPlays = _.reduce(data, function(memo, d) {
                     return memo + d.playCount;
                 }, 0);
 
-                _.map(facer.faces, function(face) {
+                _.map(this.facer.faces, function(face) {
                     face.data = {};
                 });
 
-                _.map(data, function(artist) {
+                _.map(data, _.bind(function(d) {
                     // faces available for a given artist to paint
-                    artist.faces = Math.round(artist.playCount * facer.faces.length / totalPlays);
-                    return artist;
-                });
+                    d.faces = Math.round(d.playCount * this.facer.faces.length / totalPlays);
+                    return d;
+                }, this));
+                // don't bother with artists that don't merit faces
+                data = _.filter(data, function(d) { return d.faces > 0; });
+                this.artister.setData(data);
 
-                this.looper.loop(this.randos);
+                this.looper.loop(h.randomBoundedArray(0, this.facer.faces.length - 1));
             }
         };
 

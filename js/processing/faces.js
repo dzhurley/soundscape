@@ -81,17 +81,23 @@ define([
             },
 
             updateArtistEdges: function(face, artist, edge) {
+                var second;
+                var third;
+
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
                 if (face.a !== edge.v1 && face.a !== edge.v2) {
-                    artist.edges.push({v1: face.a, v2: face.b},
-                                      {v1: face.a, v2: face.c});
+                    second = {v1: face.a, v2: face.b};
+                    third = {v1: face.a, v2: face.c};
                 } else if (face.b !== edge.v1 && face.b !== edge.v2) {
-                    artist.edges.push({v1: face.a, v2: face.b},
-                                      {v1: face.b, v2: face.c});
+                    second = {v1: face.a, v2: face.b};
+                    third = {v1: face.b, v2: face.c};
                 } else {
-                    artist.edges.push({v1: face.a, v2: face.c},
-                                      {v1: face.b, v2: face.c});
+                    second = {v1: face.a, v2: face.c};
+                    third = {v1: face.b, v2: face.c};
                 }
+
+                artist.edges.push(second, third);
+                return [second, third];
             },
 
             findAdjacentFace: function(artist) {
@@ -99,6 +105,7 @@ define([
                 var edges = _.clone(artist.edges);
                 var artistIndex;
                 var edge;
+                var updatedEdges;
                 var faceOrSwap;
                 var swappedArtist;
                 var swapper;
@@ -132,27 +139,19 @@ define([
                     // call directly so it won't get dropped while searching for a free face
                     artistIndex = App.processor.artister.artists.indexOf(artist);
                     App.processor.looper.setFace(swapper, artist, artistIndex);
-                    this.updateArtistEdges(swapper, swappedArtist, edge);
+                    updatedEdges = this.updateArtistEdges(swapper, swappedArtist, edge);
                     artist = swappedArtist;
-                    edges = _.clone(artist.edges);
+                    artist.faces++;
+                    edges = _.difference(artist.edges, updatedEdges);
                 }
 
                 this.updateFaceAndArtist(faceOrSwap, artist, edge);
 
-                return {
-                    face: faceOrSwap,
-                    index: this.faces.indexOf(faceOrSwap),
-                    retry: true
-                };
+                return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },
 
             nextFace: function(artist, rando) {
                 var face = this.faces[rando];
-
-                if (face.data.artist) {
-                    // shouldn't hit here
-                    debugger;
-                }
 
                 // unmarked face
                 if (_.isUndefined(artist.edges)) {
@@ -161,11 +160,7 @@ define([
                     artist.edges.push({v1: face.a, v2: face.b},
                                       {v1: face.b, v2: face.c},
                                       {v1: face.a, v2: face.c});
-                    return {
-                        face: face,
-                        index: this.faces.indexOf(face),
-                        retry: false
-                    };
+                    return {face: face, index: this.faces.indexOf(face)};
                 }
                 // artist has been painted somewhere else
                 return this.findAdjacentFace(artist);
