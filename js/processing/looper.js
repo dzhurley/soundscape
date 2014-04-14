@@ -13,16 +13,10 @@ define([
                 this.remaining = [];
             },
 
-            setFace: function(face, artist, index) {
+            setFace: function(face, artist) {
                 // paint face with artist color and info
-                if (index) {
-                    this.artister.artistIndex = index;
-                }
-                if (artist.faces === 0) {
-                    debugger;
-                }
-                face.color.setHex(h.spacedColor(this.artister.artists.length,
-                                                this.artister.artistIndex));
+                index = this.artister.artists.indexOf(artist);
+                face.color.setHex(h.spacedColor(this.artister.artists.length, index));
                 face.color.multiplyScalar(artist.normCount);
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;

@@ -80,7 +80,6 @@ define([
             findAdjacentFace: function(artist) {
                 // use random `artist.edges` to find an adjacent unpainted `face`
                 var edges = _.clone(artist.edges);
-                var artistIndex;
                 var edge;
                 var faceOrSwap;
                 var swappedArtist;
@@ -111,8 +110,8 @@ define([
                     this.expandArtistEdges(faceOrSwap, artist, edge);
 
                     // call directly so it won't get dropped while searching for a free face
-                    artistIndex = App.processor.artister.artists.indexOf(artist);
-                    App.processor.looper.setFace(faceOrSwap, artist, artistIndex);
+                    App.processor.looper.setFace(faceOrSwap, artist);
+                    return {face: false};
                 }
                 return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },
@@ -121,7 +120,7 @@ define([
                 var face = this.faces[rando];
 
                 if (face.data.artist) {
-                    return {face: false, index: rando};
+                    return {face: false};
                 }
 
                 if (_.isEmpty(artist.edges)) {

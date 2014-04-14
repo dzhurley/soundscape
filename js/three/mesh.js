@@ -4,16 +4,15 @@ define([
     './scene'
 ], function(_, THREE, scene) {
 
-    var radius = 10;
-    var widthAndHeight = 10;
+    var radius = 30;
+    var widthAndHeight = 30;
 
     var globe = new THREE.Mesh(
         new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
         new THREE.MeshLambertMaterial({
             shading: THREE.FlatShading,
             side: THREE.DoubleSide,
-            vertexColors: THREE.FaceColors,
-            wireframe: true
+            vertexColors: THREE.FaceColors
         })
     );
 
