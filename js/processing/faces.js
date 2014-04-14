@@ -7,37 +7,10 @@ define([
         var facer = {
             faces: App.three.mesh.globe.geometry.faces,
             vertices: App.three.mesh.globe.geometry.vertices,
-            norths: App.three.mesh.northVerts,
-            souths: App.three.mesh.southVerts,
-            seams: App.three.mesh.seams,
-
-            getSameVertices: function(edge) {
-                var vertices = {};
-
-                function getSames(vert, key) {
-                    var sames;
-                    if (_.contains(this.norths, vert)) {
-                        // handle case where vertex is one of the pole vertices
-                        sames = this.norths;
-                    } else if (_.contains(this.souths, vert)) {
-                        sames = this.souths;
-                    } else if (_.has(this.seams, '' + vert)) {
-                        // handle case where vertex is on the seam
-                        sames = this.seams['' + vert];
-                    } else {
-                        sames = [vert];
-                    }
-                    vertices[key] = sames;
-                }
-
-                getSames.call(this, edge.v1, 'v1');
-                getSames.call(this, edge.v2, 'v2');
-                return vertices;
-            },
 
             validFace: function(artist, edge) {
                 var swappers = [];
-                var verts = this.getSameVertices(edge);
+                var verts = App.three.mesh.generalEdge(edge);
 
                 function intertains(first, second) {
                     return !_.isEmpty(_.intersection(first, second));
@@ -75,47 +48,20 @@ define([
                 return swappersLeft;
             },
 
-            sameEdge: function(first, second) {
-                var firstVerts = this.getSameVertices(first);
-                var secondVerts = this.getSameVertices(second);
-                if (_.isEqual(first.v1, second.v1)) {
-                    return _.isEqual(first.v2, second.v2);
-                } else if (_.isEqual(first.v1, second.v2)) {
-                    return _.isEqual(first.v2, second.v1);
-                }
-            },
-
-            removeEdge: function(edges, edge) {
-                var verts = this.getSameVertices(edge);
-                var match = _.find(edges, function(e) {
-                    return _.contains(verts.v1, e.v1) && _.contains(verts.v2, e.v2);
-                });
-                if (match) {
-                    edges.splice(edges.indexOf(match), 1);
-                } else {
-                    match = _.find(edges, function(e) {
-                        return _.contains(verts.v1, e.v2) && _.contains(verts.v2, e.v1);
-                    });
-                    if (match) {
-                        edges.splice(edges.indexOf(match), 1);
-                    }
-                }
-            },
-
             expandArtistEdges: function(face, artist, edge) {
                 var second;
                 var third;
 
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
-                if (face.a !== edge.v1 && face.a !== edge.v2) {
-                    second = {v1: face.a, v2: face.b};
-                    third = {v1: face.a, v2: face.c};
-                } else if (face.b !== edge.v1 && face.b !== edge.v2) {
+                if (App.three.mesh.sameEdge(edge, {v1: face.a, v2: face.b})) {
+                    second = {v1: face.a, v2: face.c};
+                    third = {v1: face.b, v2: face.c};
+                } else if (App.three.mesh.sameEdge(edge, {v1: face.a, v2: face.c})) {
                     second = {v1: face.a, v2: face.b};
                     third = {v1: face.b, v2: face.c};
                 } else {
-                    second = {v1: face.a, v2: face.c};
-                    third = {v1: face.b, v2: face.c};
+                    second = {v1: face.a, v2: face.b};
+                    third = {v1: face.a, v2: face.c};
                 }
                 artist.edges.push(second, third);
 
@@ -126,7 +72,7 @@ define([
                                                     {name: face.data.artist});
                     swappedArtist.faces++;
                     _.each([edge, second, third], _.bind(function(e) {
-                        this.removeEdge(swappedArtist.edges, e);
+                        App.three.mesh.removeEdge(swappedArtist.edges, e);
                     }, this));
                 }
             },
@@ -174,9 +120,11 @@ define([
             nextFace: function(artist, rando) {
                 var face = this.faces[rando];
 
-                // unmarked face
-                if (_.isUndefined(artist.edges)) {
-                    artist.edges = [];
+                if (face.data.artist) {
+                    return {face: false, index: rando};
+                }
+
+                if (_.isEmpty(artist.edges)) {
                     artist.edges.push({v1: face.a, v2: face.b},
                                       {v1: face.b, v2: face.c},
                                       {v1: face.a, v2: face.c});

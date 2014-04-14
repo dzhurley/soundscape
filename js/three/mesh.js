@@ -86,6 +86,58 @@ define([
             }
         },
 
+        generalEdge: function(edge) {
+            var vertices = {};
+
+            function getVerts(vert, key) {
+                var sames;
+                if (_.contains(this.northVerts, vert)) {
+                    // handle case where vertex is one of the pole vertices
+                    sames = this.northVerts;
+                } else if (_.contains(this.southVerts, vert)) {
+                    sames = this.southVerts;
+                } else if (_.has(this.seams, '' + vert)) {
+                    // handle case where vertex is on the seam
+                    sames = this.seams['' + vert];
+                } else {
+                    sames = [vert];
+                }
+                vertices[key] = sames;
+            }
+
+            getVerts.call(this, edge.v1, 'v1');
+            getVerts.call(this, edge.v2, 'v2');
+            return vertices;
+        },
+
+        sameEdge: function(first, second) {
+            var firstVerts = this.generalEdge(first);
+            var secondVerts = this.generalEdge(second);
+            if (_.isEqual(first.v1, second.v1)) {
+                return _.isEqual(first.v2, second.v2);
+            } else if (_.isEqual(first.v1, second.v2)) {
+                return _.isEqual(first.v2, second.v1);
+            }
+            return false;
+        },
+
+        removeEdge: function(edges, edge) {
+            var verts = this.generalEdge(edge);
+            var match = _.find(edges, function(e) {
+                return _.contains(verts.v1, e.v1) && _.contains(verts.v2, e.v2);
+            });
+            if (match) {
+                edges.splice(edges.indexOf(match), 1);
+            } else {
+                match = _.find(edges, function(e) {
+                    return _.contains(verts.v1, e.v2) && _.contains(verts.v2, e.v1);
+                });
+                if (match) {
+                    edges.splice(edges.indexOf(match), 1);
+                }
+            }
+        },
+
         update: function() {
             this.globe.geometry.colorsNeedUpdate = true;
         }

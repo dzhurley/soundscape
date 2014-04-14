@@ -32,6 +32,7 @@ define([
                 _.map(data, _.bind(function(d) {
                     // faces available for a given artist to paint
                     d.faces = Math.round(d.playCount * this.facer.faces.length / totalPlays);
+                    d.edges = [];
                     return d;
                 }, this));
                 // don't bother with artists that don't merit faces

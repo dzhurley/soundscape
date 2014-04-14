@@ -15,14 +15,17 @@ define([
 
             setFace: function(face, artist, index) {
                 // paint face with artist color and info
-                index = index || this.artister.artistIndex;
-                face.color.setHex(h.spacedColor(this.artister.artists.length, index));
-                face.color.multiplyScalar(artist.normCount);
-                face.data.artist = artist.name;
-                face.data.plays = artist.playCount;
+                if (index) {
+                    this.artister.artistIndex = index;
+                }
                 if (artist.faces === 0) {
                     debugger;
                 }
+                face.color.setHex(h.spacedColor(this.artister.artists.length,
+                                                this.artister.artistIndex));
+                face.color.multiplyScalar(artist.normCount);
+                face.data.artist = artist.name;
+                face.data.plays = artist.playCount;
                 artist.faces--;
             },
 
@@ -39,11 +42,14 @@ define([
                     return true;
                 }
                 faceInfo = this.facer.nextFace(artist, rando);
-                remainingIndex = this.remaining.indexOf(faceInfo.index);
-                if (remainingIndex > -1) {
-                    this.remaining.splice(remainingIndex, 1);
+
+                if (faceInfo.face) {
+                    remainingIndex = this.remaining.indexOf(faceInfo.index);
+                    if (remainingIndex > -1) {
+                        this.remaining.splice(remainingIndex, 1);
+                    }
+                    this.setFace(faceInfo.face, artist);
                 }
-                this.setFace(faceInfo.face, artist);
                 return false;
             },
 
@@ -65,7 +71,6 @@ define([
 
                     if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
-                        debugger;
                         return;
                     }
                 }
