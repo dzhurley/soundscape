@@ -13,9 +13,9 @@ define([
 
             getSameVertices: function(edge) {
                 var vertices = {};
-                var sames;
 
                 function getSames(vert, key) {
+                    var sames;
                     if (_.contains(this.norths, vert)) {
                         // handle case where vertex is one of the pole vertices
                         sames = this.norths;
@@ -75,12 +75,34 @@ define([
                 return swappersLeft;
             },
 
-            updateFaceAndArtist: function(face, artist, edge) {
-                face.data.artist = artist.name;
-                this.updateArtistEdges(face, artist, edge);
+            sameEdge: function(first, second) {
+                var firstVerts = this.getSameVertices(first);
+                var secondVerts = this.getSameVertices(second);
+                if (_.isEqual(first.v1, second.v1)) {
+                    return _.isEqual(first.v2, second.v2);
+                } else if (_.isEqual(first.v1, second.v2)) {
+                    return _.isEqual(first.v2, second.v1);
+                }
             },
 
-            updateArtistEdges: function(face, artist, edge) {
+            removeEdge: function(edges, edge) {
+                var verts = this.getSameVertices(edge);
+                var match = _.find(edges, function(e) {
+                    return _.contains(verts.v1, e.v1) && _.contains(verts.v2, e.v2);
+                });
+                if (match) {
+                    edges.splice(edges.indexOf(match), 1);
+                } else {
+                    match = _.find(edges, function(e) {
+                        return _.contains(verts.v1, e.v2) && _.contains(verts.v2, e.v1);
+                    });
+                    if (match) {
+                        edges.splice(edges.indexOf(match), 1);
+                    }
+                }
+            },
+
+            expandArtistEdges: function(face, artist, edge) {
                 var second;
                 var third;
 
@@ -95,9 +117,18 @@ define([
                     second = {v1: face.a, v2: face.c};
                     third = {v1: face.b, v2: face.c};
                 }
-
                 artist.edges.push(second, third);
-                return [second, third];
+
+                if (face.data.artist && face.data.artist !== artist.name) {
+                    // we're swapping with another, so update the swapped artist
+                    // with new edges/faces info
+                    var swappedArtist = _.findWhere(App.processor.artister.artists,
+                                                    {name: face.data.artist});
+                    swappedArtist.faces++;
+                    _.each([edge, second, third], _.bind(function(e) {
+                        this.removeEdge(swappedArtist.edges, e);
+                    }, this));
+                }
             },
 
             findAdjacentFace: function(artist) {
@@ -105,7 +136,6 @@ define([
                 var edges = _.clone(artist.edges);
                 var artistIndex;
                 var edge;
-                var updatedEdges;
                 var faceOrSwap;
                 var swappedArtist;
                 var swapper;
@@ -116,6 +146,7 @@ define([
 
                     if (!_.isArray(faceOrSwap)) {
                         // found valid face, stop looking for more
+                        this.expandArtistEdges(faceOrSwap, artist, edge);
                         break;
                     }
 
@@ -128,25 +159,15 @@ define([
                         }
                     }
 
-                    // replace a bordering artist's face with one for this artist, update
-                    // each artist's edges info, and continue searching for an open face
-                    // now using the new artist and their edges.
-                    swapper = _.sample(faceOrSwap);
-                    swappedArtist = _.findWhere(App.processor.artister.artists,
-                                                {name: swapper.data.artist});
-                    this.updateFaceAndArtist(swapper, artist, edge);
+                    // replace a bordering artist's face with one for this artist, updating
+                    // each artist's edges and faces info
+                    faceOrSwap = faceOrSwap[0];
+                    this.expandArtistEdges(faceOrSwap, artist, edge);
 
                     // call directly so it won't get dropped while searching for a free face
                     artistIndex = App.processor.artister.artists.indexOf(artist);
-                    App.processor.looper.setFace(swapper, artist, artistIndex);
-                    updatedEdges = this.updateArtistEdges(swapper, swappedArtist, edge);
-                    artist = swappedArtist;
-                    artist.faces++;
-                    edges = _.difference(artist.edges, updatedEdges);
+                    App.processor.looper.setFace(faceOrSwap, artist, artistIndex);
                 }
-
-                this.updateFaceAndArtist(faceOrSwap, artist, edge);
-
                 return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },
 
@@ -155,7 +176,6 @@ define([
 
                 // unmarked face
                 if (_.isUndefined(artist.edges)) {
-                    face.data.artist = artist.name;
                     artist.edges = [];
                     artist.edges.push({v1: face.a, v2: face.b},
                                       {v1: face.b, v2: face.c},
