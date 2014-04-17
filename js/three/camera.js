@@ -10,7 +10,7 @@ define([
         camera.updateProjectionMatrix();
     });
 
-    camera.position.y = 20;
-    camera.position.z = 20;
+    camera.position.y = 50;
+    camera.position.z = 50;
     return camera;
 });

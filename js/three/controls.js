@@ -9,8 +9,8 @@ define([
             controls.autoForward = false;
             controls.domElement = App.$container[0];
             controls.dragToLook = true;
-            controls.movementSpeed = 0.25;
-            controls.rollSpeed = 0.025;
+            controls.movementSpeed = 0.5;
+            controls.rollSpeed = 0.030;
         },
 
         update: function(interval) {

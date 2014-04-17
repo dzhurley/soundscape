@@ -19,14 +19,14 @@ define([
     var stars = [];
     var star;
 
-    for (var i = 0; i < 1000; ++i) {
+    for (var i = 0; i < 100; ++i) {
         star = new THREE.Sprite(new THREE.SpriteMaterial());
         star.position.x = Math.random() * 2 - 1;
         star.position.y = Math.random() * 2 - 1;
         star.position.z = Math.random() * 2 - 1;
 
         star.position.normalize();
-        star.position.multiplyScalar(Math.random() * 100 + 50);
+        star.position.multiplyScalar(Math.random() * 100 + 100);
         star.scale.multiplyScalar(Math.random() * 0.5);
         stars.push(star);
     }

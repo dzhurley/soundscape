@@ -47,7 +47,6 @@ define([
                             html += '<span>' + key + ': ' + data[key] + '</span>';
                         });
                         App.$headsUp.html(html);
-                        return App.showHeadsUp ? App.$headsUp.show() : App.$headsUp.hide();
                     }
                 }
             }

@@ -12,8 +12,6 @@ define([
             $container: $('#scape'),
             $headsUp: $('#heads-up'),
 
-            showHeadsUp: true,
-
             init: function() {
                 this.vent = new EventBus();
                 this.three = new Threes();
@@ -28,7 +26,6 @@ define([
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                app.showHeadsUp ? app.$headsUp.show() : app.$headsUp.hide();
                 app.three.animate();
             }
         };
