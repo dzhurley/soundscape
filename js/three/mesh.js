@@ -85,28 +85,26 @@ define([
             }
         },
 
-        generalEdge: function(edge) {
-            var vertices = {};
-
-            function getVerts(vert, key) {
-                var sames;
-                if (_.contains(this.northVerts, vert)) {
-                    // handle case where vertex is one of the pole vertices
-                    sames = this.northVerts;
-                } else if (_.contains(this.southVerts, vert)) {
-                    sames = this.southVerts;
-                } else if (_.has(this.seams, '' + vert)) {
-                    // handle case where vertex is on the seam
-                    sames = this.seams['' + vert];
-                } else {
-                    sames = [vert];
-                }
-                vertices[key] = sames;
+        generalVert: function(vert, key) {
+            var sames;
+            if (_.contains(this.northVerts, vert)) {
+                // handle case where vertex is one of the pole vertices
+                sames = this.northVerts;
+            } else if (_.contains(this.southVerts, vert)) {
+                sames = this.southVerts;
+            } else if (_.has(this.seams, '' + vert)) {
+                // handle case where vertex is on the seam
+                sames = this.seams['' + vert];
+            } else {
+                sames = [vert];
             }
+            return key ? {key: sames} : sames;
+        },
 
-            getVerts.call(this, edge.v1, 'v1');
-            getVerts.call(this, edge.v2, 'v2');
-            return vertices;
+        generalEdge: function(edge) {
+            return _.extend({},
+                            this.generalVert(edge.v1, 'v1'),
+                            this.generalVert(edge.v2, 'v2'));
         },
 
         sameEdge: function(first, second) {

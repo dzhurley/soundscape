@@ -38,13 +38,20 @@ define([
                     data = _.extend({}, active.data, {
                         'face a': active.a,
                         'face b': active.b,
-                        'face c': active.c
+                        'face c': active.c,
+                        'valid a': App.three.mesh.generalVert(active.a),
+                        'valid b': App.three.mesh.generalVert(active.b),
+                        'valid c': App.three.mesh.generalVert(active.c)
                     });
 
                     if(data){
                         var html = '';
                         _.each(_.keys(data), function(key) {
-                            html += '<span>' + key + ': ' + data[key] + '</span>';
+                            var val = data[key];
+                            if (_.isObject(val)) {
+                                val = JSON.stringify(val);
+                            }
+                            html += '<span>' + key + ': ' + val + '</span>';
                         });
                         App.$headsUp.html(html);
                     }
