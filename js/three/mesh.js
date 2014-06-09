@@ -86,7 +86,7 @@ define([
         },
 
         generalVert: function(vert, key) {
-            var sames;
+            var packed, sames;
             if (_.contains(this.northVerts, vert)) {
                 // handle case where vertex is one of the pole vertices
                 sames = this.northVerts;
@@ -98,13 +98,19 @@ define([
             } else {
                 sames = [vert];
             }
-            return key ? {key: sames} : sames;
+
+            if (_.isUndefined(key)) {
+                return sames;
+            }
+            packed = {};
+            packed[key] = sames;
+            return packed;
         },
 
         generalEdge: function(edge) {
-            return _.extend({},
-                            this.generalVert(edge.v1, 'v1'),
-                            this.generalVert(edge.v2, 'v2'));
+            return  _.extend({},
+                             this.generalVert(edge.v1, 'v1'),
+                             this.generalVert(edge.v2, 'v2'));
         },
 
         sameEdge: function(first, second) {
