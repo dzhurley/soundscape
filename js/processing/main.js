@@ -40,6 +40,7 @@ define([
                 this.artister.setData(data);
 
                 this.looper.loop(h.randomBoundedArray(0, this.facer.faces.length - 1));
+                App.three.mesh.update();
             }
         };
 

@@ -29,9 +29,6 @@ define(function() {
                     this.artistIndex++;
                     return artister.nextArtist();
                 }
-                if (artist.faces <= 0) {
-                    debugger;
-                }
                 // set up next call for next artist
                 this.artistIndex++;
                 // reset recursive logging

@@ -85,8 +85,8 @@ define([
             }
         },
 
-        generalVert: function(vert, key) {
-            var packed, sames;
+        generalVert: function(vert) {
+            var sames;
             if (_.contains(this.northVerts, vert)) {
                 // handle case where vertex is one of the pole vertices
                 sames = this.northVerts;
@@ -98,30 +98,43 @@ define([
             } else {
                 sames = [vert];
             }
-
-            if (_.isUndefined(key)) {
-                return sames;
-            }
-            packed = {};
-            packed[key] = sames;
-            return packed;
+            return sames;
         },
 
         generalEdge: function(edge) {
-            return  _.extend({},
-                             this.generalVert(edge.v1, 'v1'),
-                             this.generalVert(edge.v2, 'v2'));
+            var genEdge = {};
+            if (!_.isArray(edge.v1)) {
+                genEdge['v1'] = this.generalVert(edge.v1, 'v1');
+            }
+            if (!_.isArray(edge.v2)) {
+                genEdge['v2'] = this.generalVert(edge.v2, 'v2');
+            }
+            return genEdge;
         },
 
         sameEdge: function(first, second) {
             var firstVerts = this.generalEdge(first);
             var secondVerts = this.generalEdge(second);
-            if (_.isEqual(first.v1, second.v1)) {
-                return _.isEqual(first.v2, second.v2);
-            } else if (_.isEqual(first.v1, second.v2)) {
-                return _.isEqual(first.v2, second.v1);
+            if (_.isEqual(firstVerts.v1, secondVerts.v1)) {
+                return _.isEqual(firstVerts.v2, secondVerts.v2);
+            } else if (_.isEqual(firstVerts.v1, secondVerts.v2)) {
+                return _.isEqual(firstVerts.v2, secondVerts.v1);
             }
             return false;
+        },
+
+        facesForEdge: function(edge) {
+            var genEdge = this.generalEdge(edge);
+            return _.filter(this.globe.geometry.faces, _.bind(function(face) {
+                if (App.three.mesh.sameEdge(genEdge, {v1: face.a, v2: face.b})) {
+                    return true;
+                } else if (App.three.mesh.sameEdge(genEdge, {v1: face.a, v2: face.c})) {
+                    return true;
+                } else if (App.three.mesh.sameEdge(genEdge, {v1: face.b, v2: face.c})) {
+                    return true;
+                }
+                return false;
+            }, this), genEdge);
         },
 
         removeEdge: function(edges, edge) {

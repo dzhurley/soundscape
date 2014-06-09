@@ -68,12 +68,18 @@ define([
                 if (face.data.artist && face.data.artist !== artist.name) {
                     // we're swapping with another, so update the swapped artist
                     // with new edges/faces info
+                    var faces;
                     var swappedArtist = _.findWhere(App.processor.artister.artists,
                                                     {name: face.data.artist});
                     swappedArtist.faces++;
-                    _.each([edge, second, third], _.bind(function(e) {
-                        App.three.mesh.removeEdge(swappedArtist.edges, e);
-                    }, this));
+                    _.each([edge, second, third], function(e) {
+                        faces = App.three.mesh.facesForEdge(e);
+                        if (!_.contains(faces, face)) {
+                            // only remove this edge if it isn't in another face
+                            // belonging to `swappedArtist`
+                            App.three.mesh.removeEdge(swappedArtist.edges, e);
+                        }
+                    }, face);
                 }
             },
 

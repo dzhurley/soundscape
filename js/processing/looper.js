@@ -32,7 +32,6 @@ define([
                 artist = this.artister.nextArtist();
                 if (!artist) {
                     // no more faces left for any artist to paint
-                    App.three.mesh.update();
                     return true;
                 }
                 faceInfo = this.facer.nextFace(artist, rando);
@@ -58,6 +57,7 @@ define([
                     for (i in currentPass) {
                         if (this.runIteration(currentPass[i])) {
                             // we're done with all the faces
+                            debugger;
                             return;
                         }
                     }
@@ -65,6 +65,7 @@ define([
 
                     if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
+                        debugger;
                         return;
                     }
                 }
