@@ -16,7 +16,7 @@ define([
             setFace: function(face, artist) {
                 // paint face with artist color and info
                 index = this.artister.artists.indexOf(artist);
-                face.color.setHex(h.spacedColor(this.artister.artists.length, index));
+                face.color.setHex(h.spacedColor(this.artister.artists.length, artist.rank));
                 face.color.multiplyScalar(artist.normCount);
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;

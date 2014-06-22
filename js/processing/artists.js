@@ -1,4 +1,4 @@
-define(function() {
+define(['underscore'], function(_) {
     return function() {
         var nextArtistCallCount = 0;
 
@@ -6,7 +6,7 @@ define(function() {
             artistIndex: 0,
 
             setData: function(data) {
-                this.artists = data;
+                this.artists = _.shuffle(data);
             },
 
             nextArtist: function() {
