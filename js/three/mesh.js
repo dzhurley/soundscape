@@ -4,8 +4,8 @@ define([
     './scene'
 ], function(_, THREE, scene) {
 
-    var radius = 30;
-    var widthAndHeight = 30;
+    var radius = 100;
+    var widthAndHeight = 100;
 
     var globe = new THREE.Mesh(
         new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
@@ -26,7 +26,7 @@ define([
         star.position.z = Math.random() * 2 - 1;
 
         star.position.normalize();
-        star.position.multiplyScalar(Math.random() * 100 + 100);
+        star.position.multiplyScalar(Math.random() * 100 + 200);
         star.scale.multiplyScalar(Math.random() * 0.5);
         stars.push(star);
     }
@@ -41,7 +41,7 @@ define([
         addToScene: function() {
             this.wrangleVertices();
             scene.add(mesh.globe);
-            $.map(mesh.stars, function(star) {
+            _.map(mesh.stars, function(star) {
                 scene.add(star);
             });
         },
