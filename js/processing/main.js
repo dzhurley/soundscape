@@ -34,7 +34,7 @@ define([
                     // faces available for a given artist to paint, pulling back a little from
                     // the exact face count to leave some room and avoid lots of collisions with
                     // other artists and their random growth
-                    d.faces = Math.round((d.playCount * this.facer.faces.length / totalPlays) * 0.8);
+                    d.faces = Math.round(d.playCount * this.facer.faces.length / totalPlays);
                     d.rank = i;
                     return d;
                 }, this));
@@ -64,7 +64,11 @@ define([
                     loopSequence.push(i);
                 }
 
-                this.looper.loop(loopSequence);
+                // seed the planet
+                this.looper.loop(loopSequence.slice(0));
+                // grow the seeds
+                var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
+                this.looper.loop(_.difference(randos, loopSequence));
                 App.three.mesh.update();
             }
         };

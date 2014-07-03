@@ -57,7 +57,6 @@ define([
                     for (i in currentPass) {
                         if (this.runIteration(currentPass[i])) {
                             // we're done with all the faces
-                            debugger;
                             return;
                         }
                     }
@@ -65,7 +64,6 @@ define([
 
                     if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
-                        debugger;
                         return;
                     }
                 }
