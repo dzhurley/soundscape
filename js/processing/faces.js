@@ -113,11 +113,14 @@ define([
                     // replace a bordering artist's face with one for this artist, updating
                     // each artist's edges and faces info
                     faceOrSwap = faceOrSwap[0];
-                    this.expandArtistEdges(faceOrSwap, artist, edge);
-
-                    // call directly so it won't get dropped while searching for a free face
-                    App.processor.looper.setFace(faceOrSwap, artist);
+                    App.vent.trigger('painted.face', faceOrSwap);
+                    App.stopPainting = true;
                     return {face: false};
+                    // this.expandArtistEdges(faceOrSwap, artist, edge);
+
+                    // // call directly so it won't get dropped while searching for a free face
+                    // App.processor.looper.setFace(faceOrSwap, artist);
+                    // return {face: false};
                 }
                 return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },
