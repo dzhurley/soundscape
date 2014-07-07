@@ -22,6 +22,9 @@ define([
         var headsUp = {
             bindHeadsUp: function() {
                 $(document).click(_.bind(function(evt) {
+                    if ($(evt.target).is('button')) {
+                        return false;
+                    }
                     updateMouse(evt);
                     var intersects = findIntersects();
                     this.updateActive(intersects);
@@ -44,7 +47,11 @@ define([
                         'valid c': App.three.mesh.generalVert(active.c)
                     });
 
-                    if(data){
+                    if (data.artist) {
+                        this.showArtist(data.artist);
+                    }
+
+                    if(data) {
                         var html = '';
                         _.each(_.keys(data), function(key) {
                             var val = data[key];
@@ -55,6 +62,29 @@ define([
                         });
                         App.$headsUp.html(html);
                     }
+                }
+            },
+
+            showArtist: function(name) {
+                // pulse an artist's territory orange for .5 seconds
+                var faces = _.filter(App.processor.facer.faces, function(choice) {
+                    return choice.data.artist === name;
+                });
+
+                if (faces.length) {
+                    var savedColor = _.clone(faces[0].color);
+
+                    _.map(faces, function(face) {
+                        face.color = new THREE.Color(0xffa500);
+                    });
+                    App.three.mesh.update();
+
+                    setTimeout(function(faces, savedColor) {
+                        _.map(faces, function(face) {
+                            face.color = savedColor;
+                        });
+                        App.three.mesh.update();
+                    }, 500, faces, savedColor);
                 }
             }
         };

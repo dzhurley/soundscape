@@ -59,7 +59,6 @@ define([
                     for (i in currentPass) {
                         if (this.runIteration(currentPass[i])) {
                             // we're done with all the faces
-                            App.three.mesh.update();
                             return;
                         }
                     }
@@ -67,15 +66,17 @@ define([
 
                     if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
-                        App.three.mesh.update();
                         return;
                     }
                 }
             },
 
-            loopOnce: function(faceIndex) {
+            loopOnce: function(faces, continueOnSwap) {
+                if (continueOnSwap) {
+                    App.stopOnSwap = false;
+                }
                 this.remaining = App.remaining;
-                return this.runIteration(faceIndex && faceIndex[0]);
+                return this.runIteration(faces && faces[0]);
             }
         };
 
