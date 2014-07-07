@@ -4,8 +4,8 @@ define([
     './scene'
 ], function(_, THREE, scene) {
 
-    var radius = 30;
-    var widthAndHeight = 30;
+    var radius = 100;
+    var widthAndHeight = 50;
 
     var globe = new THREE.Mesh(
         new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),

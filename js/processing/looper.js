@@ -21,6 +21,8 @@ define([
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;
                 artist.faces--;
+                App.vent.trigger('painted.face', face);
+                App.three.mesh.update();
             },
 
             runIteration: function(rando) {
@@ -57,6 +59,7 @@ define([
                     for (i in currentPass) {
                         if (this.runIteration(currentPass[i])) {
                             // we're done with all the faces
+                            App.three.mesh.update();
                             return;
                         }
                     }
@@ -64,9 +67,15 @@ define([
 
                     if (currentPass.length === this.remaining.length) {
                         // nothing got painted on this pass, so bail
+                        App.three.mesh.update();
                         return;
                     }
                 }
+            },
+
+            loopOnce: function(faceIndex) {
+                this.remaining = App.remaining;
+                return this.runIteration(faceIndex && faceIndex[0]);
             }
         };
 

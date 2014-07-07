@@ -11,6 +11,7 @@ define([
         var app = {
             $container: $('#scape'),
             $headsUp: $('#heads-up'),
+            $paintFace: $('#paint-face'),
 
             init: function() {
                 this.vent = new EventBus();

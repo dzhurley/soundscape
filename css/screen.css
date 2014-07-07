@@ -30,3 +30,10 @@ canvas {
 }
 
 #heads-up span { display: block; }
+
+#paint-face {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+}

@@ -1,11 +1,12 @@
 define([
+    'underscore',
     './renderer',
     './camera',
     './scene',
     './controls',
     './light',
     './mesh'
-], function(renderer, camera, scene, controls, light, mesh) {
+], function(_, renderer, camera, scene, controls, light, mesh) {
     return function() {
         var threes = {
             renderer: renderer,
@@ -21,6 +22,13 @@ define([
 
                 this.controls.bindControls();
                 this.camera.lookAt(scene.position);
+
+                App.vent.on('painted.face', _.bind(this.moveCameraToFace, this));
+            },
+
+            moveCameraToFace: function(evt, face) {
+                App.three.camera.position = face.centroid.multiplyScalar(1.75);;
+                App.three.camera.lookAt(scene.position);
             },
 
             animate: function() {

@@ -7,7 +7,7 @@ requirejs.config({
         dat: '../bower_components/dat.gui/dat.gui.min',
         eventbus: '../bower_components/EventBus/dist/EventBus',
 
-        threejs: '../bower_components/threejs/build/three.min',
+        threejs: '../bower_components/threejs/build/three',
         fly: './lib/FlyControls',
         orbital: './lib/OrbitControls'
     },
