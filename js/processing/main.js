@@ -13,8 +13,8 @@ define([
 
         var processor = {
             init: function() {
-                this.facer = facer,
-                this.artister = artister,
+                this.facer = facer;
+                this.artister = artister;
                 this.looper = looper;
                 this.looper.init(this.facer, this.artister);
                 App.vent.on('fetched.artists', _.bind(this.process, this));
@@ -65,10 +65,11 @@ define([
                 }
 
                 // // seed the planet
-                this.looper.loop(loopSequence.slice(0));
+                // this.looper.loop(loopSequence.slice(0));
                 // grow the seeds
-                var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
-                App.remaining = _.difference(randos, loopSequence);
+                App.remaining = h.randomBoundedArray(0, this.facer.faces.length - 1);
+                // var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
+                // App.remaining = _.difference(randos, loopSequence);
 
                 _.times(App.remaining.length, function(n) {App.$paintFace.click();});
             },

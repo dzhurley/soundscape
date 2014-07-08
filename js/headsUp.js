@@ -15,7 +15,8 @@ define([
         var findIntersects = function() {
             var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
             projector.unprojectVector(vector, App.three.camera);
-            var ray = new THREE.Raycaster(App.three.camera.position, vector.sub(App.three.camera.position).normalize());
+            var ray = new THREE.Raycaster(App.three.camera.position,
+                                          vector.sub(App.three.camera.position).normalize());
             return ray.intersectObjects([App.three.mesh.globe]);
         };
 
@@ -35,8 +36,16 @@ define([
                 var data;
                 if (intersects.length === 0) {
                     active = null;
-                } else if (intersects[0].face != active) {
-                    active = intersects[0].face;
+                    return;
+                }
+
+                var face = intersects[0].face;
+                if (face.data.artist) {
+                    this.showArtist(face.data.artist);
+                }
+
+                if (face != active) {
+                    active = face;
 
                     data = _.extend({}, active.data, {
                         'face a': active.a,
@@ -46,10 +55,6 @@ define([
                         'valid b': App.three.mesh.generalVert(active.b),
                         'valid c': App.three.mesh.generalVert(active.c)
                     });
-
-                    if (data.artist) {
-                        this.showArtist(data.artist);
-                    }
 
                     if(data) {
                         var html = '';
@@ -67,6 +72,7 @@ define([
 
             showArtist: function(name) {
                 // pulse an artist's territory orange for .5 seconds
+                // TODO: double click race sets orange permanently
                 var faces = _.filter(App.processor.facer.faces, function(choice) {
                     return choice.data.artist === name;
                 });

@@ -17,7 +17,7 @@ define([
     );
 
     var outlines = new THREE.Mesh(
-        new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
+        new THREE.SphereGeometry(radius + 0.1, widthAndHeight, widthAndHeight),
         new THREE.MeshLambertMaterial({
             color: new THREE.Color(0x000000),
             shading: THREE.FlatShading,

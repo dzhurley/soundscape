@@ -90,7 +90,6 @@ define([
                 var edge;
                 var faceOrSwap;
                 var swappedArtist;
-                var swapper;
 
                 while (edges.length) {
                     edge = _.sample(edges);
@@ -99,7 +98,10 @@ define([
                     if (!_.isArray(faceOrSwap)) {
                         // found valid face, stop looking for more
                         this.expandArtistEdges(faceOrSwap, artist, edge);
-                        break;
+                        return {
+                            face: faceOrSwap,
+                            index: this.faces.indexOf(faceOrSwap)
+                        };
                     }
 
                     if (edges.length) {
@@ -114,8 +116,15 @@ define([
                     // replace a bordering artist's face with one for this artist, updating
                     // each artist's edges and faces info
                     faceOrSwap = faceOrSwap[0];
+                    swappedArtist = faceOrSwap.data.artist;
 
-                    console.log(artist.name, 'swapping with', faceOrSwap);
+                    if (_.contains(this.recentlySwappedArtists, faceOrSwap.data.artist)) {
+                        // don't immediately backtrack when swapping, try another round
+                        edges = _.clone(artist.edges);
+                        continue;
+                    }
+
+                    console.log(artist.name, 'swapping with', swappedArtist);
                     App.vent.trigger('painted.face', faceOrSwap);
 
                     if (App.stopOnSwap) {
@@ -128,16 +137,25 @@ define([
                     // call directly so it won't get dropped while searching for a free face
                     App.processor.looper.setFace(faceOrSwap, artist);
 
-                    // start loop again with new artist's edges
-                    artist = _.findWhere(App.processor.artister.artists,
-                                         {name: faceOrSwap.data.artist})
-                    edges = _.clone(artist.edges);
+                    if (this.recentlySwappedArtists.length === 2) {
+                        // only keep track of the last 2 artists swapped to help guide us
+                        // without boxing us into a corner
+                        this.recentlySwappedArtists.shift();
+                    }
+                    this.recentlySwappedArtists.push(artist.name);
+
+                    // bounce back to call findAdjacentFace again with swapped artist
+                    return {
+                        artist: _.findWhere(App.processor.artister.artists,
+                                            {name: swappedArtist})
+                    };
                 }
-                return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },
 
             nextFace: function(artist, rando) {
+                this.recentlySwappedArtists = [];
                 var face = this.faces[rando];
+                var paintedInfo = {artist: artist};
 
                 if (face.data.artist) {
                     return {face: false};
@@ -149,8 +167,12 @@ define([
                                       {v1: face.a, v2: face.c});
                     return {face: face, index: this.faces.indexOf(face)};
                 }
+
                 // artist has been painted somewhere else
-                return this.findAdjacentFace(artist);
+                while (!_.has(paintedInfo, 'face')) {
+                    paintedInfo = this.findAdjacentFace(paintedInfo.artist);
+                }
+                return paintedInfo;
             }
         };
 
