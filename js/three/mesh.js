@@ -16,6 +16,17 @@ define([
         })
     );
 
+    var outlines = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
+        new THREE.MeshLambertMaterial({
+            color: new THREE.Color(0x000000),
+            shading: THREE.FlatShading,
+            side: THREE.DoubleSide,
+            wireframe: true,
+            wireframeLineWidth: 2
+        })
+    );
+
     var stars = [];
     var star;
 
@@ -36,11 +47,13 @@ define([
         widthAndHeight: widthAndHeight,
 
         globe: globe,
+        outlines: outlines,
         stars: stars,
 
         addToScene: function() {
             this.wrangleVertices();
             scene.add(mesh.globe);
+            scene.add(mesh.outlines);
             _.map(mesh.stars, function(star) {
                 scene.add(star);
             });

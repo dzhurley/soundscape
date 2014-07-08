@@ -12,6 +12,7 @@ define([
             $container: $('#scape'),
             $headsUp: $('#heads-up'),
             $paintFace: $('#paint-face'),
+            $paintSwap: $('#paint-swap'),
 
             stopLooping: false,
             stopOnSwap: true,
@@ -35,15 +36,18 @@ define([
             },
 
             bindHandlers: function() {
-                this.$paintFace.click(_.bind(this.processOne, this));
-            },
+                this.$paintFace.click(_.bind(function() {
+                    if (this.stopLooping) {
+                        return false;
+                    }
+                    this.processor.looper.loopOnce(this.remaining);
+                    this.three.mesh.update();
+                }, this));
 
-            processOne: function() {
-                if (this.stopLooping) {
-                    return false;
-                }
-                this.processor.looper.loopOnce(this.remaining);
-                this.three.mesh.update();
+                this.$paintSwap.click(_.bind(function() {
+                    this.processor.looper.loopOnce(this.remaining, true);
+                    this.three.mesh.update();
+                }, this));
             }
         };
 

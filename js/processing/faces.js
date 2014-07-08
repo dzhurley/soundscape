@@ -115,7 +115,7 @@ define([
                     // each artist's edges and faces info
                     faceOrSwap = faceOrSwap[0];
 
-                    console.log('swapping with', faceOrSwap);
+                    console.log(artist.name, 'swapping with', faceOrSwap);
                     App.vent.trigger('painted.face', faceOrSwap);
 
                     if (App.stopOnSwap) {
