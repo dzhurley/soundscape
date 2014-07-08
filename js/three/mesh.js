@@ -124,17 +124,16 @@ define([
         },
 
         facesForEdge: function(edge) {
-            var genEdge = this.generalEdge(edge);
             return _.filter(this.globe.geometry.faces, _.bind(function(face) {
-                if (App.three.mesh.sameEdge(genEdge, {v1: face.a, v2: face.b})) {
+                if (App.three.mesh.sameEdge(edge, {v1: face.a, v2: face.b})) {
                     return true;
-                } else if (App.three.mesh.sameEdge(genEdge, {v1: face.a, v2: face.c})) {
+                } else if (App.three.mesh.sameEdge(edge, {v1: face.a, v2: face.c})) {
                     return true;
-                } else if (App.three.mesh.sameEdge(genEdge, {v1: face.b, v2: face.c})) {
+                } else if (App.three.mesh.sameEdge(edge, {v1: face.b, v2: face.c})) {
                     return true;
                 }
                 return false;
-            }, this), genEdge);
+            }, this), edge);
         },
 
         removeEdge: function(edges, edge) {

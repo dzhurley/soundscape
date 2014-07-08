@@ -52,6 +52,7 @@ define([
                 var second;
                 var third;
 
+                // find the other sides of the face that we'll overtake
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
                 if (App.three.mesh.sameEdge(edge, {v1: face.a, v2: face.b})) {
                     second = {v1: face.a, v2: face.c};
@@ -114,10 +115,11 @@ define([
                     // each artist's edges and faces info
                     faceOrSwap = faceOrSwap[0];
 
+                    console.log('swapping with', faceOrSwap);
+                    App.vent.trigger('painted.face', faceOrSwap);
+
                     if (App.stopOnSwap) {
-                        App.vent.trigger('painted.face', faceOrSwap);
                         App.stopLooping = true;
-                        console.log(artist.name, 'swapping with', faceOrSwap);
                         return {face: false};
                     }
 
@@ -125,7 +127,11 @@ define([
 
                     // call directly so it won't get dropped while searching for a free face
                     App.processor.looper.setFace(faceOrSwap, artist);
-                    return {face: false};
+
+                    // start loop again with new artist's edges
+                    artist = _.findWhere(App.processor.artister.artists,
+                                         {name: faceOrSwap.data.artist})
+                    edges = _.clone(artist.edges);
                 }
                 return {face: faceOrSwap, index: this.faces.indexOf(faceOrSwap)};
             },

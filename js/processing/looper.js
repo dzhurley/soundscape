@@ -76,7 +76,9 @@ define([
                     App.stopOnSwap = false;
                 }
                 this.remaining = App.remaining;
-                return this.runIteration(faces && faces[0]);
+                var iterationResult = this.runIteration(faces && faces[0]);
+                console.log('remaining', App.remaining.length);
+                return iterationResult;
             }
         };
 
