@@ -11,9 +11,11 @@ define([
         var app = {
             $container: $('#scape'),
             $headsUp: $('#heads-up'),
+            $toggleOutlines: $('#toggle-outlines'),
             $paintFace: $('#paint-face'),
             $paintSwap: $('#paint-swap'),
 
+            outlines: false,
             stopLooping: false,
             stopOnSwap: true,
 
@@ -47,6 +49,16 @@ define([
                 this.$paintSwap.click(_.bind(function() {
                     this.processor.looper.loopOnce(this.remaining, true);
                     this.three.mesh.update();
+                }, this));
+
+                this.$toggleOutlines.click(_.bind(function() {
+                    if (this.outlines) {
+                        this.three.scene.remove(this.three.mesh.outlines);
+                        this.outlines = false;
+                    } else {
+                        this.three.scene.add(this.three.mesh.outlines);
+                        this.outlines = true;
+                    }
                 }, this));
             }
         };

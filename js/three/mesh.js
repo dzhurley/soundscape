@@ -53,7 +53,9 @@ define([
         addToScene: function() {
             this.wrangleVertices();
             scene.add(mesh.globe);
-            scene.add(mesh.outlines);
+            if (App.outlines) {
+                scene.add(mesh.outlines);
+            }
             _.map(mesh.stars, function(star) {
                 scene.add(star);
             });
