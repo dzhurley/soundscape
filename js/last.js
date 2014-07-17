@@ -4,7 +4,26 @@ define([
 ], function(_, h) {
     return function() {
         var last = {
-            lastUrl: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=bd366f79f01332a48ae8ce061dba05a9&user=stutterbug42&format=json&limit=300',
+            baseUrl: 'http://ws.audioscrobbler.com/2.0/?',
+
+            defaultParams: {
+                api_key: 'bd366f79f01332a48ae8ce061dba05a9',
+                format: 'json',
+                limit: '300',
+                method: 'library.getartists',
+                user: 'stutterbug42'
+            },
+
+            urlParams: function(params) {
+                var newParams = _.extend({}, this.defaultParams, params);
+                return _.map(_.keys(newParams), function(key) {
+                    return _.map([key, newParams[key]], encodeURIComponent).join('=');
+                }).join('&');
+            },
+
+            lastUrl: function(params) {
+                return this.baseUrl + this.urlParams(params || {});
+            },
 
             parseData: function(data) {
                 var baseData =  _.map(data.artists.artist, function(artist) {
@@ -26,7 +45,7 @@ define([
                     return;
                 }
 
-                $.getJSON(this.lastUrl, _.bind(function(data) {
+                $.getJSON(this.lastUrl(), _.bind(function(data) {
                     this.artists = this.parseData(data);
                     App.vent.trigger('fetched.artists', this.artists);
                     localStorage.artists = JSON.stringify(this.artists);

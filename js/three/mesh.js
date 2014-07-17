@@ -4,7 +4,7 @@ define([
     './scene'
 ], function(_, THREE, scene) {
 
-    var radius = 100;
+    var radius = 50;
     var widthAndHeight = 50;
 
     var globe = new THREE.Mesh(

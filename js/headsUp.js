@@ -71,7 +71,7 @@ define([
             },
 
             showArtist: function(name) {
-                // pulse an artist's territory orange for .5 seconds
+                // pulse an artist's territory orange for .25 seconds
                 // TODO: double click race sets orange permanently
                 var faces = _.filter(App.processor.facer.faces, function(choice) {
                     return choice.data.artist === name;
@@ -90,7 +90,7 @@ define([
                             face.color = savedColor;
                         });
                         App.three.mesh.update();
-                    }, 500, faces, savedColor);
+                    }, 250, faces, savedColor);
                 }
             }
         };

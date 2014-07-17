@@ -16,11 +16,10 @@ define([
                 datum[saveAs] = (datum[key] - min) / denom;
             });
             return data;
-        } else {
-            return _.map(data, function(datum) {
-                return (datum[key] - min) / denom;
-            });
         }
+        return _.map(data, function(datum) {
+            return (datum[key] - min) / denom;
+        });
     };
 
     var randomBoundedArray = function(min, max) {
