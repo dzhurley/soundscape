@@ -5,7 +5,7 @@ define([
     './scene',
     './controls',
     './light',
-    './mesh'
+    './mesh/main'
 ], function(_, renderer, camera, scene, controls, light, mesh) {
     return function() {
         var threes = {
@@ -27,7 +27,7 @@ define([
             },
 
             moveCameraToFace: function(evt, face) {
-                App.three.camera.position = face.centroid.multiplyScalar(1.75);;
+                App.three.camera.position = face.centroid.multiplyScalar(1.75);
                 App.three.camera.lookAt(scene.position);
             },
 

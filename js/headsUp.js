@@ -51,9 +51,9 @@ define([
                         'face a': active.a,
                         'face b': active.b,
                         'face c': active.c,
-                        'valid a': App.three.mesh.generalVert(active.a),
-                        'valid b': App.three.mesh.generalVert(active.b),
-                        'valid c': App.three.mesh.generalVert(active.c)
+                        'valid a': App.three.mesh.edger.generalVert(active.a),
+                        'valid b': App.three.mesh.edger.generalVert(active.b),
+                        'valid c': App.three.mesh.edger.generalVert(active.c)
                     });
 
                     if(data) {
