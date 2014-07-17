@@ -7,21 +7,17 @@ define([
     './looper'
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor, Looper) {
     return function() {
-        var facer = new FaceProcessor();
-        var artister = new ArtistProcessor();
-        var looper = new Looper();
-
         var processor = {
+            artister: new ArtistProcessor(),
+            facer: new FaceProcessor(),
+
             init: function() {
-                this.facer = facer;
-                this.artister = artister;
-                this.looper = looper;
-                this.looper.init(this.facer, this.artister);
+                this.looper = new Looper(this.facer, this.artister);
                 App.vent.on('fetched.artists', _.bind(this.process, this));
             },
 
-            preprocess: function(data) {
-                var totalPlays = _.reduce(this.activeData, function(memo, d) {
+            preProcessData: function(data) {
+                var totalPlays = _.reduce(data, function(memo, d) {
                     return memo + d.playCount;
                 }, 0);
 
@@ -29,18 +25,19 @@ define([
                     face.data = {};
                 });
 
-                _.map(this.activeData, _.bind(function(d, i) {
+                _.map(data, _.bind(function(d, i) {
                     d.edges = [];
-                    // faces available for a given artist to paint, pulling back a little from
-                    // the exact face count to leave some room and avoid lots of collisions with
-                    // other artists and their random growth
+                    // faces available for a given artist to paint
                     d.faces = Math.round(d.playCount * this.facer.faces.length / totalPlays);
+                    // since incoming data is sorted, rank artists as we preProcess
                     d.rank = i;
                     return d;
                 }, this));
 
                 // don't bother with artists that don't merit faces
-                this.activeData = _.filter(this.activeData, function(d) { return d.faces > 0; });
+                return _.filter(data, function(d) {
+                    return d.faces > 0;
+                });
             },
 
             process: function(evt, data) {
@@ -48,9 +45,8 @@ define([
                 var stagger;
                 var initialOffset;
 
-                this.activeData = data;
-                this.preprocess();
-                this.artister.setData(this.activeData);
+                var preppedData = this.preProcessData(data);
+                this.artister.setData(preppedData);
 
                 // stagger out the seed faces for each artists, avoiding getting
                 // too close to the poles for now
@@ -64,8 +60,9 @@ define([
                     loopSequence.push(i);
                 }
 
-                // // seed the planet
+                // seed the planet
                 this.looper.loop(loopSequence.slice(0));
+
                 // grow the seeds
                 var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
                 App.remaining = _.difference(randos, loopSequence);

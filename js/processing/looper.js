@@ -5,13 +5,11 @@ define([
     './artists',
     './faces'
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor) {
-    return function() {
+    return function(facer, artister) {
         var looper = {
-            init: function(facer, artister) {
-                this.facer = facer;
-                this.artister = artister;
-                this.remaining = [];
-            },
+            facer: facer,
+            artister: artister,
+            remaining: [],
 
             setFace: function(face, artist) {
                 // paint face with artist color and info
