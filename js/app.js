@@ -37,29 +37,33 @@ define([
                 app.three.animate();
             },
 
+            paintFace: function() {
+                if (this.stopLooping) {
+                    return false;
+                }
+                this.processor.looper.loopOnce(this.remaining);
+                this.three.mesh.update();
+            },
+
+            paintSwap: function() {
+                this.processor.looper.loopOnce(this.remaining, true);
+                this.three.mesh.update();
+            },
+
+            toggleOutlines: function() {
+                if (this.outlines) {
+                    this.three.scene.remove(this.three.mesh.outlines);
+                    this.outlines = false;
+                } else {
+                    this.three.scene.add(this.three.mesh.outlines);
+                    this.outlines = true;
+                }
+            },
+
             bindHandlers: function() {
-                this.$paintFace.click(_.bind(function() {
-                    if (this.stopLooping) {
-                        return false;
-                    }
-                    this.processor.looper.loopOnce(this.remaining);
-                    this.three.mesh.update();
-                }, this));
-
-                this.$paintSwap.click(_.bind(function() {
-                    this.processor.looper.loopOnce(this.remaining, true);
-                    this.three.mesh.update();
-                }, this));
-
-                this.$toggleOutlines.click(_.bind(function() {
-                    if (this.outlines) {
-                        this.three.scene.remove(this.three.mesh.outlines);
-                        this.outlines = false;
-                    } else {
-                        this.three.scene.add(this.three.mesh.outlines);
-                        this.outlines = true;
-                    }
-                }, this));
+                this.$paintFace.click(_.bind(this.paintFace, this));
+                this.$paintSwap.click(_.bind(this.paintSwap, this));
+                this.$toggleOutlines.click(_.bind(this.toggleOutlines, this));
             }
         };
 
