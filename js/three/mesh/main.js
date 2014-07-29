@@ -2,8 +2,9 @@ define([
     'underscore',
     'threejs',
     '../scene',
-    './edges'
-], function(_, THREE, scene, Edger) {
+    './edger',
+    './facer'
+], function(_, THREE, scene, Edger, Facer) {
 
     var radius = 50;
     var widthAndHeight = 50;
@@ -53,6 +54,8 @@ define([
 
         addToScene: function() {
             this.edger = new Edger(this.globe.geometry);
+            this.facer = new Facer(this.globe.geometry);
+
             scene.add(mesh.globe);
             if (App.outlines) {
                 scene.add(mesh.outlines);

@@ -4,9 +4,46 @@ define(['underscore'], function(_) {
 
         var artister = {
             artistIndex: 0,
+            edger: App.three.mesh.edger,
 
             setData: function(data) {
                 this.artists = _.shuffle(data);
+            },
+
+            expandArtistEdges: function(face, artist, edge) {
+                var second;
+                var third;
+
+                // find the other sides of the face that we'll overtake
+                artist.edges.splice(artist.edges.indexOf(edge), 1);
+                if (this.edger.sameEdge(edge, {v1: face.a, v2: face.b})) {
+                    second = {v1: face.a, v2: face.c};
+                    third = {v1: face.b, v2: face.c};
+                } else if (this.edger.sameEdge(edge, {v1: face.a, v2: face.c})) {
+                    second = {v1: face.a, v2: face.b};
+                    third = {v1: face.b, v2: face.c};
+                } else {
+                    second = {v1: face.a, v2: face.b};
+                    third = {v1: face.a, v2: face.c};
+                }
+                artist.edges.push(second, third);
+
+                if (face.data.artist && face.data.artist !== artist.name) {
+                    // we're swapping with another, so update the swapped artist
+                    // with new edges/faces info
+                    var faces;
+                    var swappedArtist = _.findWhere(this.artists,
+                                                    {name: face.data.artist});
+                    swappedArtist.faces++;
+                    _.each([edge, second, third], _.bind(function(e) {
+                        faces = this.edger.facesForEdge(e);
+                        if (!_.contains(faces, face)) {
+                            // only remove this edge if it isn't in another face
+                            // belonging to `swappedArtist`
+                            this.edger.removeEdge(swappedArtist.edges, e);
+                        }
+                    }, this), face);
+                }
             },
 
             nextArtist: function() {

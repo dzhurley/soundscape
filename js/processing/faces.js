@@ -3,10 +3,11 @@ define([
     'helpers',
     'threejs'
 ], function(_, h, THREE) {
-    return function() {
+    return function(artister) {
         var facer = {
             faces: App.three.mesh.globe.geometry.faces,
             vertices: App.three.mesh.globe.geometry.vertices,
+            artister: artister,
 
             validFace: function(artist, edge) {
                 var swappers = [];
@@ -48,42 +49,6 @@ define([
                 return swappersLeft;
             },
 
-            expandArtistEdges: function(face, artist, edge) {
-                var second;
-                var third;
-
-                // find the other sides of the face that we'll overtake
-                artist.edges.splice(artist.edges.indexOf(edge), 1);
-                if (App.three.mesh.edger.sameEdge(edge, {v1: face.a, v2: face.b})) {
-                    second = {v1: face.a, v2: face.c};
-                    third = {v1: face.b, v2: face.c};
-                } else if (App.three.mesh.edger.sameEdge(edge, {v1: face.a, v2: face.c})) {
-                    second = {v1: face.a, v2: face.b};
-                    third = {v1: face.b, v2: face.c};
-                } else {
-                    second = {v1: face.a, v2: face.b};
-                    third = {v1: face.a, v2: face.c};
-                }
-                artist.edges.push(second, third);
-
-                if (face.data.artist && face.data.artist !== artist.name) {
-                    // we're swapping with another, so update the swapped artist
-                    // with new edges/faces info
-                    var faces;
-                    var swappedArtist = _.findWhere(App.processor.artister.artists,
-                                                    {name: face.data.artist});
-                    swappedArtist.faces++;
-                    _.each([edge, second, third], function(e) {
-                        faces = App.three.mesh.edger.facesForEdge(e);
-                        if (!_.contains(faces, face)) {
-                            // only remove this edge if it isn't in another face
-                            // belonging to `swappedArtist`
-                            App.three.mesh.edger.removeEdge(swappedArtist.edges, e);
-                        }
-                    }, face);
-                }
-            },
-
             findAdjacentFace: function(artist) {
                 // use random `artist.edges` to find an adjacent unpainted `face`
                 var edges = _.clone(artist.edges);
@@ -97,7 +62,7 @@ define([
 
                     if (!_.isArray(faceOrSwap)) {
                         // found valid face, stop looking for more
-                        this.expandArtistEdges(faceOrSwap, artist, edge);
+                        this.artister.expandArtistEdges(faceOrSwap, artist, edge);
                         return {
                             face: faceOrSwap,
                             index: this.faces.indexOf(faceOrSwap)
@@ -132,7 +97,7 @@ define([
                         return {face: false};
                     }
 
-                    this.expandArtistEdges(faceOrSwap, artist, edge);
+                    this.artister.expandArtistEdges(faceOrSwap, artist, edge);
 
                     // call directly so it won't get dropped while searching for a free face
                     App.processor.looper.setFace(faceOrSwap, artist);
@@ -146,7 +111,7 @@ define([
 
                     // bounce back to call findAdjacentFace again with swapped artist
                     return {
-                        artist: _.findWhere(App.processor.artister.artists,
+                        artist: _.findWhere(this.artister.artists,
                                             {name: swappedArtist})
                     };
                 }

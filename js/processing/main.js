@@ -8,10 +8,9 @@ define([
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor, Looper) {
     return function() {
         var processor = {
-            artister: new ArtistProcessor(),
-            facer: new FaceProcessor(),
-
             init: function() {
+                this.artister = new ArtistProcessor();
+                this.facer = new FaceProcessor(this.artister);
                 this.looper = new Looper(this.facer, this.artister);
                 App.vent.on('fetched.artists', _.bind(this.process, this));
             },
