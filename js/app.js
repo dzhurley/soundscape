@@ -12,10 +12,9 @@ define([
             $container: $('#scape'),
             $headsUp: $('#heads-up'),
             $toggleOutlines: $('#toggle-outlines'),
-            $paintFace: $('#paint-face'),
-            $paintSwap: $('#paint-swap'),
 
-            outlines: false,
+            outlines: true,
+            painting: false,
             stopLooping: false,
             stopOnSwap: true,
 
@@ -34,20 +33,10 @@ define([
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                app.three.animate();
-            },
-
-            paintFace: function() {
-                if (this.stopLooping) {
-                    return false;
+                if (app.painting) {
+                    app.processor.processBatch();
                 }
-                this.processor.looper.loopOnce(this.remaining);
-                this.three.mesh.update();
-            },
-
-            paintSwap: function() {
-                this.processor.looper.loopOnce(this.remaining, true);
-                this.three.mesh.update();
+                app.three.animate();
             },
 
             toggleOutlines: function() {
@@ -61,9 +50,10 @@ define([
             },
 
             bindHandlers: function() {
-                this.$paintFace.click(_.bind(this.paintFace, this));
-                this.$paintSwap.click(_.bind(this.paintSwap, this));
                 this.$toggleOutlines.click(_.bind(this.toggleOutlines, this));
+                this.vent.on('seeded', function() {
+                    App.painting = true;
+                });
             }
         };
 

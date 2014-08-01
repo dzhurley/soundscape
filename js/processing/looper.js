@@ -47,6 +47,7 @@ define([
             },
 
             loop: function(randos) {
+                // TODO: rework this to know about stopOnSwap
                 this.remaining = randos;
                 var currentPass;
                 var i = 0;
@@ -69,12 +70,12 @@ define([
                 }
             },
 
-            loopOnce: function(faces, continueOnSwap) {
+            loopOnce: function(continueOnSwap) {
                 if (continueOnSwap) {
                     App.stopOnSwap = false;
                 }
                 this.remaining = App.remaining;
-                var iterationResult = this.runIteration(faces && faces[0]);
+                var iterationResult = this.runIteration(this.remaining[0]);
                 console.log('remaining', App.remaining.length);
                 return iterationResult;
             }
