@@ -71,11 +71,16 @@ define([
             },
 
             loopOnce: function(continueOnSwap) {
+                var startingLength = App.remaining.length;
                 if (continueOnSwap) {
                     App.stopOnSwap = false;
                 }
                 this.remaining = App.remaining;
                 var iterationResult = this.runIteration(this.remaining[0]);
+                if (startingLength === App.remaining.length) {
+                    // no paints on this pass, no use trying again
+                    App.stopLooping = true;
+                }
                 console.log('remaining', App.remaining.length);
                 return iterationResult;
             }

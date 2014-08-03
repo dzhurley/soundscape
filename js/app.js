@@ -33,10 +33,10 @@ define([
 
             animate: function() {
                 window.requestAnimationFrame(app.animate);
-                if (app.painting) {
+                app.three.animate();
+                if (app.painting && !app.stopLooping) {
                     app.processor.processBatch();
                 }
-                app.three.animate();
             },
 
             toggleOutlines: function() {

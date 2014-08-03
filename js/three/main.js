@@ -22,8 +22,6 @@ define([
 
                 this.controls.bindControls();
                 this.camera.lookAt(scene.position);
-
-                App.vent.on('painted.face', _.bind(this.moveCameraToFace, this));
             },
 
             moveCameraToFace: function(evt, face) {

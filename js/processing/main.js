@@ -8,13 +8,14 @@ define([
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor, Looper) {
     return function() {
         var processor = {
-            // how many faces to paint before allowing a rerender
-            batchSize: 100,
-
             init: function() {
                 this.artister = new ArtistProcessor();
                 this.facer = new FaceProcessor(this.artister);
                 this.looper = new Looper(this.facer, this.artister);
+
+                // how many faces to paint before allowing a rerender
+                this.batchSize = 1;
+
                 App.vent.on('fetched.artists', _.bind(this.seed, this));
             },
 
@@ -49,6 +50,7 @@ define([
 
                 var preppedData = this.preProcessData(data);
                 this.artister.setData(preppedData);
+                this.batchSize = this.artister.artists.length;
 
                 // stagger out the seed faces for each artists, avoiding getting
                 // too close to the poles for now
@@ -72,9 +74,11 @@ define([
             },
 
             processBatch: function() {
-                _.times(this.batchSize, _.bind(function() {
-                    this.looper.loopOnce();
-                }, this));
+                for (var i = 0; i <= this.batchSize; i++) {
+                    if (this.looper.loopOnce()) {
+                        break;
+                    }
+                }
             }
         };
 
