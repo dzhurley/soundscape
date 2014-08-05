@@ -1,9 +1,9 @@
 define([
     'underscore',
     'threejs',
-    '../scene',
-    './edger',
-    './facer'
+    'three/scene',
+    'three/mesh/edger',
+    'three/mesh/facer'
 ], function(_, THREE, scene, Edger, Facer) {
 
     var radius = 50;

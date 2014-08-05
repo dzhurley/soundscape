@@ -2,8 +2,8 @@ define([
     'underscore',
     'helpers',
     'threejs',
-    './artists',
-    './faces'
+    'processing/artists',
+    'processing/faces'
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor) {
     return function(facer, artister) {
         var looper = {

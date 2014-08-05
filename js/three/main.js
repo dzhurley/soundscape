@@ -1,11 +1,11 @@
 define([
     'underscore',
-    './renderer',
-    './camera',
-    './scene',
-    './controls',
-    './light',
-    './mesh/main'
+    'three/renderer',
+    'three/camera',
+    'three/scene',
+    'three/controls',
+    'three/light',
+    'three/mesh/main'
 ], function(_, renderer, camera, scene, controls, light, mesh) {
     return function() {
         var threes = {

@@ -35,6 +35,11 @@ define([
             setupWorkers: function() {
                 this.worker = new Worker('js/worker.js');
                 this.worker.postMessage('start');
+
+                this.worker.onerror = function() {
+                    console.error('Worker Error:', arguments);
+                };
+
                 this.worker.onmessage = function(evt) {
                     console.warn(evt.data);
                 };
