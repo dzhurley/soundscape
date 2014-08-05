@@ -26,9 +26,18 @@ define([
 
                 this.$container.append(this.three.renderer.domElement);
                 this.bindHandlers();
+                this.setupWorkers();
                 this.animate();
 
                 this.last = new Last();
+            },
+
+            setupWorkers: function() {
+                this.worker = new Worker('js/worker.js');
+                this.worker.postMessage('start');
+                this.worker.onmessage = function(evt) {
+                    console.warn(evt.data);
+                };
             },
 
             animate: function() {
@@ -43,9 +52,11 @@ define([
                 if (this.outlines) {
                     this.three.scene.remove(this.three.mesh.outlines);
                     this.outlines = false;
+                    this.worker.postMessage('outlines are off!');
                 } else {
                     this.three.scene.add(this.three.mesh.outlines);
                     this.outlines = true;
+                    this.worker.postMessage('outlines are on!');
                 }
             },
 
