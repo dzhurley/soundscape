@@ -1,10 +1,36 @@
-importScripts('../bower_components/requirejs/require.js', 'config.js');
+importScripts('../bower_components/requirejs/require.js');
 
 require({
-    baseUrl: './'
+    paths: {
+        text: '../bower_components/requirejs-text/text',
+        underscore: '../bower_components/underscore-amd/underscore-min',
+
+        threejs: '../bower_components/threejs/build/three',
+
+        lib: 'lib',
+        three: 'three',
+        processing: 'processing'
+    },
+
+    shim: {
+        dat: {
+            exports: 'dat'
+        },
+
+        eventbus: {
+            exports: 'EventBus'
+        },
+
+        threejs: {
+            exports: 'THREE'
+        }
+    }
 }, [
-    'underscore'
-], function(_) {
+    'underscore',
+    'three/mesh/edger',
+    'three/mesh/facer'
+], function(_, Edger, Facer) {
+    // TODO: how do i stick these args in the onmessage context?
     onmessage = function(evt) {
         postMessage('from the worker: ' + evt.data);
     };

@@ -7,7 +7,7 @@ define([
     return {
         bindControls: function() {
             controls.autoForward = false;
-            controls.domElement = App.$container[0];
+            controls.domElement = App.container;
             controls.dragToLook = true;
             controls.movementSpeed = 1;
             controls.rollSpeed = 0.03;

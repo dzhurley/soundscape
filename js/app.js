@@ -1,17 +1,16 @@
 define([
-    'jquery',
     'eventbus',
     'fly',
     'three/main',
     'processing/main',
     'last',
     'headsUp'
-], function($, EventBus, THREE, Threes, Processor, Last, HeadsUp) {
+], function(EventBus, THREE, Threes, Processor, Last, HeadsUp) {
     return function() {
         var app = {
-            $container: $('#scape'),
-            $headsUp: $('#heads-up'),
-            $toggleOutlines: $('#toggle-outlines'),
+            container: document.getElementById('scape'),
+            headsUp: document.getElementById('heads-up'),
+            toggleButton: document.getElementById('toggle-outlines'),
 
             outlines: true,
             painting: false,
@@ -24,8 +23,8 @@ define([
                 this.processor = new Processor();
                 this.headsUp = new HeadsUp();
 
-                this.$container.append(this.three.renderer.domElement);
                 this.bindHandlers();
+                this.container.appendChild(this.three.renderer.domElement);
                 this.setupWorkers();
                 this.animate();
 
@@ -57,7 +56,10 @@ define([
                 if (this.outlines) {
                     this.three.scene.remove(this.three.mesh.outlines);
                     this.outlines = false;
-                    this.worker.postMessage('outlines are off!');
+                    this.worker.postMessage({
+                        faces: this.three.mesh.globe.geometry.faces,
+                        vertices: this.three.mesh.globe.geometry.vertices
+                    });
                 } else {
                     this.three.scene.add(this.three.mesh.outlines);
                     this.outlines = true;
@@ -66,7 +68,10 @@ define([
             },
 
             bindHandlers: function() {
-                this.$toggleOutlines.click(_.bind(this.toggleOutlines, this));
+                this.toggleButton.addEventListener(
+                    'click',
+                    _.bind(this.toggleOutlines, this)
+                );
                 this.vent.on('seeded', function() {
                     App.painting = true;
                 });

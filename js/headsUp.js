@@ -22,8 +22,8 @@ define([
 
         var headsUp = {
             bindHeadsUp: function() {
-                $(document).click(_.bind(function(evt) {
-                    if ($(evt.target).is('button')) {
+                document.addEventListener('click', _.bind(function(evt) {
+                    if (evt.target.nodeName === 'BUTTON') {
                         return false;
                     }
                     updateMouse(evt);
@@ -65,7 +65,7 @@ define([
                             }
                             html += '<span>' + key + ': ' + val + '</span>';
                         });
-                        App.$headsUp.html(html);
+                        App.headsUp.innerHTML = html;
                     }
                 }
             },

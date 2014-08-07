@@ -1,8 +1,7 @@
 define([
     'underscore',
-    'threejs',
-    'three/scene'
-], function(_, THREE, scene) {
+    'threejs'
+], function(_, THREE) {
     return function(geometry) {
         var Edger = {
             geo: geometry,

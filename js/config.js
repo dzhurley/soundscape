@@ -3,7 +3,6 @@ requirejs.config({
 
     paths: {
         text: '../bower_components/requirejs-text/text',
-        jquery: '../bower_components/jquery/jquery.min',
         underscore: '../bower_components/underscore-amd/underscore-min',
 
         dat: '../bower_components/dat.gui/dat.gui.min',
