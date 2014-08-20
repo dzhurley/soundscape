@@ -9,7 +9,7 @@ define([
     return function() {
         var app = {
             container: document.getElementById('scape'),
-            headsUp: document.getElementById('heads-up'),
+            headsUpDisplay: document.getElementById('heads-up'),
             toggleButton: document.getElementById('toggle-outlines'),
 
             outlines: true,

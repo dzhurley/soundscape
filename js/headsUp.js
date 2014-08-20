@@ -65,7 +65,7 @@ define([
                             }
                             html += '<span>' + key + ': ' + val + '</span>';
                         });
-                        App.headsUp.innerHTML = html;
+                        App.headsUpDisplay.innerHTML = html;
                     }
                 }
             },
