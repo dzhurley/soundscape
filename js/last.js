@@ -48,17 +48,15 @@ define([
                 request = new XMLHttpRequest();
                 request.open('GET', this.lastUrl(), true);
 
-                request.onload = function() {
-                    _.bind(function() {
-                        if (request.status >= 200 && request.status < 400){
-                            // Success!
-                            data = JSON.parse(request.responseText);
-                            this.artists = this.parseData(data);
-                            App.vent.trigger('fetched.artists', this.artists);
-                            localStorage.artists = JSON.stringify(this.artists);
-                        }
-                    }, this);
-                };
+                request.onload = _.bind(function() {
+                    if (request.status >= 200 && request.status < 400){
+                        // Success!
+                        data = JSON.parse(request.responseText);
+                        this.artists = this.parseData(data);
+                        App.vent.trigger('fetched.artists', this.artists);
+                        localStorage.artists = JSON.stringify(this.artists);
+                    }
+                }, this);
 
                 request.send();
             }

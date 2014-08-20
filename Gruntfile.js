@@ -3,16 +3,14 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         watch: {
-            files: ['css/**/*', 'img/**/*', 'js/**/*', 'index.html'],
-            options: {
-                livereload: true
-            }
+            files: ['css/**/*', 'img/**/*', 'js/**/*', 'index.html']
         },
 
         connect: {
-            all: {
+            server: {
                 options: {
-                    livereload: true
+                    port: 8000,
+                    base: '.'
                 }
             }
         }
