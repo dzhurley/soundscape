@@ -20,6 +20,7 @@ define([
             },
 
             preProcessData: function(data) {
+                // TODO: clear sphere for next user
                 var totalPlays = _.reduce(data, function(memo, d) {
                     return memo + d.playCount;
                 }, 0);

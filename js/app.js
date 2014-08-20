@@ -1,15 +1,16 @@
 define([
     'eventbus',
-    'fly',
     'three/main',
+    'three/controls',
     'processing/main',
-    'last',
+    'sources/main',
     'headsUp'
-], function(EventBus, THREE, Threes, Processor, Last, HeadsUp) {
+], function(EventBus, Threes, Controls, Processor, Sourcer, HeadsUp) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
             headsUpDisplay: document.getElementById('heads-up'),
+            sourcerPrompt: document.getElementById('sources'),
             toggleButton: document.getElementById('toggle-outlines'),
 
             outlines: true,
@@ -21,14 +22,13 @@ define([
                 this.vent = new EventBus();
                 this.three = new Threes();
                 this.processor = new Processor();
+                this.sourcer = new Sourcer();
                 this.headsUp = new HeadsUp();
 
                 this.bindHandlers();
                 this.container.appendChild(this.three.renderer.domElement);
                 this.setupWorkers();
                 this.animate();
-
-                this.last = new Last();
             },
 
             setupWorkers: function() {
@@ -42,14 +42,6 @@ define([
                 this.worker.onmessage = function(evt) {
                     console.warn(evt.data);
                 };
-            },
-
-            animate: function() {
-                window.requestAnimationFrame(app.animate);
-                app.three.animate();
-                if (app.painting && !app.stopLooping) {
-                    app.processor.processBatch();
-                }
             },
 
             toggleOutlines: function() {
@@ -72,9 +64,28 @@ define([
                     'click',
                     _.bind(this.toggleOutlines, this)
                 );
+                this.sourcerPrompt.addEventListener(
+                    'submit',
+                    _.bind(this.sourcer.checkSource, this.sourcer)
+                );
+
                 this.vent.on('seeded', function() {
                     App.painting = true;
                 });
+                this.vent.on('starting.source', function() {
+                    // TODO: solve clickjack better, maybe
+                    // using something like headsUp
+                    App.three.controls = new Controls();
+                    App.three.controls.bindControls();
+                });
+            },
+
+            animate: function() {
+                window.requestAnimationFrame(app.animate);
+                app.three.animate();
+                if (app.painting && !app.stopLooping) {
+                    app.processor.processBatch();
+                }
             }
         };
 

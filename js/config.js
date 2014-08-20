@@ -12,23 +12,18 @@ requirejs.config({
         fly: './lib/FlyControls',
         orbital: './lib/OrbitControls',
 
+        sources: 'sources',
         lib: 'lib',
         three: 'three',
         processing: 'processing'
     },
 
     shim: {
-        dat: {
-            exports: 'dat'
-        },
+        dat: { exports: 'dat' },
 
-        eventbus: {
-            exports: 'EventBus'
-        },
+        eventbus: { exports: 'EventBus' },
 
-        threejs: {
-            exports: 'THREE'
-        },
+        threejs: { exports: 'THREE' },
 
         fly: {
             deps: ['threejs'],

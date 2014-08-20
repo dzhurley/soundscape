@@ -31,6 +31,21 @@ canvas {
 
 #heads-up span { display: block; }
 
+#sources {
+    color: #d7d7d7;
+    background-color: #272727;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: auto;
+    padding: 10px;
+
+    z-index: 3;
+}
+
+#sources label[for=source], #sources #source { display: none; }
+
 .actions {
     position: absolute;
     bottom: 0;

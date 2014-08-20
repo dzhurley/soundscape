@@ -9,9 +9,7 @@ define([
             defaultParams: {
                 api_key: 'bd366f79f01332a48ae8ce061dba05a9',
                 format: 'json',
-                limit: '300',
-                method: 'library.getartists',
-                user: 'stutterbug42'
+                method: 'library.getartists'
             },
 
             urlParams: function(params) {
@@ -35,9 +33,11 @@ define([
                 return h.normalize(baseData, 'playCount', 'normCount');
             },
 
-            getArtists: function() {
+            getArtistsForUser: function(username) {
                 if (!this.artists) {
-                    this.artists = JSON.parse(localStorage.artists || null);
+                    if (_.contains(_.keys(localStorage), username)) {
+                        this.artists = JSON.parse(localStorage[username]);
+                    }
                 }
 
                 if (this.artists) {
@@ -46,7 +46,7 @@ define([
                 }
 
                 request = new XMLHttpRequest();
-                request.open('GET', this.lastUrl(), true);
+                request.open('GET', this.lastUrl({user: username}), true);
 
                 request.onload = _.bind(function() {
                     if (request.status >= 200 && request.status < 400){
@@ -54,7 +54,7 @@ define([
                         data = JSON.parse(request.responseText);
                         this.artists = this.parseData(data);
                         App.vent.trigger('fetched.artists', this.artists);
-                        localStorage.artists = JSON.stringify(this.artists);
+                        localStorage[username] = JSON.stringify(this.artists);
                     }
                 }, this);
 
@@ -62,7 +62,6 @@ define([
             }
         };
 
-        last.getArtists();
         return last;
     };
 });

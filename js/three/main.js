@@ -3,16 +3,14 @@ define([
     'three/renderer',
     'three/camera',
     'three/scene',
-    'three/controls',
     'three/light',
     'three/mesh/main'
-], function(_, renderer, camera, scene, controls, light, mesh) {
+], function(_, renderer, camera, scene, light, mesh) {
     return function() {
         var threes = {
             renderer: renderer,
             camera: camera,
             scene: scene,
-            controls: controls,
             light: light,
             mesh: mesh,
 
@@ -20,7 +18,6 @@ define([
                 this.mesh.addToScene();
                 this.light.addToScene();
 
-                this.controls.bindControls();
                 this.camera.lookAt(scene.position);
             },
 
@@ -30,7 +27,9 @@ define([
             },
 
             animate: function() {
-                this.controls.update(1);
+                if (this.controls) {
+                    this.controls.update(1);
+                }
                 this.renderer.render(this.scene, this.camera);
             }
         };

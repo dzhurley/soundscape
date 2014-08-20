@@ -22,7 +22,7 @@ define([
 
         var headsUp = {
             bindHeadsUp: function() {
-                document.addEventListener('click', _.bind(function(evt) {
+                App.container.addEventListener('click', _.bind(function(evt) {
                     if (evt.target.nodeName === 'BUTTON') {
                         return false;
                     }
