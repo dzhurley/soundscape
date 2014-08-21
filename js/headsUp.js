@@ -40,7 +40,7 @@ define([
                 }
 
                 var face = intersects[0].face;
-                if (face.data.artist) {
+                if (face.data && face.data.artist) {
                     this.showArtist(face.data.artist);
                 }
 

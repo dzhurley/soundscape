@@ -10,8 +10,9 @@ define([
         var app = {
             container: document.getElementById('scape'),
             headsUpDisplay: document.getElementById('heads-up'),
+            sourcerButton: document.getElementById('toggle-overlay'),
             sourcerPrompt: document.getElementById('sources'),
-            toggleButton: document.getElementById('toggle-outlines'),
+            outlinesButton: document.getElementById('toggle-outlines'),
 
             outlines: true,
             painting: false,
@@ -59,14 +60,22 @@ define([
                 }
             },
 
+            toggleSources: function(evt) {
+                evt.target.parentNode.classList.toggle('closed');
+            },
+
             bindHandlers: function() {
-                this.toggleButton.addEventListener(
+                this.outlinesButton.addEventListener(
                     'click',
                     _.bind(this.toggleOutlines, this)
                 );
                 this.sourcerPrompt.addEventListener(
                     'submit',
                     _.bind(this.sourcer.checkSource, this.sourcer)
+                );
+                this.sourcerButton.addEventListener(
+                    'click',
+                    _.bind(this.toggleSources, this)
                 );
 
                 this.vent.on('seeded', function() {

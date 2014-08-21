@@ -31,17 +31,28 @@ canvas {
 
 #heads-up span { display: block; }
 
-#sources {
+#sources-overlay {
     color: #d7d7d7;
     background-color: #272727;
 
+    width: 100%;
+    height: 50px;
     position: absolute;
-    top: 0;
-    right: 0;
-    margin: auto;
-    padding: 10px;
+    top: 50%;
+    margin-top: -25px;
 
     z-index: 3;
+}
+
+#sources-overlay.closed { width: 5%; }
+#sources-overlay.closed #sources { display: none; }
+
+#sources, #toggle-overlay {
+    padding-top: 12.5px;
+    text-align: center;
+}
+#toggle-overlay {
+    float: left;
 }
 
 #sources label[for=source], #sources #source { display: none; }
