@@ -17,7 +17,7 @@ define([
             projector.unprojectVector(vector, App.three.camera);
             var ray = new THREE.Raycaster(App.three.camera.position,
                                           vector.sub(App.three.camera.position).normalize());
-            return ray.intersectObjects([App.three.mesh.globe]);
+            return ray.intersectObjects([App.three.mesh.getGlobe()]);
         };
 
         var headsUp = {

@@ -5,9 +5,11 @@ define([
 ], function(_, h, THREE) {
     return function(artister) {
         var facer = {
-            faces: App.three.mesh.globe.geometry.faces,
-            vertices: App.three.mesh.globe.geometry.vertices,
-            artister: artister,
+            init: function() {
+                this.faces = App.three.mesh.getFaces();
+                this.vertices = App.three.mesh.getVertices();
+                this.artister = artister;
+            },
 
             validFace: function(artist, edge) {
                 var swappers = [];
@@ -141,6 +143,7 @@ define([
             }
         };
 
+        facer.init();
         return facer;
     };
 });

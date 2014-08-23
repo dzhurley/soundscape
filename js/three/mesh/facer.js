@@ -4,7 +4,11 @@ define([
 ], function(_, THREE) {
     return function(geometry) {
         var Facer = {
-            geo: geometry
+            geo: geometry,
+
+            setGeometry: function(geo) {
+                this.geo = geo;
+            }
         };
 
         return Facer;

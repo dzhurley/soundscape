@@ -50,8 +50,8 @@ define([
                     this.three.scene.remove(this.three.mesh.outlines);
                     this.outlines = false;
                     this.worker.postMessage({
-                        faces: this.three.mesh.globe.geometry.faces,
-                        vertices: this.three.mesh.globe.geometry.vertices
+                        faces: this.three.mesh.getFaces(),
+                        vertices: this.three.mesh.getVertices()
                     });
                 } else {
                     this.three.scene.add(this.three.mesh.outlines);
@@ -82,6 +82,7 @@ define([
                     App.painting = true;
                 });
                 this.vent.on('starting.source', function() {
+                    App.three.mesh.resetGlobe();
                     // TODO: solve clickjack better, maybe
                     // using something like headsUp
                     App.three.controls = new Controls();

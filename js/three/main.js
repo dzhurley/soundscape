@@ -5,16 +5,16 @@ define([
     'three/scene',
     'three/light',
     'three/mesh/main'
-], function(_, renderer, camera, scene, light, mesh) {
+], function(_, renderer, camera, scene, light, Mesh) {
     return function() {
         var threes = {
             renderer: renderer,
             camera: camera,
             scene: scene,
             light: light,
-            mesh: mesh,
 
             init: function() {
+                this.mesh = new Mesh();
                 this.mesh.addToScene();
                 this.light.addToScene();
 
