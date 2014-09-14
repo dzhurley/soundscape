@@ -32,13 +32,7 @@ define([
             },
 
             resetGlobe: function() {
-                // swap the old user's globe with a pristine one
-                scene.remove(this.globe);
-                this.globe = this.createGlobe();
-
-                this.edger.setGeometry(this.globe.geometry);
-                this.facer.setGeometry(this.globe.geometry);
-                scene.add(this.globe);
+                this.facer.resetFaces();
             },
 
             createGlobe: function() {

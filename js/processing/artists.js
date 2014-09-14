@@ -8,6 +8,7 @@ define(['underscore'], function(_) {
 
             setData: function(data) {
                 this.artists = _.shuffle(data);
+                this.artistIndex = 0;
             },
 
             expandArtistEdges: function(face, artist, edge) {

@@ -83,10 +83,12 @@ define([
                 });
                 this.vent.on('starting.source', function() {
                     App.three.mesh.resetGlobe();
-                    // TODO: solve clickjack better, maybe
-                    // using something like headsUp
-                    App.three.controls = new Controls();
-                    App.three.controls.bindControls();
+                    if (_.isUndefined(App.three.controls)) {
+                        // TODO: solve clickjack better, maybe
+                        // using something like headsUp
+                        App.three.controls = new Controls();
+                        App.three.controls.bindControls();
+                    }
                 });
             },
 

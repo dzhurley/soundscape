@@ -12,6 +12,7 @@ define([
             remaining: [],
 
             setFace: function(face, artist) {
+                // TODO: doesn't belong here
                 // paint face with artist color and info
                 index = this.artister.artists.indexOf(artist);
                 face.color.setHex(h.spacedColor(this.artister.artists.length, artist.rank));

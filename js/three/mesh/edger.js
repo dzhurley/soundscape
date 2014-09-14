@@ -9,10 +9,6 @@ define([
             southVerts: [],
             seams: [],
 
-            setGeometry: function(geo) {
-                this.geo = geo;
-            },
-
             wrangleVertices: function() {
                 // THREE doesn't combine the two polar vertices into one object,
                 // instead storing a separate vertex for each face that connects

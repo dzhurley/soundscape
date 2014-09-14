@@ -6,8 +6,13 @@ define([
         var Facer = {
             geo: geometry,
 
-            setGeometry: function(geo) {
-                this.geo = geo;
+            resetFaces: function() {
+                // zero face values for fresh paint
+                _.map(this.geo.faces, function(f) {
+                    f.data = {};
+                    f.color.setHex(0xFFFFFF);
+                });
+                this.geo.colorsNeedUpdate = true;
             }
         };
 
