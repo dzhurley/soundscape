@@ -22,6 +22,7 @@ define([
                     return false;
                 }
 
+                evt.target.querySelector('#username').value = '';
                 document.querySelector('#toggle-overlay').click();
                 this.startSource(source, username);
                 return false;

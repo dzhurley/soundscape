@@ -53,9 +53,10 @@ canvas {
 }
 #toggle-overlay {
     float: left;
+    height: 100%;
+    width: 40px;
+    padding: 0;
 }
-
-#sources label[for=source], #sources #source { display: none; }
 
 .actions {
     position: absolute;

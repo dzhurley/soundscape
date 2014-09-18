@@ -61,7 +61,11 @@ define([
             },
 
             toggleSources: function(evt) {
-                evt.target.parentNode.classList.toggle('closed');
+                var classes = evt.target.parentNode.classList;
+                classes.toggle('closed');
+                if (!_.contains(classes, 'closed')) {
+                    document.querySelector('#username').focus();
+                }
             },
 
             bindHandlers: function() {
@@ -77,6 +81,7 @@ define([
                     'click',
                     _.bind(this.toggleSources, this)
                 );
+                document.querySelector('#username').focus();
 
                 this.vent.on('seeded', function() {
                     App.painting = true;

@@ -14,11 +14,11 @@
     <section id="sources-overlay">
       <button id="toggle-overlay">></button>
       <form id="sources">
-        <label for="source">music service source</label>
-        <input type="radio" value="last" id="source" checked />
-
-        <label for="username">last.fm username</label>
-        <input type="text" value="stutterbug42" id="username" name="username" />
+        <select id="source">
+          <option value="last">last.fm</option>
+        </select>
+        <span> for </span>
+        <input type="text" placeholder="username" id="username" />
         <button type="submit">Go</button>
       </form>
     </section>
