@@ -10,8 +10,9 @@ define([
         var app = {
             container: document.getElementById('scape'),
             headsUpDisplay: document.getElementById('heads-up'),
-            sourcerButton: document.getElementById('toggle-overlay'),
-            sourcerPrompt: document.getElementById('sources'),
+            sourcesOverlay: document.getElementById('sources-overlay'),
+            sourcesButton: document.getElementById('toggle-overlay'),
+            sourcesPrompt: document.getElementById('sources'),
             outlinesButton: document.getElementById('toggle-outlines'),
 
             outlines: true,
@@ -60,11 +61,15 @@ define([
                 }
             },
 
+            focusUsername: function() {
+                this.sourcesPrompt.querySelector('#username').focus();
+            },
+
             toggleSources: function(evt) {
-                var classes = evt.target.parentNode.classList;
+                var classes = this.sourcesOverlay.classList;
                 classes.toggle('closed');
                 if (!_.contains(classes, 'closed')) {
-                    document.querySelector('#username').focus();
+                    this.focusUsername();
                 }
             },
 
@@ -73,15 +78,15 @@ define([
                     'click',
                     _.bind(this.toggleOutlines, this)
                 );
-                this.sourcerPrompt.addEventListener(
+                this.sourcesPrompt.addEventListener(
                     'submit',
                     _.bind(this.sourcer.checkSource, this.sourcer)
                 );
-                this.sourcerButton.addEventListener(
+                this.sourcesButton.addEventListener(
                     'click',
                     _.bind(this.toggleSources, this)
                 );
-                document.querySelector('#username').focus();
+                this.focusUsername();
 
                 this.vent.on('seeded', function() {
                     App.painting = true;
@@ -89,8 +94,6 @@ define([
                 this.vent.on('starting.source', function() {
                     App.three.mesh.resetGlobe();
                     if (_.isUndefined(App.three.controls)) {
-                        // TODO: solve clickjack better, maybe
-                        // using something like headsUp
                         App.three.controls = new Controls();
                         App.three.controls.bindControls();
                     }

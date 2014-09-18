@@ -8,7 +8,6 @@ define([
             },
 
             checkSource: function(evt) {
-                // TODO: better form ux around focus/blur and multiple users
                 evt.preventDefault();
                 var source = evt.target.querySelector('#source').value;
                 var username = evt.target.querySelector('#username').value;
@@ -23,7 +22,7 @@ define([
                 }
 
                 evt.target.querySelector('#username').value = '';
-                document.querySelector('#toggle-overlay').click();
+                App.sourcesButton.click();
                 this.startSource(source, username);
                 return false;
             },

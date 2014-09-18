@@ -51,6 +51,7 @@ canvas {
     padding-top: 12.5px;
     text-align: center;
 }
+#sources button { visibility: hidden; }
 #toggle-overlay {
     float: left;
     height: 100%;

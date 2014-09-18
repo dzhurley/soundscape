@@ -3,7 +3,8 @@ define([
     'three/camera'
 ], function(THREE, camera) {
     return function() {
-        var controls = new THREE.FlyControls(camera);
+        // make sure to capture keys/mouse only within container
+        var controls = new THREE.FlyControls(camera, App.container);
 
         return {
             bindControls: function() {
