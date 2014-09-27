@@ -22,9 +22,9 @@ define([
         });
     };
 
-    var randomBoundedArray = function(min, max) {
-        // enumerates numbers between `min` and `max` inclusive and returns
-        // the array in shuffled order
+    var boundedArray = function(min, max) {
+        // enumerates numbers between `min` and `max` inclusive
+        // and returns the array
 
         min = min || 0;
         max = max || 0;
@@ -34,7 +34,12 @@ define([
             bounded.push(i);
         }
 
-        return _.shuffle(bounded);
+        return bounded;
+    };
+
+    var randomBoundedArray = function(min, max) {
+        // shuffles boundedArray
+        return _.shuffle(boundedArray(min, max));
     };
 
     var spacedColor = function(numOfSteps, step) {
