@@ -67,6 +67,7 @@ define([
 
                 // seed the planet
                 this.looper.loop(loopSequence.slice(0));
+                App.three.mesh.facer.findEquidistantFaces(this.artister.artists.length);
 
                 // set remaining faces to paint
                 var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);

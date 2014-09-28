@@ -13,6 +13,7 @@ define([
         };
 
         var findIntersects = function() {
+            // TODO: generalize with intersect finder for equidistant faces
             var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
             projector.unprojectVector(vector, App.three.camera);
             var ray = new THREE.Raycaster(App.three.camera.position,
