@@ -1,10 +1,11 @@
 define([
     'underscore',
+    'helpers',
     'threejs',
     'three/scene',
     'three/mesh/edger',
     'three/mesh/facer'
-], function(_, THREE, scene, Edger, Facer) {
+], function(_, h, THREE, scene, Edger, Facer) {
     return function() {
         var radius = 50;
         var widthAndHeight = 50;
@@ -17,6 +18,7 @@ define([
                 this.globe = this.createGlobe();
                 this.outlines = this.createOutlines();
                 this.stars = this.createStars();
+                this.marks = this.createEquaMarkers();
             },
 
             getGlobe: function() {
@@ -59,6 +61,22 @@ define([
                 );
             },
 
+            createEquaMarkers: function() {
+                var mark;
+                var markers = [];
+                var points = h.equidistantishPointsOnSphere(256);
+
+                for (var i in points) {
+                    mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
+                    mark.position.x = points[i][0];
+                    mark.position.y = points[i][1];
+                    mark.position.z = points[i][2];
+                    mark.position.multiplyScalar(radius);
+                    markers.push(mark);
+                }
+                return markers;
+            },
+
             createStars: function() {
                 var stars = [];
                 var star;
@@ -87,6 +105,9 @@ define([
                 }
                 _.map(mesh.stars, function(star) {
                     scene.add(star);
+                });
+                _.map(mesh.marks, function(mark) {
+                    scene.add(mark);
                 });
             },
 

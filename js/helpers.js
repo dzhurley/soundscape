@@ -16,23 +16,26 @@ define([
         return bounded;
     };
 
-    equidistantishPointsOnSphere = function(numPoints, radius) {
+    equidistantishPointsOnSphere = function(numPoints) {
         // Find points in terms of x, y, z that are roughly equidistant from
         // each other on a sphere. This applies Vogel's method, adapted from
         // http://blog.marmakoide.org/?p=1
 
         var goldenAngle = Math.PI * (3 - Math.sqrt(5));
-        var thetaValues = _.map(h.boundedArray(0, numPoints - 1), function(n) {
+        var thetaValues = _.map(boundedArray(0, numPoints - 1), function(n) {
             return n * goldenAngle;
         });
-        var zValues = h.evenlySpacedInRange(1 - 1.0 / numPoints,
-                                            1.0 / numPoints - 1,
-                                            numPoints);
+        var zValues = evenlySpacedInRange((1 - 1.0 / numPoints),
+                                          (1.0 / numPoints - 1),
+                                          numPoints);
+        var radii = _.map(zValues, function(z) {
+            return Math.sqrt(1 - z * z);
+        });
         var points = [];
         for (var i = 0; i < numPoints; i++) {
             points.push([
-                radius * Math.cos(thetaValues[i]),
-                radius * Math.sin(thetaValues[i]),
+                radii[i] * Math.cos(thetaValues[i]),
+                radii[i] * Math.sin(thetaValues[i]),
                 zValues[i]
             ]);
         }
