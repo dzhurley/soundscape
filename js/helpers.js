@@ -1,6 +1,58 @@
 define([
     'underscore'
 ], function(_) {
+    var boundedArray = function(min, max) {
+        // enumerates numbers between `min` and `max` inclusive
+        // and returns the array
+
+        min = min || 0;
+        max = max || 0;
+
+        var bounded = [];
+        for (var i = min; i <= max; ++i) {
+            bounded.push(i);
+        }
+
+        return bounded;
+    };
+
+    equidistantishPointsOnSphere = function(numPoints, radius) {
+        // Find points in terms of x, y, z that are roughly equidistant from
+        // each other on a sphere. This applies Vogel's method, adapted from
+        // http://blog.marmakoide.org/?p=1
+
+        var goldenAngle = Math.PI * (3 - Math.sqrt(5));
+        var thetaValues = _.map(h.boundedArray(0, numPoints - 1), function(n) {
+            return n * goldenAngle;
+        });
+        var zValues = h.evenlySpacedInRange(1 - 1.0 / numPoints,
+                                            1.0 / numPoints - 1,
+                                            numPoints);
+        var points = [];
+        for (var i = 0; i < numPoints; i++) {
+            points.push([
+                radius * Math.cos(thetaValues[i]),
+                radius * Math.sin(thetaValues[i]),
+                zValues[i]
+            ]);
+        }
+        return points;
+    };
+
+    var evenlySpacedInRange = function(min, max, num) {
+        // see linspace (port of numpy method)
+        // https://github.com/sloisel/numeric/blob/master/src/numeric.js
+        if (num < 2) {
+            return num === 1 ? [min] : [];
+        }
+        var result = Array(num);
+        num--;
+        for (var i = num; i >= 0; i--) {
+            result[i] = (i * max + (num - i) * min) / num;
+        }
+        return result;
+    };
+
     var normalize = function(data, key, saveAs) {
         // normalizes values in `data` at `data[key]` and optionally saves
         // them on each item as `data[saveAs]`, returning `data` when saving
@@ -20,21 +72,6 @@ define([
         return _.map(data, function(datum) {
             return (datum[key] - min) / denom;
         });
-    };
-
-    var boundedArray = function(min, max) {
-        // enumerates numbers between `min` and `max` inclusive
-        // and returns the array
-
-        min = min || 0;
-        max = max || 0;
-
-        var bounded = [];
-        for (var i = min; i <= max; ++i) {
-            bounded.push(i);
-        }
-
-        return bounded;
     };
 
     var randomBoundedArray = function(min, max) {
@@ -65,6 +102,9 @@ define([
     };
 
     return {
+        boundedArray: boundedArray,
+        equidistantishPointsOnSphere: equidistantishPointsOnSphere,
+        evenlySpacedInRange: evenlySpacedInRange,
         normalize: normalize,
         randomBoundedArray: randomBoundedArray,
         spacedColor: spacedColor

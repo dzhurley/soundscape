@@ -74,33 +74,6 @@ define([
                 // App.vent.trigger('seeded');
             },
 
-            findEquidistantishPoints: function() {
-                // approach:
-                //      - sort artists so popular -> equator and unpopular -> poles
-                //      - find points in terms of x, y, z from center
-                //          - vogel's method
-                //
-                //          http://blog.marmakoide.org/?p=1
-                //          n = num_artists
-                //          golden_angle = numpy.pi * (3 - numpy.sqrt(5))
-                //          theta = golden_angle * numpy.arange(n)
-                //
-                //          z = numpy.linspace(1 - 1.0 / n, 1.0 / n - 1, n)
-                //          radius = numpy.sqrt(1 - z * z)
-                //          points = numpy.zeros((n, 3))
-                //          points[:,0] = radius * numpy.cos(theta)
-                //          points[:,1] = radius * numpy.sin(theta)
-                //          points[:,2] = z
-                //
-                //      - find intersections similar to headsUp
-                //      - color intersected faces with artists
-
-                var numPoints = this.batchSize;
-                var goldenAngle = Math.PI * (3 - Math.sqrt(5));
-                var theta = goldenAngle * h.boundedArray(0, numPoints - 1);
-                var z = (1 - 1.0 / numPoints, 1.0 / numPoints - 1, numPoints);
-            },
-
             processBatch: function() {
                 for (var i = 0; i <= this.batchSize; i++) {
                     if (this.looper.loopOnce()) {
