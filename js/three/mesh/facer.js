@@ -38,25 +38,28 @@ define([
             },
 
             findEquidistantFaces: function(numMarkers) {
+                // add transient helper marks
                 this.addEquidistantMarks(numMarkers);
 
-                // ray intersect and paint
                 var caster = new THREE.Raycaster();
                 var intersectingFaces = [];
                 var globe = App.three.mesh.getGlobe();
+                var marker;
                 for (var i = 0; i < this.markers.length; i++) {
-                    caster.set(this.markers[i].position,
-                               this.markers[i].position.angleTo(globe.position));
+                    marker = this.markers[i].position.clone();
+                    caster.set(globe.position, marker.normalize());
                     intersectingFaces.push(caster.intersectObject(globe));
-                    debugger;
                 }
 
-                // blink for now
-                _.delay(_.bind(function() {
-                    _.map(this.marks, function(mark) {
-                        scene.remove(mark);
-                    });
-                }, this), 1000);
+                // remove transient helper marks
+                _.map(this.marks, function(mark) {
+                    scene.remove(mark);
+                });
+
+                return _.map(intersectingFaces, function(hit) {
+                    // return at most one face for each intersection
+                    return hit[0];
+                });
             }
         };
 
