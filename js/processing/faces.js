@@ -1,14 +1,62 @@
 define([
     'underscore',
     'helpers',
-    'threejs'
-], function(_, h, THREE) {
+    'threejs',
+    'three/scene'
+], function(_, h, THREE, scene) {
     return function(artister) {
         var facer = {
             init: function() {
                 this.faces = App.three.mesh.getFaces();
                 this.vertices = App.three.mesh.getVertices();
                 this.artister = artister;
+            },
+
+            addEquidistantMarks: function(num) {
+                if (this.markers && this.markers.length) {
+                    // TODO: check on scene addition/removal?
+                    return this.markers;
+                }
+                this.markers = [];
+                var mark;
+                var points = h.equidistantishPointsOnSphere(num);
+
+                for (var i in points) {
+                    mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
+                    mark.position.x = points[i][0];
+                    mark.position.y = points[i][1];
+                    mark.position.z = points[i][2];
+                    mark.position.multiplyScalar(App.three.mesh.radius + 2);
+                    this.markers.push(mark);
+                    scene.add(mark);
+                }
+            },
+
+            findEquidistantFaces: function(numMarkers) {
+                // add transient helper marks
+                this.addEquidistantMarks(numMarkers);
+
+                var caster = new THREE.Raycaster();
+                var intersectingFaces = [];
+                var globe = App.three.mesh.getGlobe();
+                var marker;
+                for (var i = 0; i < this.markers.length; i++) {
+                    // use the mark's vector as a ray to find the closest face
+                    // via its intersection
+                    marker = this.markers[i].position.clone();
+                    caster.set(globe.position, marker.normalize());
+                    intersectingFaces.push(caster.intersectObject(globe));
+                }
+
+                // clean up transient markers
+                _.each(this.markers, function(mark) {
+                    scene.remove(mark);
+                });
+
+                return _.map(intersectingFaces, function(hit) {
+                    // return at most one face for each intersection
+                    return hit[0];
+                });
             },
 
             validFace: function(artist, edge) {

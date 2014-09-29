@@ -45,7 +45,6 @@ define([
             },
 
             seed: function(evt, data) {
-                var loopSequence = [];
                 var stagger;
                 var initialOffset;
 
@@ -53,26 +52,15 @@ define([
                 this.artister.setData(preppedData);
                 this.batchSize = this.artister.artists.length;
 
-                // stagger out the seed faces for each artists, avoiding getting
-                // too close to the poles for now
-                stagger = Math.floor(this.facer.faces.length / this.artister.artists.length);
-                initialOffset = Math.floor(Math.floor(this.facer.faces.length / stagger) / 2);
-
-                for (var i = initialOffset; i < this.facer.faces.length; i += stagger) {
-                    if (loopSequence.length == this.artister.artists.length) {
-                        break;
-                    }
-                    loopSequence.push(i);
-                }
-
                 // seed the planet
-                this.looper.loop(loopSequence.slice(0));
-                App.three.mesh.facer.findEquidistantFaces(this.artister.artists.length);
+                var seeds = this.facer.findEquidistantFaces(this.artister.artists.length);
+                var seedIndices = _.pluck(seeds, 'faceIndex');
+                this.looper.loop(seedIndices);
 
                 // set remaining faces to paint
                 var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
-                App.remaining = _.difference(randos, loopSequence);
-                // App.vent.trigger('seeded');
+                App.remaining = _.difference(randos, seedIndices);
+                App.vent.trigger('seeded');
             },
 
             processBatch: function() {
