@@ -48,7 +48,8 @@ define([
 
                 var face = intersects[0].face;
                 if (face.data && face.data.artist) {
-                    this.showArtist(face.data.artist);
+                    // TODO:dh revisit when more need for delayed ux comes into play
+                    // this.showArtist(face.data.artist);
                 }
 
                 if (face != this.active) {
