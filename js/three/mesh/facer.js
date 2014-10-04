@@ -13,7 +13,7 @@ define([
                     f.data = {};
                     f.color.setHex(0xFFFFFF);
                 });
-                this.geo.colorsNeedUpdate = true;
+                App.three.mesh.update();
             }
         };
 

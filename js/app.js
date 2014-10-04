@@ -89,7 +89,9 @@ define([
                 this.focusUsername();
 
                 this.vent.on('seeded', function() {
+                    // reset conditions to batch through requestAnimationFrame
                     App.painting = true;
+                    App.stopLooping = false;
                 });
                 this.vent.on('starting.source', function() {
                     App.three.mesh.resetGlobe();

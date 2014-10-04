@@ -45,9 +45,6 @@ define([
             },
 
             seed: function(evt, data) {
-                var stagger;
-                var initialOffset;
-
                 var preppedData = this.preProcessData(data);
                 this.artister.setData(preppedData);
                 this.batchSize = this.artister.artists.length;

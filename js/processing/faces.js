@@ -52,6 +52,7 @@ define([
                 _.each(this.markers, function(mark) {
                     scene.remove(mark);
                 });
+                delete this.markers;
 
                 return _.map(intersectingFaces, function(hit) {
                     // return at most one face for each intersection
