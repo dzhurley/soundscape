@@ -15,7 +15,7 @@ define([
             sourcesPrompt: document.getElementById('sources'),
             outlinesButton: document.getElementById('toggle-outlines'),
 
-            outlines: true,
+            outlines: false,
             painting: false,
             stopLooping: false,
             stopOnSwap: true,
