@@ -24,6 +24,11 @@ define([
             },
 
             parseData: function(data) {
+                if (data.error && data.error == 6) {
+                    // TODO: find a nicer way
+                    alert('not a user');
+                    return;
+                }
                 var baseData =  _.map(data.artists.artist, function(artist) {
                     return {
                         name: artist.name,

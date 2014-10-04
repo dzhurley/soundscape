@@ -20,7 +20,6 @@ define([
             },
 
             preProcessData: function(data) {
-                // TODO: clear sphere for next user
                 var totalPlays = _.reduce(data, function(memo, d) {
                     return memo + d.playCount;
                 }, 0);
@@ -46,6 +45,11 @@ define([
 
             seed: function(evt, data) {
                 var preppedData = this.preProcessData(data);
+                if (!preppedData.length) {
+                    // TODO: find a nicer way
+                    alert('user has no plays');
+                    return;
+                }
                 this.artister.setData(preppedData);
                 this.batchSize = this.artister.artists.length;
 
