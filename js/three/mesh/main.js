@@ -7,12 +7,9 @@ define([
     'three/mesh/facer'
 ], function(_, h, THREE, scene, Edger, Facer) {
     return function() {
-        var radius = 50;
-        var widthAndHeight = 50;
-
         var mesh = {
-            radius: radius,
-            widthAndHeight: widthAndHeight,
+            radius: App.constants.globe.radius,
+            widthAndHeight: App.constants.globe.widthAndHeight,
 
             init: function() {
                 this.globe = this.createGlobe();
@@ -38,7 +35,9 @@ define([
 
             createGlobe: function() {
                 return new THREE.Mesh(
-                    new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
+                    new THREE.SphereGeometry(this.radius,
+                                             this.widthAndHeight,
+                                             this.widthAndHeight),
                     new THREE.MeshLambertMaterial({
                         shading: THREE.FlatShading,
                         side: THREE.DoubleSide,
@@ -49,7 +48,9 @@ define([
 
             createOutlines: function() {
                 return new THREE.Mesh(
-                    new THREE.SphereGeometry(radius + 0.1, widthAndHeight, widthAndHeight),
+                    new THREE.SphereGeometry(this.radius + 0.1,
+                                             this.widthAndHeight,
+                                             this.widthAndHeight),
                     new THREE.MeshLambertMaterial({
                         color: new THREE.Color(0x000000),
                         shading: THREE.FlatShading,
@@ -64,15 +65,15 @@ define([
                 var stars = [];
                 var star;
 
-                for (var i = 0; i < 100; ++i) {
+                for (var i = 0; i < App.constants.stars.number; ++i) {
                     star = new THREE.Sprite(new THREE.SpriteMaterial());
-                    star.position.x = Math.random() * 2 - 1;
-                    star.position.y = Math.random() * 2 - 1;
-                    star.position.z = Math.random() * 2 - 1;
+                    star.position.x = App.constants.stars.initialX();
+                    star.position.y = App.constants.stars.initialY();
+                    star.position.z = App.constants.stars.initialZ();
 
                     star.position.normalize();
-                    star.position.multiplyScalar(Math.random() * 100 + 200);
-                    star.scale.multiplyScalar(Math.random() * 0.5);
+                    star.position.multiplyScalar(App.constants.stars.positionMultiplier());
+                    star.scale.multiplyScalar(App.constants.stars.scaleMultiplier());
                     stars.push(star);
                 }
                 return stars;

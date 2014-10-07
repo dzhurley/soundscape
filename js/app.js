@@ -20,7 +20,8 @@ define([
             stopLooping: false,
             stopOnSwap: true,
 
-            init: function() {
+            init: function(constants) {
+                this.constants = constants || {};
                 this.vent = new EventBus();
                 this.three = new Threes();
                 this.processor = new Processor();

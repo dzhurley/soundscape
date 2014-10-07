@@ -1,6 +1,7 @@
 requirejs([
+    'constants',
     'app'
-], function(App) {
+], function(Constants, App) {
     window.App = new App();
-    window.App.init();
+    window.App.init(Constants);
 });

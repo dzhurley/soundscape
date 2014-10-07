@@ -7,19 +7,13 @@ require({
 
         threejs: '../bower_components/threejs/build/three',
 
-        lib: 'lib',
         three: 'three',
         processing: 'processing'
     },
 
     shim: {
-        eventbus: {
-            exports: 'EventBus'
-        },
-
-        threejs: {
-            exports: 'THREE'
-        }
+        eventbus: { exports: 'EventBus' },
+        threejs: { exports: 'THREE' }
     }
 }, [
     'underscore',
