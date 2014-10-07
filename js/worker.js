@@ -17,11 +17,36 @@ require({
     }
 }, [
     'underscore',
+    'constants',
     'three/mesh/edger',
     'three/mesh/facer'
-], function(_, Edger, Facer) {
-    // TODO: how do i stick these args in the onmessage context?
+], function(_, Constants, Edger, Facer) {
+    // stick these arguments in the current context to stick around
+    // when messages come through
+    this.Constants = Constants;
+    this.Edger = Edger;
+    this.Facer = Facer;
+
     onmessage = function(evt) {
-        postMessage('from the worker: ' + evt.data);
+        if (evt.data.status !== 'process!') {
+            postMessage(JSON.stringify({ msg: 'bailed!' }));
+        }
+
+        var mesh = new THREE.Mesh(
+            new THREE.SphereGeometry(Constants.globe.radius,
+                                     Constants.globe.widthAndHeight,
+                                     Constants.globe.widthAndHeight),
+            new THREE.MeshLambertMaterial({
+                shading: THREE.FlatShading,
+                side: THREE.DoubleSide,
+                vertexColors: THREE.FaceColors
+            })
+        );
+
+        postMessage(JSON.stringify({
+            msg: 'processed!',
+            edges: mesh.geometry.vertices,
+            faces: mesh.geometry.faces
+        }));
     };
 });

@@ -35,15 +35,16 @@ define([
             },
 
             setupWorkers: function() {
+                // TODO: promote to its own file (folder?) and share more code
                 this.worker = new Worker('js/worker.js');
-                this.worker.postMessage('start');
+                this.worker.postMessage('start!');
 
                 this.worker.onerror = function() {
                     console.error('Worker Error:', arguments);
                 };
 
                 this.worker.onmessage = function(evt) {
-                    console.warn(evt.data);
+                    console.warn(JSON.parse(evt.data));
                 };
             },
 
@@ -51,14 +52,13 @@ define([
                 if (this.outlines) {
                     this.three.scene.remove(this.three.mesh.outlines);
                     this.outlines = false;
-                    this.worker.postMessage({
-                        faces: this.three.mesh.getFaces(),
-                        vertices: this.three.mesh.getVertices()
-                    });
+
+                    this.worker.postMessage('process!');
                 } else {
                     this.three.scene.add(this.three.mesh.outlines);
                     this.outlines = true;
-                    this.worker.postMessage('outlines are on!');
+
+                    this.worker.postMessage('process!');
                 }
             },
 
