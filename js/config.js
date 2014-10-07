@@ -5,7 +5,6 @@ requirejs.config({
         text: '../bower_components/requirejs-text/text',
         underscore: '../bower_components/underscore-amd/underscore-min',
 
-        dat: '../bower_components/dat.gui/dat.gui.min',
         eventbus: '../bower_components/EventBus/dist/EventBus',
 
         threejs: '../bower_components/threejs/build/three',
@@ -19,8 +18,6 @@ requirejs.config({
     },
 
     shim: {
-        dat: { exports: 'dat' },
-
         eventbus: { exports: 'EventBus' },
 
         threejs: { exports: 'THREE' },

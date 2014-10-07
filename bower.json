@@ -12,7 +12,6 @@
     "threejs": "*",
     "requirejs": "~2.1.10",
     "requirejs-text": "~2.0.10",
-    "underscore-amd": "~1.5.2",
-    "dat.gui": "*"
+    "underscore-amd": "~1.5.2"
   }
 }

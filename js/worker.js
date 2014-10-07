@@ -13,10 +13,6 @@ require({
     },
 
     shim: {
-        dat: {
-            exports: 'dat'
-        },
-
         eventbus: {
             exports: 'EventBus'
         },
