@@ -20,8 +20,6 @@ define([
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;
                 artist.faces--;
-                App.vent.trigger('painted.face', face);
-                App.three.mesh.update();
             },
 
             runIteration: function(rando) {

@@ -1,75 +1,38 @@
 define([
-    'underscore',
-    'helpers',
-    'threejs',
-    'processing/artists',
-    'processing/faces',
-    'processing/looper'
-], function(_, h, THREE, ArtistProcessor, FaceProcessor, Looper) {
+    'underscore'
+], function(_) {
     return function() {
         var processor = {
             init: function() {
-                this.artister = new ArtistProcessor();
-                this.facer = new FaceProcessor(this.artister);
-                this.looper = new Looper(this.facer, this.artister);
+                this.worker = new Worker('js/processing/worker.js');
+                // kick the worker off
+                this.worker.postMessage('start!');
 
-                // how many faces to paint before allowing a rerender
-                this.batchSize = 1;
-
-                App.vent.on('fetched.artists', _.bind(this.seed, this));
+                this.initOnError();
+                this.initOnMessage();
             },
 
-            preProcessData: function(data) {
-                var totalPlays = _.reduce(data, function(memo, d) {
-                    return memo + d.playCount;
-                }, 0);
-
-                _.map(this.facer.faces, function(face) {
-                    face.data = {};
-                });
-
-                _.map(data, _.bind(function(d, i) {
-                    d.edges = [];
-                    // faces available for a given artist to paint
-                    d.faces = Math.round((d.playCount * this.facer.faces.length / totalPlays) * 0.5);
-                    // since incoming data is sorted, rank artists as we preProcess
-                    d.rank = i;
-                    return d;
-                }, this));
-
-                // don't bother with artists that don't merit faces
-                return _.filter(data, function(d) {
-                    return d.faces > 0;
-                });
+            postMessage: function(msg) {
+                this.worker.postMessage(msg);
             },
 
-            seed: function(evt, data) {
-                var preppedData = this.preProcessData(data);
-                if (!preppedData.length) {
-                    // TODO: find a nicer way
-                    alert('user has no plays');
-                    return;
-                }
-                this.artister.setData(preppedData);
-                this.batchSize = this.artister.artists.length;
-
-                // seed the planet
-                var seeds = this.facer.findEquidistantFaces(this.artister.artists.length);
-                var seedIndices = _.pluck(seeds, 'faceIndex');
-                this.looper.loop(seedIndices);
-
-                // set remaining faces to paint
-                var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
-                App.remaining = _.difference(randos, seedIndices);
-                App.vent.trigger('seeded');
+            initOnError: function() {
+                this.worker.onerror = function() {
+                    console.error('Worker Error:', arguments);
+                };
             },
 
-            processBatch: function() {
-                for (var i = 0; i <= this.batchSize; i++) {
-                    if (this.looper.loopOnce()) {
-                        break;
-                    }
-                }
+            initOnMessage: function() {
+                this.worker.onmessage = _.bind(function(evt) {
+                    var newFaces = JSON.parse(evt.data.faces);
+                    var oldFaces = App.three.mesh.globe.geometry.faces;
+                    _.each(newFaces, _.bind(function(face) {
+                        var index = parseInt(_.keys(face)[0], 10);
+                        oldFaces[index].color.copy(face[index].color);
+                        oldFaces[index].data = face[index].data;
+                    }, this));
+                    App.three.mesh.globe.geometry.colorsNeedUpdate = true;
+                }, this);
             }
         };
 

@@ -1,6 +1,4 @@
-define([
-    'underscore'
-], function(_) {
+define(['underscore'], function(_) {
     var boundedArray = function(min, max) {
         // enumerates numbers between `min` and `max` inclusive
         // and returns the array

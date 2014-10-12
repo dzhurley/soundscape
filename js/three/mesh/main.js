@@ -17,18 +17,6 @@ define([
                 this.stars = this.createStars();
             },
 
-            getGlobe: function() {
-                return this.globe;
-            },
-
-            getFaces: function() {
-                return this.globe.geometry.faces;
-            },
-
-            getVertices: function() {
-                return this.globe.geometry.vertices;
-            },
-
             resetGlobe: function() {
                 this.facer.resetFaces();
             },

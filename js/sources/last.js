@@ -46,7 +46,10 @@ define([
                 }
 
                 if (this.artists) {
-                    App.vent.trigger('fetched.artists', this.artists);
+                    App.processor.worker.postMessage({
+                        msg: 'process!',
+                        artists: JSON.stringify(this.artists)
+                    });
                     return;
                 }
 
@@ -56,10 +59,14 @@ define([
                 request.onload = _.bind(function() {
                     if (request.status >= 200 && request.status < 400){
                         // Success!
-                        data = JSON.parse(request.responseText);
+                        var data = JSON.parse(request.responseText);
                         this.artists = this.parseData(data);
-                        App.vent.trigger('fetched.artists', this.artists);
-                        localStorage[username] = JSON.stringify(this.artists);
+                        var stringified = JSON.stringify(this.artists);
+                        App.processor.worker.postMessage({
+                            msg: 'process!',
+                            artists: stringified
+                        });
+                        localStorage[username] = stringified;
                     }
                 }, this);
 

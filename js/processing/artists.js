@@ -1,10 +1,10 @@
 define(['underscore'], function(_) {
-    return function() {
+    return function(edger) {
         var nextArtistCallCount = 0;
 
         var artister = {
             artistIndex: 0,
-            edger: App.three.mesh.edger,
+            edger: edger,
 
             setData: function(data) {
                 this.artists = _.shuffle(data);

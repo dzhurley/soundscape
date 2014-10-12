@@ -4,11 +4,13 @@ define([
     'threejs',
     'three/scene'
 ], function(_, h, THREE, scene) {
-    return function(artister) {
+    return function(artister, mesh, edger) {
         var facer = {
             init: function() {
-                this.faces = App.three.mesh.getFaces();
-                this.vertices = App.three.mesh.getVertices();
+                this.edger = edger;
+                this.mesh = mesh;
+                this.faces = this.mesh.geometry.faces;
+                this.vertices = this.mesh.geometry.vertices;
                 this.artister = artister;
             },
 
@@ -26,7 +28,7 @@ define([
                     mark.position.x = points[i][0];
                     mark.position.y = points[i][1];
                     mark.position.z = points[i][2];
-                    mark.position.multiplyScalar(App.three.mesh.radius + 2);
+                    mark.position.multiplyScalar(this.mesh.geometry.radius + 2);
                     this.markers.push(mark);
                     scene.add(mark);
                 }
@@ -38,14 +40,13 @@ define([
 
                 var caster = new THREE.Raycaster();
                 var intersectingFaces = [];
-                var globe = App.three.mesh.getGlobe();
                 var marker;
                 for (var i = 0; i < this.markers.length; i++) {
                     // use the mark's vector as a ray to find the closest face
                     // via its intersection
                     marker = this.markers[i].position.clone();
-                    caster.set(globe.position, marker.normalize());
-                    intersectingFaces.push(caster.intersectObject(globe));
+                    caster.set(this.mesh.position, marker.normalize());
+                    intersectingFaces.push(caster.intersectObject(this.mesh));
                 }
 
                 // clean up transient markers
@@ -62,7 +63,7 @@ define([
 
             validFace: function(artist, edge) {
                 var swappers = [];
-                var verts = App.three.mesh.edger.generalEdge(edge);
+                var verts = this.edger.generalEdge(edge);
 
                 function intertains(first, second) {
                     return !_.isEmpty(_.intersection(first, second));
