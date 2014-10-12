@@ -87,9 +87,6 @@ define([
             animate: function() {
                 window.requestAnimationFrame(app.animate);
                 app.three.animate();
-                if (app.painting && !app.stopLooping) {
-                    app.processor.processBatch();
-                }
             }
         };
 

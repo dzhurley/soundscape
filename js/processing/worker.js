@@ -27,8 +27,8 @@ require({
     this.Processor = Processor;
 
     onmessage = function(evt) {
-        if (evt.data.msg !== 'process!') {
-            postMessage(JSON.stringify({ msg: 'bailed!' }));
+        if (evt.data.msg === 'start!') {
+            return;
         }
 
         var artists = evt.data.artists;
@@ -46,23 +46,50 @@ require({
         );
 
         this.processor = this.processor || new Processor(this.mesh);
-        this.processor.seed(JSON.parse(artists));
 
-        var newFaces = _.compact(_.map(this.mesh.geometry.faces, _.bind(function(face) {
-            var indexedFace = null;
+        var msg = '';
+        var newFaces = function(faces) {
+            return _.compact(_.map(faces, function(face) {
+                var indexedFace = null;
 
-            if (face.data.artist) {
-                var index = this.mesh.geometry.faces.indexOf(face).toString();
-                indexedFace = {};
-                indexedFace[index] = face;
+                if (face.data.pending) {
+                    var index = faces.indexOf(face).toString();
+                    indexedFace = {};
+                    indexedFace[index] = face;
+                    delete face.data.pending;
+                }
+
+                return indexedFace;
+            }));
+        };
+
+        if (evt.data.msg === 'seed!') {
+            this.remaining = this.processor.seed(JSON.parse(artists));
+            // TODO: send back progress
+            postMessage({
+                msg: 'seeded!',
+                faces: JSON.stringify(newFaces(this.mesh.geometry.faces))
+            });
+        }
+
+        if (evt.data.msg === 'batch!') {
+            for (var i = 0; i < this.remaining.length; i++) {
+                for (var j = 0; j <= this.processor.batchSize; j++) {
+                    if (this.processor.looper.loopOnce(this.remaining)) {
+                        break;
+                    }
+                }
+
+                // TODO: send back progress
+                postMessage({
+                    msg: 'batched!',
+                    faces: JSON.stringify(newFaces(this.mesh.geometry.faces))
+                });
+
+                if (this.stop) {
+                    break;
+                }
             }
-
-            return indexedFace;
-        }, this)));
-
-        postMessage({
-            msg: 'processed!',
-            faces: JSON.stringify(newFaces)
-        });
+        }
     };
 });

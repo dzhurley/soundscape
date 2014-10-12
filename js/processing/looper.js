@@ -5,10 +5,11 @@ define([
     'processing/artists',
     'processing/faces'
 ], function(_, h, THREE, ArtistProcessor, FaceProcessor) {
-    return function(facer, artister) {
+    return function(facer, artister, processor) {
         var looper = {
             facer: facer,
             artister: artister,
+            processor: processor,
             remaining: [],
 
             setFace: function(face, artist) {
@@ -19,6 +20,7 @@ define([
                 face.color.multiplyScalar(artist.normCount);
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;
+                face.data.pending = true;
                 artist.faces--;
             },
 
@@ -69,18 +71,15 @@ define([
                 }
             },
 
-            loopOnce: function(continueOnSwap) {
-                var startingLength = App.remaining.length;
-                if (continueOnSwap) {
-                    App.stopOnSwap = false;
-                }
-                this.remaining = App.remaining;
+            loopOnce: function(remaining) {
+                var startingLength = remaining.length;
+                this.remaining = remaining;
                 var iterationResult = this.runIteration(this.remaining[0]);
-                if (startingLength === App.remaining.length) {
+                if (startingLength === this.remaining.length) {
                     // no paints on this pass, no use trying again
-                    App.stopLooping = true;
+                    this.processor.stop = true;
                 }
-                console.log('remaining', App.remaining.length);
+                console.log('remaining', this.remaining.length);
                 return iterationResult;
             }
         };

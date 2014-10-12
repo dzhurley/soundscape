@@ -15,7 +15,7 @@ define([
                 this.artister = new ArtistProcessor(this.edger);
                 // TODO: don't depend on passing so much
                 this.facer = new FaceProcessor(this.artister, mesh, this.edger);
-                this.looper = new Looper(this.facer, this.artister);
+                this.looper = new Looper(this.facer, this.artister, this);
 
                 // how many faces to paint before allowing a rerender
                 this.batchSize = 1;
@@ -61,17 +61,8 @@ define([
                 this.looper.loop(seedIndices);
 
                 // set remaining faces to paint
-                // var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
-                // App.remaining = _.difference(randos, seedIndices);
-                // App.vent.trigger('seeded');
-            },
-
-            processBatch: function() {
-                for (var i = 0; i <= this.batchSize; i++) {
-                    if (this.looper.loopOnce()) {
-                        break;
-                    }
-                }
+                var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
+                return _.difference(randos, seedIndices);
             }
         };
 
