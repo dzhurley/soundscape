@@ -47,7 +47,7 @@ define([
 
                 if (this.artists) {
                     App.processor.worker.postMessage({
-                        msg: 'seed!',
+                        msg: 'seed',
                         artists: JSON.stringify(this.artists)
                     });
                     return;
@@ -63,7 +63,7 @@ define([
                         this.artists = this.parseData(data);
                         var stringified = JSON.stringify(this.artists);
                         App.processor.worker.postMessage({
-                            msg: 'seed!',
+                            msg: 'seed',
                             artists: stringified
                         });
                         localStorage[username] = stringified;

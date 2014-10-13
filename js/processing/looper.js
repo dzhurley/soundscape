@@ -48,7 +48,6 @@ define([
             },
 
             loop: function(randos) {
-                // TODO: rework this to know about stopOnSwap
                 this.remaining = randos;
                 var currentPass;
                 var i = 0;

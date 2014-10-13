@@ -22,74 +22,83 @@ require({
     'constants',
     'processing/seeder'
 ], function(_, Constants, Processor) {
-
-    this.Constants = Constants;
+    // stick args in the worker context
+    this.globe = Constants.globe;
     this.Processor = Processor;
 
-    onmessage = function(evt) {
-        if (evt.data.msg === 'start!') {
-            return;
-        }
+    this.EventManager = function() {
+        var eventManager = {
+            dispatchEvent: function(evt) {
+                return this[evt.data.msg](evt);
+            },
 
-        var artists = evt.data.artists;
+            init: function() {
+                var geometry = new THREE.SphereGeometry(globe.radius,
+                                                        globe.widthAndHeight,
+                                                        globe.widthAndHeight);
+                var material = new THREE.MeshLambertMaterial({
+                    shading: THREE.FlatShading,
+                    side: THREE.DoubleSide,
+                    vertexColors: THREE.FaceColors
+                });
+                this.mesh = new THREE.Mesh(geometry, material);
 
-        // minimal mesh with same constants to work against in worker
-        this.mesh = this.mesh || new THREE.Mesh(
-            new THREE.SphereGeometry(Constants.globe.radius,
-                                     Constants.globe.widthAndHeight,
-                                     Constants.globe.widthAndHeight),
-            new THREE.MeshLambertMaterial({
-                shading: THREE.FlatShading,
-                side: THREE.DoubleSide,
-                vertexColors: THREE.FaceColors
-            })
-        );
+                this.processor = new Processor(this.mesh);
 
-        this.processor = this.processor || new Processor(this.mesh);
+                return;
+            },
 
-        var msg = '';
-        var newFaces = function(faces) {
-            return _.compact(_.map(faces, function(face) {
-                var indexedFace = null;
+            newFaces: function(faces) {
+                return _.compact(_.map(faces, function(face) {
+                    var indexedFace = null;
 
-                if (face.data.pending) {
-                    var index = faces.indexOf(face).toString();
-                    indexedFace = {};
-                    indexedFace[index] = face;
-                    delete face.data.pending;
-                }
+                    if (face.data.pending) {
+                        var index = faces.indexOf(face).toString();
+                        indexedFace = {};
+                        indexedFace[index] = face;
+                        delete face.data.pending;
+                    }
 
-                return indexedFace;
-            }));
-        };
+                    return indexedFace;
+                }));
+            },
 
-        if (evt.data.msg === 'seed!') {
-            this.remaining = this.processor.seed(JSON.parse(artists));
-            // TODO: send back progress
-            postMessage({
-                msg: 'seeded!',
-                faces: JSON.stringify(newFaces(this.mesh.geometry.faces))
-            });
-        }
+            seed: function(evt) {
+                this.remaining = this.processor.seed(JSON.parse(evt.data.artists));
+                // TODO: send back progress
+                postMessage({
+                    msg: 'seeded',
+                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                });
+            },
 
-        if (evt.data.msg === 'batch!') {
-            for (var i = 0; i < this.remaining.length; i++) {
-                for (var j = 0; j <= this.processor.batchSize; j++) {
-                    if (this.processor.looper.loopOnce(this.remaining)) {
+            batch: function(evt) {
+                for (var i = 0; i < this.remaining.length; i++) {
+                    for (var j = 0; j <= this.processor.batchSize; j++) {
+                        if (this.processor.looper.loopOnce(this.remaining)) {
+                            break;
+                        }
+                    }
+
+                    // TODO: send back progress
+                    postMessage({
+                        msg: 'batched',
+                        faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                    });
+
+                    if (this.processor.stop) {
                         break;
                     }
                 }
-
-                // TODO: send back progress
-                postMessage({
-                    msg: 'batched!',
-                    faces: JSON.stringify(newFaces(this.mesh.geometry.faces))
-                });
-
-                if (this.stop) {
-                    break;
-                }
             }
-        }
+        };
+
+        eventManager.init();
+        return eventManager;
+    };
+
+    onmessage = function(evt) {
+        this.eventManager = this.eventManager || new EventManager();
+        this.eventManager.dispatchEvent(evt);
     };
 });

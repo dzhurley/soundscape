@@ -5,9 +5,6 @@ define([
         var processor = {
             init: function() {
                 this.worker = new Worker('js/processing/worker.js');
-                // kick the worker off
-                this.worker.postMessage('start!');
-
                 this.initOnError();
                 this.initOnMessage();
             },
@@ -35,8 +32,8 @@ define([
 
                     App.three.mesh.globe.geometry.colorsNeedUpdate = true;
 
-                    if (evt.data.msg === 'seeded!') {
-                        this.postMessage({ msg: 'batch!'});
+                    if (evt.data.msg === 'seeded') {
+                        this.postMessage({ msg: 'batch'});
                     }
                 }, this);
             }
