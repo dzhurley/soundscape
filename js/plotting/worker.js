@@ -9,7 +9,7 @@ require({
 
         constants: '../constants',
         three: '../three',
-        processing: '../processing',
+        plotting: '../plotting',
         helpers: '../helpers'
     },
 
@@ -20,11 +20,11 @@ require({
 }, [
     'underscore',
     'constants',
-    'processing/seeder'
-], function(_, Constants, Processor) {
+    'plotting/seeder'
+], function(_, Constants, Plotter) {
     // stick args in the worker context
     this.globe = Constants.globe;
-    this.Processor = Processor;
+    this.Plotter = Plotter;
 
     this.EventManager = function() {
         var eventManager = {
@@ -43,7 +43,7 @@ require({
                 });
                 this.mesh = new THREE.Mesh(geometry, material);
 
-                this.processor = new Processor(this.mesh);
+                this.plotter = new Plotter(this.mesh);
 
                 return;
             },
@@ -64,7 +64,7 @@ require({
             },
 
             seed: function(evt) {
-                this.remaining = this.processor.seed(JSON.parse(evt.data.artists));
+                this.remaining = this.plotter.seed(JSON.parse(evt.data.artists));
                 // TODO: send back progress
                 postMessage({
                     msg: 'seeded',
@@ -74,8 +74,8 @@ require({
 
             batch: function(evt) {
                 for (var i = 0; i < this.remaining.length; i++) {
-                    for (var j = 0; j <= this.processor.batchSize; j++) {
-                        if (this.processor.looper.loopOnce(this.remaining)) {
+                    for (var j = 0; j <= this.plotter.batchSize; j++) {
+                        if (this.plotter.looper.loopOnce(this.remaining)) {
                             break;
                         }
                     }
@@ -86,7 +86,7 @@ require({
                         faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
                     });
 
-                    if (this.processor.stop) {
+                    if (this.plotter.stop) {
                         break;
                     }
                 }

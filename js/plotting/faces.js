@@ -152,7 +152,7 @@ define([
                     this.artister.expandArtistEdges(faceOrSwap, artist, edge);
 
                     // call directly so it won't get dropped while searching for a free face
-                    App.processor.looper.setFace(faceOrSwap, artist);
+                    App.plotter.looper.setFace(faceOrSwap, artist);
 
                     if (this.recentlySwappedArtists.length === 2) {
                         // only keep track of the last 2 artists swapped to help guide us

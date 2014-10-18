@@ -80,7 +80,7 @@ define([
 
             showArtist: function(name) {
                 // pulse an artist's territory orange for .25 seconds
-                var faces = _.filter(App.processor.facer.faces, function(choice) {
+                var faces = _.filter(App.plotter.facer.faces, function(choice) {
                     return choice.data.artist === name;
                 });
 

@@ -46,7 +46,7 @@ define([
                 }
 
                 if (this.artists) {
-                    App.processor.worker.postMessage({
+                    App.plotter.worker.postMessage({
                         msg: 'seed',
                         artists: JSON.stringify(this.artists)
                     });
@@ -62,7 +62,7 @@ define([
                         var data = JSON.parse(request.responseText);
                         this.artists = this.parseData(data);
                         var stringified = JSON.stringify(this.artists);
-                        App.processor.worker.postMessage({
+                        App.plotter.worker.postMessage({
                             msg: 'seed',
                             artists: stringified
                         });

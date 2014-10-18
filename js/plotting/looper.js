@@ -2,14 +2,14 @@ define([
     'underscore',
     'helpers',
     'threejs',
-    'processing/artists',
-    'processing/faces'
-], function(_, h, THREE, ArtistProcessor, FaceProcessor) {
-    return function(facer, artister, processor) {
+    'plotting/artists',
+    'plotting/faces'
+], function(_, h, THREE, ArtistPlotter, FacePlotter) {
+    return function(facer, artister, plotter) {
         var looper = {
             facer: facer,
             artister: artister,
-            processor: processor,
+            plotter: plotter,
             remaining: [],
 
             setFace: function(face, artist) {
@@ -76,7 +76,7 @@ define([
                 var iterationResult = this.runIteration(this.remaining[0]);
                 if (startingLength === this.remaining.length) {
                     // no paints on this pass, no use trying again
-                    this.processor.stop = true;
+                    this.plotter.stop = true;
                 }
                 console.log('remaining', this.remaining.length);
                 return iterationResult;

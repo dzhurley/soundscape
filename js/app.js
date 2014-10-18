@@ -2,10 +2,10 @@ define([
     'eventbus',
     'three/main',
     'three/controls',
-    'processing/main',
+    'plotting/main',
     'sources/main',
     'headsUp'
-], function(EventBus, Threes, Controls, Processor, Sourcer, HeadsUp) {
+], function(EventBus, Threes, Controls, Plotter, Sourcer, HeadsUp) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
@@ -24,7 +24,7 @@ define([
                 this.constants = constants || {};
                 this.vent = new EventBus();
                 this.three = new Threes();
-                this.processor = new Processor();
+                this.plotter = new Plotter();
                 this.sourcer = new Sourcer();
                 this.headsUp = new HeadsUp();
 

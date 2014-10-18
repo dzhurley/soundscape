@@ -3,18 +3,18 @@ define([
     'helpers',
     'three/mesh/edger',
     'three/mesh/facer',
-    'processing/artists',
-    'processing/faces',
-    'processing/looper'
-], function(_, h, Edger, Facer, ArtistProcessor, FaceProcessor, Looper) {
+    'plotting/artists',
+    'plotting/faces',
+    'plotting/looper'
+], function(_, h, Edger, Facer, ArtistPlotter, FacePlotter, Looper) {
 
     return function(mesh) {
-        var processor = {
+        var seeder = {
             init: function() {
                 this.edger = new Edger(mesh.geometry);
-                this.artister = new ArtistProcessor(this.edger);
+                this.artister = new ArtistPlotter(this.edger);
                 // TODO: don't depend on passing so much
-                this.facer = new FaceProcessor(this.artister, mesh, this.edger);
+                this.facer = new FacePlotter(this.artister, mesh, this.edger);
                 this.looper = new Looper(this.facer, this.artister, this);
 
                 // how many faces to paint before allowing a rerender
@@ -66,7 +66,7 @@ define([
             }
         };
 
-        processor.init();
-        return processor;
+        seeder.init();
+        return seeder;
     };
 });

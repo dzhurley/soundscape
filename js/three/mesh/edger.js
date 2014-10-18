@@ -13,7 +13,7 @@ define([
                 // THREE doesn't combine the two polar vertices into one object,
                 // instead storing a separate vertex for each face that connects
                 // to the pole. These return the groupings of both pole's vertices
-                // to compare with in processing.faces.validFace.
+                // to compare with in plotting.faces.validFace.
                 this.northVerts = _.filter(this.geo.vertices, function(v) {
                     return v.y === this.geo.radius;
                 });
@@ -30,7 +30,7 @@ define([
                 // there exists a seam on the globe running across the surface from
                 // pole to pole where 2 vertices share the same coordinates. we need
                 // pairings of these seam vertices to properly find valid adjacent
-                // faces in processing.faces.validFace.
+                // faces in plotting.faces.validFace.
                 this.seams = {};
 
                 var first;

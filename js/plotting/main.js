@@ -2,9 +2,9 @@ define([
     'underscore'
 ], function(_) {
     return function() {
-        var processor = {
+        var plotter = {
             init: function() {
-                this.worker = new Worker('js/processing/worker.js');
+                this.worker = new Worker('js/plotting/worker.js');
                 this.initOnError();
                 this.initOnMessage();
             },
@@ -39,7 +39,7 @@ define([
             }
         };
 
-        processor.init();
-        return processor;
+        plotter.init();
+        return plotter;
     };
 });
