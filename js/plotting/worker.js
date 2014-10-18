@@ -64,6 +64,8 @@ require({
             },
 
             seed: function(evt) {
+                // reset stopping flag
+                this.plotter.stop = false;
                 this.remaining = this.plotter.seed(JSON.parse(evt.data.artists));
                 // TODO: send back progress
                 postMessage({
