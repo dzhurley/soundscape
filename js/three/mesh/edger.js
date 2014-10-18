@@ -14,18 +14,18 @@ define([
                 // instead storing a separate vertex for each face that connects
                 // to the pole. These return the groupings of both pole's vertices
                 // to compare with in plotting.faces.validFace.
-                this.northVerts = _.filter(this.geo.vertices, function(v) {
+                this.northVerts = _.filter(this.geo.vertices, _.bind(function(v) {
                     return v.y === this.geo.radius;
-                });
-                this.southVerts = _.filter(this.geo.vertices, function(v) {
+                }, this));
+                this.southVerts = _.filter(this.geo.vertices, _.bind(function(v) {
                     return v.y === -this.geo.radius;
-                });
+                }, this));
 
-                function indexify(vert) {
+                var indexify = function(vert) {
                     return this.geo.vertices.indexOf(vert);
-                }
-                this.northVerts = _.map(this.northVerts, indexify);
-                this.southVerts = _.map(this.southVerts, indexify);
+                };
+                this.northVerts = _.map(this.northVerts, _.bind(indexify, this));
+                this.southVerts = _.map(this.southVerts, _.bind(indexify, this));
 
                 // there exists a seam on the globe running across the surface from
                 // pole to pole where 2 vertices share the same coordinates. we need
@@ -36,9 +36,9 @@ define([
                 var first;
                 var pair;
                 var second;
-                for (var i = 1; i < this.widthSegments; i++) {
-                    first = (i * this.widthSegments) + i;
-                    second = ((i + 1) * this.widthSegments) + i;
+                for (var i = 1; i < this.geo.widthSegments; i++) {
+                    first = (i * this.geo.widthSegments) + i;
+                    second = ((i + 1) * this.geo.widthSegments) + i;
                     pair = [first, second];
 
                     // store at both spots for more reasonable lookup
@@ -119,6 +119,7 @@ define([
             }
         };
 
+        Edger.wrangleVertices();
         return Edger;
     };
 });
