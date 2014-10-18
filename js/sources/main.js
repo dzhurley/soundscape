@@ -39,11 +39,11 @@ define([
                     src = new src();
                 }
                 this.activeSource = src;
-                App.vent.trigger('starting.source', src);
                 this.getArtistsForUser(username);
             },
 
             getArtistsForUser: function(username) {
+                App.vent.trigger('submitted');
                 if (!this.artists) {
                     if (_.contains(_.keys(localStorage), username)) {
                         this.artists = JSON.parse(localStorage[username]);

@@ -16,9 +16,6 @@ define([
             outlinesButton: document.getElementById('toggle-outlines'),
 
             outlines: false,
-            painting: false,
-            stopLooping: false,
-            stopOnSwap: true,
 
             init: function(constants) {
                 this.constants = constants || {};
@@ -56,6 +53,7 @@ define([
             },
 
             bindHandlers: function() {
+                // ux events to listen on for state changes
                 this.outlinesButton.addEventListener(
                     'click',
                     _.bind(this.toggleOutlines, this)
@@ -70,12 +68,7 @@ define([
                 );
                 this.focusUsername();
 
-                this.vent.on('seeded', function() {
-                    // reset conditions to batch through requestAnimationFrame
-                    App.painting = true;
-                    App.stopLooping = false;
-                });
-                this.vent.on('starting.source', function() {
+                this.vent.on('submitted', function() {
                     App.three.mesh.resetGlobe();
                     if (_.isUndefined(App.three.controls)) {
                         App.three.controls = new Controls();

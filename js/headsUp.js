@@ -32,11 +32,6 @@ define([
                     var intersects = findIntersects();
                     this.updateActive(intersects);
                 }, this));
-
-                App.vent.on('seeded', _.bind(function() {
-                    this.active = null;
-                    App.headsUpDisplay.innerHTML = 'Face Data';
-                }, this));
             },
 
             updateActive: function(intersects) {

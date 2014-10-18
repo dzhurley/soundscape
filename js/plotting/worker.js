@@ -42,10 +42,7 @@ require({
                     vertexColors: THREE.FaceColors
                 });
                 this.mesh = new THREE.Mesh(geometry, material);
-
                 this.plotter = new Plotter(this.mesh);
-
-                return;
             },
 
             newFaces: function(faces) {

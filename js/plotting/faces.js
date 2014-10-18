@@ -142,12 +142,9 @@ define([
                     }
 
                     console.log(artist.name, 'swapping with', swappedArtist);
-                    App.vent.trigger('painted.face', faceOrSwap);
 
-                    if (App.stopOnSwap) {
-                        App.stopLooping = true;
-                        return {face: false};
-                    }
+                    // TODO: revisit swapping of faces, return once it's needed for now
+                    return { face: false };
 
                     this.artister.expandArtistEdges(faceOrSwap, artist, edge);
 
