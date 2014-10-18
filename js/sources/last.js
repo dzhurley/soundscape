@@ -4,7 +4,7 @@ define([
 ], function(_, h) {
     return function() {
         var last = {
-            baseUrl: 'http://ws.audioscrobbler.com/2.0/?',
+            baseUrl: 'http://ws.audioscrobbler.com/2.0/',
 
             defaultParams: {
                 api_key: 'bd366f79f01332a48ae8ce061dba05a9',
@@ -12,15 +12,8 @@ define([
                 method: 'library.getartists'
             },
 
-            urlParams: function(params) {
-                var newParams = _.extend({}, this.defaultParams, params);
-                return _.map(_.keys(newParams), function(key) {
-                    return _.map([key, newParams[key]], encodeURIComponent).join('=');
-                }).join('&');
-            },
-
-            lastUrl: function(params) {
-                return this.baseUrl + this.urlParams(params || {});
+            paramsForUser: function(username) {
+                return { user: username };
             },
 
             parseData: function(data) {
@@ -36,41 +29,6 @@ define([
                     };
                 });
                 return h.normalize(baseData, 'playCount', 'normCount');
-            },
-
-            getArtistsForUser: function(username) {
-                if (!this.artists) {
-                    if (_.contains(_.keys(localStorage), username)) {
-                        this.artists = JSON.parse(localStorage[username]);
-                    }
-                }
-
-                if (this.artists) {
-                    App.plotter.worker.postMessage({
-                        msg: 'seed',
-                        artists: JSON.stringify(this.artists)
-                    });
-                    return;
-                }
-
-                request = new XMLHttpRequest();
-                request.open('GET', this.lastUrl({user: username}), true);
-
-                request.onload = _.bind(function() {
-                    if (request.status >= 200 && request.status < 400){
-                        // Success!
-                        var data = JSON.parse(request.responseText);
-                        this.artists = this.parseData(data);
-                        var stringified = JSON.stringify(this.artists);
-                        App.plotter.worker.postMessage({
-                            msg: 'seed',
-                            artists: stringified
-                        });
-                        localStorage[username] = stringified;
-                    }
-                }, this);
-
-                request.send();
             }
         };
 

@@ -75,6 +75,14 @@ define(['underscore'], function(_) {
         });
     };
 
+    var packUrlParams = function(params) {
+        // pack key/values into encoded url params, delimited by '&'
+        // TODO: support for leading '?'?
+        return _.map(_.keys(params), function(key) {
+            return _.map([key, params[key]], encodeURIComponent).join('=');
+        }).join('&');
+    };
+
     var randomBoundedArray = function(min, max) {
         // shuffles boundedArray
         return _.shuffle(boundedArray(min, max));
@@ -107,6 +115,7 @@ define(['underscore'], function(_) {
         equidistantishPointsOnSphere: equidistantishPointsOnSphere,
         evenlySpacedInRange: evenlySpacedInRange,
         normalize: normalize,
+        packUrlParams: packUrlParams,
         randomBoundedArray: randomBoundedArray,
         spacedColor: spacedColor
     };
