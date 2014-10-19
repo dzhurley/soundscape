@@ -64,31 +64,41 @@ define([
                 });
             },
 
-            findClosestFreeFace: function(startFace) {
-                // compute the distance between each one of the free faces and
-                // startFace to find the closest free face
-                var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
-                    return !f.data.artist;
-                });
-
-                var closestFreeFace, newDistance, lastDistance;
-                for (var i = 0; i < freeFaces.length; i++) {
-                    faceVector = freeFaces[i].centroid.normalize();
-                    newDistance = startFace.centroid.normalize().distanceTo(faceVector);
-                    if (!closestFreeFace) {
-                        closestFreeFace = freeFaces[i];
+            findClosestFace: function(candidates, target) {
+                // compute the distance between each one of the candidates and
+                // the target to find the closest candidate
+                var closest, newDistance, lastDistance;
+                for (var i = 0; i < candidates.length; i++) {
+                    faceVector = candidates[i].centroid.normalize();
+                    newDistance = target.centroid.normalize().distanceTo(faceVector);
+                    if (!closest) {
+                        closest = candidates[i];
                         lastDistance = newDistance;
                     } else if (newDistance < lastDistance) {
-                        closestFreeFace = freeFaces[i];
+                        closest = candidates[i];
                         lastDistance = newDistance;
                     }
                 }
+                closest.color.setHex(0xffa500);
+                this.mesh.geometry.colorsNeedUpdate = true;
+                return closest;
+            },
 
-                return closestFreeFace;
+            findClosestFreeFace: function(startFace) {
+                var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
+                    return !f.data.artist;
+                });
+                return this.findClosestFace(freeFaces, startFace);
             },
 
             handleSwappers: function(startFace) {
-                var closest = this.findClosestFreeFace(startFace);
+                var goal = this.findClosestFreeFace(startFace);
+                // pseudo plan, needs to know about edges only, swap points:
+                //
+                // currentFace = startFace
+                // while currentFace not goal
+                //     currentFace = findClosestFace(currentFace.neighbors, goal)
+                //     path.push(currentFace)
             }
         };
 
