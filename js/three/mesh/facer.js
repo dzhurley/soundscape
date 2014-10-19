@@ -64,31 +64,31 @@ define([
                 });
             },
 
-            closestFreeFaces: function(startFace) {
-                // raycast from face to each free face and return face with shortest ray
+            findClosestFreeFace: function(startFace) {
+                // compute the distance between each one of the free faces and
+                // startFace to find the closest free face
                 var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
                     return !f.data.artist;
                 });
 
-                var closestFreeFace, lastDistance;
-                var caster = new THREE.Raycaster();
+                var closestFreeFace, newDistance, lastDistance;
                 for (var i = 0; i < freeFaces.length; i++) {
-                    // use the ray from each free face to the startFace to find the
-                    // closest free face
-                    face = freeFaces[i].centroid.clone();
-                    caster.set(startFace.centroid, face.normalize());
+                    faceVector = freeFaces[i].centroid.normalize();
+                    newDistance = startFace.centroid.normalize().distanceTo(faceVector);
                     if (!closestFreeFace) {
                         closestFreeFace = freeFaces[i];
-                    } else {
-                        lastDistance = caster.ray.distanceToPoint(closestFreeFace.centroid);
-                        if (caster.ray.distanceToPoint(face) < lastDistance) {
-                            closestFreeFace = freeFaces[i];
-                        }
+                        lastDistance = newDistance;
+                    } else if (newDistance < lastDistance) {
+                        closestFreeFace = freeFaces[i];
+                        lastDistance = newDistance;
                     }
                 }
-                closestFreeFace.color.setHex(0xffa500);
-                this.mesh.geometry.colorsNeedUpdate = true;
+
                 return closestFreeFace;
+            },
+
+            handleSwappers: function(startFace) {
+                var closest = this.findClosestFreeFace(startFace);
             }
         };
 
