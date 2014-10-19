@@ -69,6 +69,26 @@ define([
                 var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
                     return !f.data.artist;
                 });
+
+                var closestFreeFace, lastDistance;
+                var caster = new THREE.Raycaster();
+                for (var i = 0; i < freeFaces.length; i++) {
+                    // use the ray from each free face to the startFace to find the
+                    // closest free face
+                    face = freeFaces[i].centroid.clone();
+                    caster.set(startFace.centroid, face.normalize());
+                    if (!closestFreeFace) {
+                        closestFreeFace = freeFaces[i];
+                    } else {
+                        lastDistance = caster.ray.distanceToPoint(closestFreeFace.centroid);
+                        if (caster.ray.distanceToPoint(face) < lastDistance) {
+                            closestFreeFace = freeFaces[i];
+                        }
+                    }
+                }
+                closestFreeFace.color.setHex(0xffa500);
+                this.mesh.geometry.colorsNeedUpdate = true;
+                return closestFreeFace;
             }
         };
 
