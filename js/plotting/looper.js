@@ -5,9 +5,9 @@ define([
     'plotting/artists',
     'plotting/faces'
 ], function(_, h, THREE, ArtistPlotter, FacePlotter) {
-    return function(facer, artister, plotter) {
+    return function(facePlotter, artister, plotter) {
         var looper = {
-            facer: facer,
+            facePlotter: facePlotter,
             artister: artister,
             plotter: plotter,
             remaining: [],
@@ -35,7 +35,7 @@ define([
                     // no more faces left for any artist to paint
                     return true;
                 }
-                faceInfo = this.facer.nextFace(artist, rando);
+                faceInfo = this.facePlotter.nextFace(artist, rando);
 
                 if (faceInfo.face) {
                     remainingIndex = this.remaining.indexOf(faceInfo.index);
@@ -47,6 +47,7 @@ define([
                 return false;
             },
 
+            // TODO: sort out and combine loop/loopOnce
             loop: function(randos) {
                 this.remaining = randos;
                 var currentPass;

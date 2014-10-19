@@ -1,9 +1,8 @@
 define([
     'underscore',
     'helpers',
-    'threejs',
-    'three/scene'
-], function(_, h, THREE, scene) {
+    'threejs'
+], function(_, h, THREE) {
     return function(artister, mesh, edger) {
         var facer = {
             init: function() {
@@ -12,53 +11,6 @@ define([
                 this.faces = this.mesh.geometry.faces;
                 this.vertices = this.mesh.geometry.vertices;
                 this.artister = artister;
-            },
-
-            addEquidistantMarks: function(num) {
-                if (this.markers && this.markers.length) {
-                    // TODO: check on scene addition/removal?
-                    return this.markers;
-                }
-                this.markers = [];
-                var mark;
-                var points = h.equidistantishPointsOnSphere(num);
-
-                for (var i in points) {
-                    mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
-                    mark.position.x = points[i][0];
-                    mark.position.y = points[i][1];
-                    mark.position.z = points[i][2];
-                    mark.position.multiplyScalar(this.mesh.geometry.radius + 2);
-                    this.markers.push(mark);
-                    scene.add(mark);
-                }
-            },
-
-            findEquidistantFaces: function(numMarkers) {
-                // add transient helper marks
-                this.addEquidistantMarks(numMarkers);
-
-                var caster = new THREE.Raycaster();
-                var intersectingFaces = [];
-                var marker;
-                for (var i = 0; i < this.markers.length; i++) {
-                    // use the mark's vector as a ray to find the closest face
-                    // via its intersection
-                    marker = this.markers[i].position.clone();
-                    caster.set(this.mesh.position, marker.normalize());
-                    intersectingFaces.push(caster.intersectObject(this.mesh));
-                }
-
-                // clean up transient markers
-                _.each(this.markers, function(mark) {
-                    scene.remove(mark);
-                });
-                delete this.markers;
-
-                return _.map(intersectingFaces, function(hit) {
-                    // return at most one face for each intersection
-                    return hit[0];
-                });
             },
 
             validFace: function(artist, edge) {
@@ -135,39 +87,14 @@ define([
                     faceOrSwap = faceOrSwap[0];
                     swappedArtist = faceOrSwap.data.artist;
 
-                    if (_.contains(this.recentlySwappedArtists, faceOrSwap.data.artist)) {
-                        // don't immediately backtrack when swapping, try another round
-                        edges = _.clone(artist.edges);
-                        continue;
-                    }
-
-                    console.log(artist.name, 'swapping with', swappedArtist);
+                    console.log(artist.name, 'looking to swap with', swappedArtist);
 
                     // TODO: revisit swapping of faces, return once it's needed for now
                     return { face: false };
-
-                    this.artister.expandArtistEdges(faceOrSwap, artist, edge);
-
-                    // call directly so it won't get dropped while searching for a free face
-                    App.plotter.looper.setFace(faceOrSwap, artist);
-
-                    if (this.recentlySwappedArtists.length === 2) {
-                        // only keep track of the last 2 artists swapped to help guide us
-                        // without boxing us into a corner
-                        this.recentlySwappedArtists.shift();
-                    }
-                    this.recentlySwappedArtists.push(artist.name);
-
-                    // bounce back to call findAdjacentFace again with swapped artist
-                    return {
-                        artist: _.findWhere(this.artister.artists,
-                                            {name: swappedArtist})
-                    };
                 }
             },
 
             nextFace: function(artist, rando) {
-                this.recentlySwappedArtists = [];
                 var face = this.faces[rando];
                 var paintedInfo = {artist: artist};
 

@@ -69,7 +69,7 @@ define([
 
             addToScene: function() {
                 this.edger = new Edger(this.globe.geometry);
-                this.facer = new Facer(this.globe.geometry);
+                this.facer = new Facer(this.globe);
 
                 scene.add(mesh.globe);
                 if (App.outlines) {

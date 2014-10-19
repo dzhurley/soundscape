@@ -29,7 +29,10 @@ canvas {
     z-index: 2;
 }
 
-#heads-up span { display: block; }
+#heads-up span {
+    display: block;
+    margin-bottom: 1rem;
+}
 
 #sources-overlay {
     color: #d7d7d7;

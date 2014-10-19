@@ -12,10 +12,11 @@ define([
         var seeder = {
             init: function() {
                 this.edger = new Edger(mesh.geometry);
+                this.facer = new Facer(mesh);
                 this.artister = new ArtistPlotter(this.edger);
                 // TODO: don't depend on passing so much
-                this.facer = new FacePlotter(this.artister, mesh, this.edger);
-                this.looper = new Looper(this.facer, this.artister, this);
+                this.facePlotter = new FacePlotter(this.artister, mesh, this.edger);
+                this.looper = new Looper(this.facePlotter, this.artister, this);
 
                 // how many faces to paint before allowing a rerender
                 this.batchSize = 1;
@@ -26,14 +27,14 @@ define([
                     return memo + d.playCount;
                 }, 0);
 
-                _.map(this.facer.faces, function(face) {
+                _.map(this.facePlotter.faces, function(face) {
                     face.data = {};
                 });
 
                 _.map(data, _.bind(function(d, i) {
                     d.edges = [];
                     // faces available for a given artist to paint
-                    d.faces = Math.round((d.playCount * this.facer.faces.length / totalPlays) * 0.5);
+                    d.faces = Math.round((d.playCount * this.facePlotter.faces.length / totalPlays) * 0.5);
                     // since incoming data is sorted, rank artists as we preProcess
                     d.rank = i;
                     return d;
@@ -61,7 +62,7 @@ define([
                 this.looper.loop(seedIndices);
 
                 // set remaining faces to paint
-                var randos = h.randomBoundedArray(0, this.facer.faces.length - 1);
+                var randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
                 return _.difference(randos, seedIndices);
             }
         };

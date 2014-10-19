@@ -51,11 +51,12 @@ define([
                     this.active = face;
 
                     data = _.extend({}, this.active.data, {
+                        'index': App.three.mesh.globe.geometry.faces.indexOf(this.active),
                         'face a': this.active.a,
-                        'face b': this.active.b,
-                        'face c': this.active.c,
                         'valid a': App.three.mesh.edger.generalVert(this.active.a),
+                        'face b': this.active.b,
                         'valid b': App.three.mesh.edger.generalVert(this.active.b),
+                        'face c': this.active.c,
                         'valid c': App.three.mesh.edger.generalVert(this.active.c)
                     });
 
