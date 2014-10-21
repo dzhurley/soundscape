@@ -4,9 +4,10 @@ define([
     'threejs',
     'three/scene'
 ], function(_, h, THREE, scene) {
-    return function(mesh) {
+    return function(mesh, edger) {
         var Facer = {
             mesh: mesh,
+            edger: edger,
 
             resetFaces: function() {
                 // zero face values for fresh paint
@@ -79,8 +80,6 @@ define([
                         lastDistance = newDistance;
                     }
                 }
-                closest.color.setHex(0xffa500);
-                this.mesh.geometry.colorsNeedUpdate = true;
                 return closest;
             },
 
@@ -91,14 +90,36 @@ define([
                 return this.findClosestFace(freeFaces, startFace);
             },
 
+            adjacentFaces: function(face) {
+                var faces = [];
+                var edges = [
+                    { v1: face.a, v2: face.b },
+                    { v1: face.b, v2: face.c },
+                    { v1: face.c, v2: face.a }
+                ];
+
+                _.each(edges, _.bind(function(edge) {
+                    faces.push(_.without(this.edger.facesForEdge(edge), face));
+                }, this));
+                return _.flatten(faces);
+            },
+
             handleSwappers: function(startFace) {
                 var goal = this.findClosestFreeFace(startFace);
-                // pseudo plan, needs to know about edges only, swap points:
-                //
-                // currentFace = startFace
-                // while currentFace not goal
-                //     currentFace = findClosestFace(currentFace.neighbors, goal)
-                //     path.push(currentFace)
+                var currentFace = startFace;
+                var candidates = [];
+                var path = [currentFace];
+
+                while (currentFace != goal) {
+                    candidates = this.adjacentFaces(currentFace);
+                    currentFace = this.findClosestFace(candidates, goal);
+                    path.push(currentFace);
+                }
+
+                _.each(path, function(face) {
+                    face.color.setHex(0xffa500);
+                });
+                this.mesh.geometry.colorsNeedUpdate = true;
             }
         };
 
