@@ -12,10 +12,10 @@ define([
         var seeder = {
             init: function() {
                 this.edger = new Edger(mesh.geometry);
-                this.facer = new Facer(mesh);
+                this.facer = new Facer(mesh, this.edger);
                 this.artister = new ArtistPlotter(this.edger);
                 // TODO: don't depend on passing so much
-                this.facePlotter = new FacePlotter(this.artister, mesh, this.edger);
+                this.facePlotter = new FacePlotter(this.artister, mesh, this.edger, this.facer);
                 this.looper = new Looper(this.facePlotter, this.artister, this);
 
                 // how many faces to paint before allowing a rerender

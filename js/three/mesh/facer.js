@@ -116,9 +116,15 @@ define([
                     path.push(currentFace);
                 }
 
-                _.each(path, function(face) {
-                    face.color.setHex(0xffa500);
+                var prevFace;
+                _.each(path.reverse(), function(face, index) {
+                    prevFace = path[index + 1];
+                    if (prevFace) {
+                        face.data = _.clone(prevFace.data);
+                        face.color.copy(prevFace.color);
+                    }
                 });
+
                 this.mesh.geometry.colorsNeedUpdate = true;
             }
         };

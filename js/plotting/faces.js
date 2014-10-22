@@ -3,10 +3,11 @@ define([
     'helpers',
     'threejs'
 ], function(_, h, THREE) {
-    return function(artister, mesh, edger) {
-        var facer = {
+    return function(artister, mesh, edger, facer) {
+        var facePlotter = {
             init: function() {
                 this.edger = edger;
+                this.facer = facer;
                 this.mesh = mesh;
                 this.faces = this.mesh.geometry.faces;
                 this.vertices = this.mesh.geometry.vertices;
@@ -82,14 +83,8 @@ define([
                         }
                     }
 
-                    // replace a bordering artist's face with one for this artist, updating
-                    // each artist's edges and faces info
-                    faceOrSwap = faceOrSwap[0];
-                    swappedArtist = faceOrSwap.data.artist;
-
-                    console.log(artist.name, 'looking to swap with', swappedArtist);
-
-                    // TODO: revisit swapping of faces, return once it's needed for now
+                    // handle expanding out to the closest free face out of band
+                    this.facer.handleSwappers(faceOrSwap[0]);
                     return { face: false };
                 }
             },
@@ -117,7 +112,7 @@ define([
             }
         };
 
-        facer.init();
-        return facer;
+        facePlotter.init();
+        return facePlotter;
     };
 });
