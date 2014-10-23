@@ -12,7 +12,7 @@ define([
             plotter: plotter,
             remaining: [],
 
-            setFace: function(face, artist) {
+            setNewFace: function(face, artist) {
                 // TODO: doesn't belong here
                 // paint face with artist color and info
                 index = this.artister.artists.indexOf(artist);
@@ -42,7 +42,9 @@ define([
                     if (remainingIndex > -1) {
                         this.remaining.splice(remainingIndex, 1);
                     }
-                    this.setFace(faceInfo.face, artist);
+                    if (faceInfo.face !== true) {
+                        this.setNewFace(faceInfo.face, artist);
+                    }
                 }
                 return false;
             },

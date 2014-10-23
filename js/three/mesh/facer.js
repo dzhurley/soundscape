@@ -102,30 +102,6 @@ define([
                     faces.push(_.without(this.edger.facesForEdge(edge), face));
                 }, this));
                 return _.flatten(faces);
-            },
-
-            handleSwappers: function(startFace) {
-                var goal = this.findClosestFreeFace(startFace);
-                var currentFace = startFace;
-                var candidates = [];
-                var path = [currentFace];
-
-                while (currentFace != goal) {
-                    candidates = this.adjacentFaces(currentFace);
-                    currentFace = this.findClosestFace(candidates, goal);
-                    path.push(currentFace);
-                }
-
-                var prevFace;
-                _.each(path.reverse(), function(face, index) {
-                    prevFace = path[index + 1];
-                    if (prevFace) {
-                        face.data = _.clone(prevFace.data);
-                        face.color.copy(prevFace.color);
-                    }
-                });
-
-                this.mesh.geometry.colorsNeedUpdate = true;
             }
         };
 

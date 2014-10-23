@@ -14,6 +14,32 @@ define([
                 this.artister = artister;
             },
 
+            handleSwappers: function(startFace) {
+                var goal = this.facer.findClosestFreeFace(startFace);
+                var currentFace = startFace;
+                var candidates = [];
+                var path = [currentFace];
+
+                while (currentFace != goal) {
+                    candidates = this.facer.adjacentFaces(currentFace);
+                    currentFace = this.facer.findClosestFace(candidates, goal);
+                    path.push(currentFace);
+                }
+
+                var prevFace;
+                _.each(path.reverse(), function(face, index) {
+                    prevFace = path[index + 1];
+                    if (prevFace) {
+                        // TODO: account for edge info, see expandArtistEdges
+                        face.data = _.clone(prevFace.data);
+                        face.color.copy(prevFace.color);
+                    }
+                });
+
+                this.mesh.geometry.colorsNeedUpdate = true;
+                return goal;
+            },
+
             validFace: function(artist, edge) {
                 var swappers = [];
                 var verts = this.edger.generalEdge(edge);
@@ -84,8 +110,13 @@ define([
                     }
 
                     // handle expanding out to the closest free face out of band
-                    this.facer.handleSwappers(faceOrSwap[0]);
-                    return { face: false };
+                    console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
+                    this.handleSwappers(faceOrSwap[0]);
+                    return {
+                        // TODO: bad, do something better to return face states
+                        face: true,
+                        index: this.faces.indexOf(faceOrSwap)
+                    };
                 }
             },
 
