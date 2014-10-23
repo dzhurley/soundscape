@@ -63,11 +63,11 @@ define([
                     data = _.extend({}, this.active.data, {
                         'index': App.three.mesh.globe.geometry.faces.indexOf(this.active),
                         'fa': this.active.a,
-                        'va': App.three.mesh.edger.generalVert(this.active.a),
+                        'va': App.three.mesh.utils.generalVert(this.active.a),
                         'fb': this.active.b,
-                        'vb': App.three.mesh.edger.generalVert(this.active.b),
+                        'vb': App.three.mesh.utils.generalVert(this.active.b),
                         'fc': this.active.c,
-                        'vc': App.three.mesh.edger.generalVert(this.active.c)
+                        'vc': App.three.mesh.utils.generalVert(this.active.c)
                     });
 
                     if (data) {

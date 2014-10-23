@@ -20,10 +20,12 @@ require({
 }, [
     'underscore',
     'constants',
+    'three/mesh/utils',
     'plotting/seeder'
-], function(_, Constants, Plotter) {
+], function(_, Constants, Utils, Plotter) {
     // stick args in the worker context
     this.globe = Constants.globe;
+    this.Utils = Utils;
     this.Plotter = Plotter;
 
     this.EventManager = function() {
@@ -42,6 +44,7 @@ require({
                     vertexColors: THREE.FaceColors
                 });
                 this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.utils = new Utils(this.mesh);
                 this.plotter = new Plotter(this.mesh);
             },
 

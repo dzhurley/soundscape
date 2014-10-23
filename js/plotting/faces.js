@@ -3,11 +3,9 @@ define([
     'helpers',
     'threejs'
 ], function(_, h, THREE) {
-    return function(artister, mesh, edger, facer) {
+    return function(artister, mesh) {
         var facePlotter = {
             init: function() {
-                this.edger = edger;
-                this.facer = facer;
                 this.mesh = mesh;
                 this.faces = this.mesh.geometry.faces;
                 this.vertices = this.mesh.geometry.vertices;
@@ -15,14 +13,14 @@ define([
             },
 
             handleSwappers: function(startFace) {
-                var goal = this.facer.findClosestFreeFace(startFace);
+                var goal = this.mesh.utils.findClosestFreeFace(startFace);
                 var currentFace = startFace;
                 var candidates = [];
                 var path = [currentFace];
 
                 while (currentFace != goal) {
-                    candidates = this.facer.adjacentFaces(currentFace);
-                    currentFace = this.facer.findClosestFace(candidates, goal);
+                    candidates = this.mesh.utils.adjacentFaces(currentFace);
+                    currentFace = this.mesh.utils.findClosestFace(candidates, goal);
                     path.push(currentFace);
                 }
 
@@ -42,7 +40,7 @@ define([
 
             validFace: function(artist, edge) {
                 var swappers = [];
-                var verts = this.edger.generalEdge(edge);
+                var verts = this.mesh.utils.generalEdge(edge);
 
                 function intertains(first, second) {
                     return !_.isEmpty(_.intersection(first, second));

@@ -1,10 +1,10 @@
 define(['underscore'], function(_) {
-    return function(edger) {
+    return function(meshUtils) {
         var nextArtistCallCount = 0;
 
         var artister = {
             artistIndex: 0,
-            edger: edger,
+            meshUtils: meshUtils,
 
             setData: function(data) {
                 this.artists = _.shuffle(data);
@@ -17,10 +17,10 @@ define(['underscore'], function(_) {
 
                 // find the other sides of the face that we'll overtake
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
-                if (this.edger.sameEdge(edge, {v1: face.a, v2: face.b})) {
+                if (this.meshUtils.sameEdge(edge, {v1: face.a, v2: face.b})) {
                     second = {v1: face.a, v2: face.c};
                     third = {v1: face.b, v2: face.c};
-                } else if (this.edger.sameEdge(edge, {v1: face.a, v2: face.c})) {
+                } else if (this.meshUtils.sameEdge(edge, {v1: face.a, v2: face.c})) {
                     second = {v1: face.a, v2: face.b};
                     third = {v1: face.b, v2: face.c};
                 } else {
@@ -37,11 +37,11 @@ define(['underscore'], function(_) {
                                                     {name: face.data.artist});
                     swappedArtist.faces++;
                     _.each([edge, second, third], _.bind(function(e) {
-                        faces = this.edger.facesForEdge(e);
+                        faces = this.meshUtils.facesForEdge(e);
                         if (!_.contains(faces, face)) {
                             // only remove this edge if it isn't in another face
                             // belonging to `swappedArtist`
-                            this.edger.removeEdge(swappedArtist.edges, e);
+                            this.meshUtils.removeEdge(swappedArtist.edges, e);
                         }
                     }, this), face);
                 }

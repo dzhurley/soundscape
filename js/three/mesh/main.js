@@ -3,9 +3,8 @@ define([
     'helpers',
     'threejs',
     'three/scene',
-    'three/mesh/edger',
-    'three/mesh/facer'
-], function(_, h, THREE, scene, Edger, Facer) {
+    'three/mesh/utils'
+], function(_, h, THREE, scene, Utils) {
     return function() {
         var mesh = {
             radius: App.constants.globe.radius,
@@ -15,10 +14,12 @@ define([
                 this.globe = this.createGlobe();
                 this.outlines = this.createOutlines();
                 this.stars = this.createStars();
+
+                this.utils = new Utils(this.globe);
             },
 
             resetGlobe: function() {
-                this.facer.resetFaces();
+                this.utils.resetFaces();
             },
 
             createGlobe: function() {
@@ -68,9 +69,6 @@ define([
             },
 
             addToScene: function() {
-                this.edger = new Edger(this.globe.geometry);
-                this.facer = new Facer(this.globe, this.edger);
-
                 scene.add(mesh.globe);
                 if (App.outlines) {
                     scene.add(mesh.outlines);
