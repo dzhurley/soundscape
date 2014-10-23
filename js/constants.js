@@ -6,7 +6,7 @@ define({
     },
 
     stars: {
-        number: 100,
+        number: 1000,
 
         initialX: function() {
             return Math.random() * 2 - 1;
