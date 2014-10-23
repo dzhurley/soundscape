@@ -20,6 +20,16 @@ define([
         };
 
         var headsUp = {
+            template: _.template(
+                "<% if (hasArtistInfo) { %>" +
+                    "<span><%= artist %>, played <%= plays %> time(s)</span>" +
+                "<% } %>" +
+                "<span>index: <%= index %></span>" +
+                "<hr/>" +
+                "<span>face: {<%= fa %>, <%= fb %>, <%= fc %>}</span>" +
+                "<span>valid face: {[<%= va %>], [<%= vb %>], [<%= vc %>]}</span>"
+            ),
+
             bindHeadsUp: function() {
                 this.active = null;
                 this.showing = false;
@@ -52,24 +62,17 @@ define([
 
                     data = _.extend({}, this.active.data, {
                         'index': App.three.mesh.globe.geometry.faces.indexOf(this.active),
-                        'face a': this.active.a,
-                        'valid a': App.three.mesh.edger.generalVert(this.active.a),
-                        'face b': this.active.b,
-                        'valid b': App.three.mesh.edger.generalVert(this.active.b),
-                        'face c': this.active.c,
-                        'valid c': App.three.mesh.edger.generalVert(this.active.c)
+                        'fa': this.active.a,
+                        'va': App.three.mesh.edger.generalVert(this.active.a),
+                        'fb': this.active.b,
+                        'vb': App.three.mesh.edger.generalVert(this.active.b),
+                        'fc': this.active.c,
+                        'vc': App.three.mesh.edger.generalVert(this.active.c)
                     });
 
                     if (data) {
-                        var html = '';
-                        _.each(_.keys(data), function(key) {
-                            var val = data[key];
-                            if (_.isObject(val)) {
-                                val = JSON.stringify(val);
-                            }
-                            html += '<span>' + key + ': ' + val + '</span>';
-                        });
-                        App.headsUpDisplay.innerHTML = html;
+                        data.hasArtistInfo = data.artist && data.plays;
+                        App.headsUpDisplay.innerHTML = this.template(data);
                     }
                 }
             },

@@ -31,7 +31,7 @@ canvas {
 
 #heads-up span {
     display: block;
-    margin-bottom: 1rem;
+    padding: 0.5rem;
 }
 
 #sources-overlay {
