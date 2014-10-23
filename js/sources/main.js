@@ -29,6 +29,7 @@ define([
 
                 evt.target.querySelector('#username').value = '';
                 App.sourcesButton.click();
+                this.artists = null;
                 this.startSource(source, username);
                 return false;
             },
@@ -44,17 +45,16 @@ define([
 
             getArtistsForUser: function(username) {
                 App.vent.trigger('submitted');
-                if (!this.artists) {
-                    if (_.contains(_.keys(localStorage), username)) {
-                        this.artists = JSON.parse(localStorage[username]);
 
-                        if (this.artists) {
-                            App.plotter.worker.postMessage({
-                                msg: 'seed',
-                                artists: JSON.stringify(this.artists)
-                            });
-                            return;
-                        }
+                if (_.contains(_.keys(localStorage), username)) {
+                    this.artists = JSON.parse(localStorage[username]);
+
+                    if (this.artists) {
+                        App.plotter.worker.postMessage({
+                            msg: 'seed',
+                            artists: JSON.stringify(this.artists)
+                        });
+                        return;
                     }
                 }
 
