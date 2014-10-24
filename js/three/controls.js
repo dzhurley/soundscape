@@ -9,7 +9,7 @@ define([
             },
 
             setButtonText: function() {
-                App.controlsButton.textContent = this.activeControls;
+                App.controlsButton.textContent = this.label === 'Orbital' ? 'Fly' : 'Orbital';
             },
 
             setupFly: function() {
@@ -19,7 +19,7 @@ define([
                 this.active.dragToLook = true;
                 this.active.movementSpeed = 1;
                 this.active.rollSpeed = 0.03;
-                this.activeControls = 'Fly';
+                this.label = 'Fly';
                 this.setButtonText();
             },
 
@@ -28,7 +28,7 @@ define([
                 this.active.zoomSpeed = 0.2;
                 this.active.rotateSpeed = 0.5;
                 this.active.noKeys = true;
-                this.activeControls = 'Orbital';
+                this.label = 'Orbital';
                 this.setButtonText();
             },
 
@@ -39,7 +39,7 @@ define([
                 App.three.camera.position.copy(prevCamera.position);
                 App.three.camera.rotation.copy(prevCamera.rotation);
 
-                return this.activeControls === 'Fly' ?
+                return this.label === 'Fly' ?
                     this.setupOrbital() :
                     this.setupFly();
             },
