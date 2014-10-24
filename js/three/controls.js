@@ -1,23 +1,54 @@
 define([
     'fly',
-    'three/camera'
-], function(THREE, camera) {
+    'orbital'
+], function(THREE) {
     return function() {
-        // make sure to capture keys/mouse only within container
-        var controls = new THREE.FlyControls(camera, App.container);
+        var controls = {
+            init: function() {
+                this.setupOrbital();
+            },
 
-        return {
-            bindControls: function() {
-                controls.autoForward = false;
-                controls.domElement = App.container;
-                controls.dragToLook = true;
-                controls.movementSpeed = 1;
-                controls.rollSpeed = 0.03;
+            setButtonText: function() {
+                App.controlsButton.textContent = this.activeControls;
+            },
+
+            setupFly: function() {
+                this.active = new THREE.FlyControls(App.three.camera, App.container);
+                this.active.autoForward = false;
+                this.active.domElement = App.container;
+                this.active.dragToLook = true;
+                this.active.movementSpeed = 1;
+                this.active.rollSpeed = 0.03;
+                this.activeControls = 'Fly';
+                this.setButtonText();
+            },
+
+            setupOrbital: function() {
+                this.active = new THREE.OrbitControls(App.three.camera, App.container);
+                this.active.zoomSpeed = 0.2;
+                this.active.rotateSpeed = 0.5;
+                this.active.noKeys = true;
+                this.activeControls = 'Orbital';
+                this.setButtonText();
+            },
+
+            toggleControls: function() {
+                var prevCamera = App.three.camera;
+                App.three.camera = new THREE.PerspectiveCamera(
+                    75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                App.three.camera.position.copy(prevCamera.position);
+                App.three.camera.rotation.copy(prevCamera.rotation);
+
+                return this.activeControls === 'Fly' ?
+                    this.setupOrbital() :
+                    this.setupFly();
             },
 
             update: function(interval) {
-                controls.update(interval);
+                this.active.update(interval);
             }
         };
+        controls.init();
+        return controls;
     };
 });

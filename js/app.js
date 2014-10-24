@@ -14,6 +14,7 @@ define([
             sourcesButton: document.getElementById('toggle-overlay'),
             sourcesPrompt: document.getElementById('sources'),
             outlinesButton: document.getElementById('toggle-outlines'),
+            controlsButton: document.getElementById('toggle-controls'),
 
             outlines: false,
 
@@ -40,6 +41,10 @@ define([
                 }
             },
 
+            toggleControls: function() {
+                this.three.controls.toggleControls();
+            },
+
             focusUsername: function() {
                 this.sourcesPrompt.querySelector('#username').focus();
             },
@@ -58,6 +63,10 @@ define([
                     'click',
                     _.bind(this.toggleOutlines, this)
                 );
+                this.controlsButton.addEventListener(
+                    'click',
+                    _.bind(this.toggleControls, this)
+                );
                 this.sourcesPrompt.addEventListener(
                     'submit',
                     _.bind(this.sourcer.checkSource, this.sourcer)
@@ -72,7 +81,6 @@ define([
                     App.three.mesh.resetGlobe();
                     if (_.isUndefined(App.three.controls)) {
                         App.three.controls = new Controls();
-                        App.three.controls.bindControls();
                     }
                 });
             },
