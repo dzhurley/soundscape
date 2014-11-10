@@ -6,10 +6,14 @@ define([
         var last = {
             baseUrl: 'http://ws.audioscrobbler.com/2.0/',
 
+            // TODO: allow for better handling of paged responses
+            pageSize: 999,
+
             defaultParams: {
                 api_key: 'bd366f79f01332a48ae8ce061dba05a9',
                 format: 'json',
-                method: 'library.getartists'
+                method: 'library.getartists',
+                limit: this.pageSize
             },
 
             paramsForUser: function(username) {
