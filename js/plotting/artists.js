@@ -36,14 +36,14 @@ define(['underscore'], function(_) {
                     var swappedArtist = _.findWhere(this.artists,
                                                     {name: face.data.artist});
                     swappedArtist.faces++;
-                    _.each([edge, second, third], _.bind(function(e) {
+                    _.each([edge, second, third], function(e) {
                         faces = this.meshUtils.facesForEdge(e);
                         if (!_.contains(faces, face)) {
                             // only remove this edge if it isn't in another face
                             // belonging to `swappedArtist`
                             this.meshUtils.removeEdge(swappedArtist.edges, e);
                         }
-                    }, this), face);
+                    }.bind(this), face);
                 }
             },
 

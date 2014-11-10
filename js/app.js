@@ -61,19 +61,19 @@ define([
                 // ux events to listen on for state changes
                 this.outlinesButton.addEventListener(
                     'click',
-                    _.bind(this.toggleOutlines, this)
+                    this.toggleOutlines.bind(this)
                 );
                 this.controlsButton.addEventListener(
                     'click',
-                    _.bind(this.toggleControls, this)
+                    this.toggleControls.bind(this)
                 );
                 this.sourcesPrompt.addEventListener(
                     'submit',
-                    _.bind(this.sourcer.checkSource, this.sourcer)
+                    this.sourcer.checkSource.bind(this.sourcer)
                 );
                 this.sourcesButton.addEventListener(
                     'click',
-                    _.bind(this.toggleSources, this)
+                    this.toggleSources.bind(this)
                 );
                 this.focusUsername();
 

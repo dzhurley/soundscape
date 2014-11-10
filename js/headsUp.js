@@ -34,14 +34,14 @@ define([
                 this.active = null;
                 this.showing = false;
 
-                App.container.addEventListener('click', _.bind(function(evt) {
+                App.container.addEventListener('click', function(evt) {
                     if (evt.target.nodeName === 'BUTTON') {
                         return false;
                     }
                     updateMouse(evt);
                     var intersects = findIntersects();
                     this.updateActive(intersects);
-                }, this));
+                }.bind(this));
             },
 
             updateActive: function(intersects) {
@@ -92,13 +92,13 @@ define([
                     });
                     App.three.mesh.update();
 
-                    setTimeout(_.bind(function(faces, savedColor) {
+                    setTimeout(function(faces, savedColor) {
                         _.map(faces, function(face) {
                             face.color = savedColor;
                         });
                         App.three.mesh.update();
                         this.showing = false;
-                    }, this), 250, faces, savedColor);
+                    }.bind(this), 250, faces, savedColor);
                 }
             }
         };

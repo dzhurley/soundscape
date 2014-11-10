@@ -62,7 +62,7 @@ define([
                 request = new XMLHttpRequest();
                 request.open('GET', url, true);
 
-                request.onload = _.bind(function() {
+                request.onload = function() {
                     if (request.status >= 200 && request.status < 400){
                         // Success!
                         var data = JSON.parse(request.responseText);
@@ -74,7 +74,7 @@ define([
                         });
                         localStorage[username] = stringified;
                     }
-                }, this);
+                }.bind(this);
 
                 request.send();
             }

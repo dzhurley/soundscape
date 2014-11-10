@@ -17,18 +17,18 @@ define([
                 // instead storing a separate vertex for each face that connects
                 // to the pole. These return the groupings of both pole's vertices
                 // to compare with in plotting.faces.validFace.
-                this.northVerts = _.filter(this.geo.vertices, _.bind(function(v) {
+                this.northVerts = _.filter(this.geo.vertices, function(v) {
                     return v.y === this.geo.radius;
-                }, this));
-                this.southVerts = _.filter(this.geo.vertices, _.bind(function(v) {
+                }.bind(this));
+                this.southVerts = _.filter(this.geo.vertices, function(v) {
                     return v.y === -this.geo.radius;
-                }, this));
+                }.bind(this));
 
                 var indexify = function(vert) {
                     return this.geo.vertices.indexOf(vert);
                 };
-                this.northVerts = _.map(this.northVerts, _.bind(indexify, this));
-                this.southVerts = _.map(this.southVerts, _.bind(indexify, this));
+                this.northVerts = _.map(this.northVerts, indexify.bind(this));
+                this.southVerts = _.map(this.southVerts, indexify.bind(this));
 
                 // there exists a seam on the globe running across the surface from
                 // pole to pole where 2 vertices share the same coordinates. we need
@@ -89,7 +89,7 @@ define([
             },
 
             facesForEdge: function(edge) {
-                return _.filter(this.geo.faces, _.bind(function(face) {
+                return _.filter(this.geo.faces, function(face) {
                     if (this.sameEdge(edge, {v1: face.a, v2: face.b})) {
                         return true;
                     } else if (this.sameEdge(edge, {v1: face.a, v2: face.c})) {
@@ -98,7 +98,7 @@ define([
                         return true;
                     }
                     return false;
-                }, this), edge);
+                }.bind(this), edge);
             },
 
             removeEdge: function(edges, edge) {
@@ -210,9 +210,9 @@ define([
                     { v1: face.c, v2: face.a }
                 ];
 
-                _.each(edges, _.bind(function(edge) {
+                _.each(edges, function(edge) {
                     faces.push(_.without(this.facesForEdge(edge), face));
-                }, this));
+                }.bind(this));
                 return _.flatten(faces);
             }
         };

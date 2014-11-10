@@ -46,7 +46,7 @@ define([
                     return !_.isEmpty(_.intersection(first, second));
                 }
 
-                var face = _.filter(this.faces, _.bind(function(f) {
+                var face = _.filter(this.faces, function(f) {
                     var valid = false;
 
                     if (_.contains(verts.v1, f.a)) {
@@ -64,7 +64,7 @@ define([
                         return false;
                     }
                     return valid;
-                }, this));
+                }.bind(this));
 
                 if (face.length === 1) {
                     return face[0];

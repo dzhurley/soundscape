@@ -28,14 +28,14 @@ define([
                     face.data = {};
                 });
 
-                _.map(data, _.bind(function(d, i) {
+                _.map(data, function(d, i) {
                     d.edges = [];
                     // faces available for a given artist to paint
                     d.faces = Math.floor(d.playCount * this.facePlotter.faces.length / totalPlays);
                     // since incoming data is sorted, rank artists as we preProcess
                     d.rank = i;
                     return d;
-                }, this));
+                }.bind(this));
 
                 // don't bother with artists that don't merit faces
                 return _.filter(data, function(d) {
