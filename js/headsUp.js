@@ -20,15 +20,7 @@ define([
         };
 
         var headsUp = {
-            template: _.template(
-                "<% if (hasArtistInfo) { %>" +
-                    "<span><%= artist %>, played <%= plays %> time(s)</span>" +
-                "<% } %>" +
-                "<span>index: <%= index %></span>" +
-                "<hr/>" +
-                "<span>face: {<%= fa %>, <%= fb %>, <%= fc %>}</span>" +
-                "<span>valid face: {[<%= va %>], [<%= vb %>], [<%= vc %>]}</span>"
-            ),
+            template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>"),
 
             bindHeadsUp: function() {
                 this.active = null;
@@ -52,53 +44,16 @@ define([
                 }
 
                 var face = intersects[0].face;
-                if (face.data && face.data.artist) {
-                    // TODO:dh revisit when more need for delayed ux comes into play
-                    // this.showArtist(face.data.artist);
-                }
-
                 if (face != this.active) {
                     this.active = face;
-
-                    data = _.extend({}, this.active.data, {
-                        'index': App.three.mesh.globe.geometry.faces.indexOf(this.active),
-                        'fa': this.active.a,
-                        'va': App.three.mesh.utils.generalVert(this.active.a),
-                        'fb': this.active.b,
-                        'vb': App.three.mesh.utils.generalVert(this.active.b),
-                        'fc': this.active.c,
-                        'vc': App.three.mesh.utils.generalVert(this.active.c)
-                    });
-
-                    if (data) {
-                        data.hasArtistInfo = data.artist && data.plays;
-                        App.headsUpDisplay.innerHTML = this.template(data);
-                    }
                 }
-            },
 
-            showArtist: function(name) {
-                // pulse an artist's territory orange for .25 seconds
-                var faces = _.filter(App.plotter.facer.faces, function(choice) {
-                    return choice.data.artist === name;
-                });
-
-                if (faces.length && !this.showing) {
-                    this.showing = true;
-                    var savedColor = _.clone(faces[0].color);
-
-                    _.map(faces, function(face) {
-                        face.color = new THREE.Color(0xffa500);
-                    });
-                    App.three.mesh.update();
-
-                    setTimeout(function(faces, savedColor) {
-                        _.map(faces, function(face) {
-                            face.color = savedColor;
-                        });
-                        App.three.mesh.update();
-                        this.showing = false;
-                    }.bind(this), 250, faces, savedColor);
+                if (face.data && face.data.artist) {
+                    data = _.extend({}, this.active.data);
+                    App.headsUpDisplay.innerHTML = this.template(data);
+                    App.headsUpDisplay.style.display = 'none';
+                } else {
+                    App.headsUpDisplay.style.display = 'none';
                 }
             }
         };

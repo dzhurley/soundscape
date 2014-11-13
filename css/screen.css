@@ -23,6 +23,7 @@ canvas {
     color: #d7d7d7;
     background-color: #272727;
 
+    display: none;
     position: absolute;
     top: 0;
     left: 0;
