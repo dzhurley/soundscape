@@ -70,12 +70,22 @@ define([
 
             addToScene: function() {
                 scene.add(mesh.globe);
-                if (App.outlines) {
-                    scene.add(mesh.outlines);
+                if (App.debugging) {
+                    scene.add(this.outlines);
                 }
                 _.map(mesh.stars, function(star) {
                     scene.add(star);
                 });
+            },
+
+            toggleDebugging: function() {
+                if (App.debugging) {
+                    scene.remove(this.outlines);
+                    App.debugging = false;
+                } else {
+                    scene.add(this.outlines);
+                    App.debugging = true;
+                }
             },
 
             update: function() {

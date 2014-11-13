@@ -13,10 +13,10 @@ define([
             sourcesOverlay: document.getElementById('sources-overlay'),
             sourcesButton: document.getElementById('toggle-overlay'),
             sourcesPrompt: document.getElementById('sources'),
-            outlinesButton: document.getElementById('toggle-outlines'),
+            debuggingButton: document.getElementById('toggle-debugging'),
             controlsButton: document.getElementById('toggle-controls'),
 
-            outlines: false,
+            debugging: true,
 
             init: function(constants) {
                 this.constants = constants || {};
@@ -31,14 +31,8 @@ define([
                 this.animate();
             },
 
-            toggleOutlines: function() {
-                if (this.outlines) {
-                    this.three.scene.remove(this.three.mesh.outlines);
-                    this.outlines = false;
-                } else {
-                    this.three.scene.add(this.three.mesh.outlines);
-                    this.outlines = true;
-                }
+            toggleDebugging: function() {
+                this.three.mesh.toggleDebugging();
             },
 
             toggleControls: function() {
@@ -59,9 +53,9 @@ define([
 
             bindHandlers: function() {
                 // ux events to listen on for state changes
-                this.outlinesButton.addEventListener(
+                this.debuggingButton.addEventListener(
                     'click',
-                    this.toggleOutlines.bind(this)
+                    this.toggleDebugging.bind(this)
                 );
                 this.controlsButton.addEventListener(
                     'click',
