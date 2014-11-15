@@ -31,10 +31,6 @@ define([
                 this.animate();
             },
 
-            toggleDebugging: function() {
-                this.three.mesh.toggleDebugging();
-            },
-
             toggleControls: function() {
                 this.three.controls.toggleControls();
             },
@@ -55,7 +51,10 @@ define([
                 // ux events to listen on for state changes
                 this.debuggingButton.addEventListener(
                     'click',
-                    this.toggleDebugging.bind(this)
+                    function() {
+                        App.debugging = !App.debugging;
+                        App.vent.trigger('debugging', App.debugging);
+                    }
                 );
                 this.controlsButton.addEventListener(
                     'click',
@@ -80,8 +79,8 @@ define([
             },
 
             animate: function() {
-                window.requestAnimationFrame(app.animate);
-                app.three.animate();
+                window.requestAnimationFrame(App.animate);
+                App.three.animate();
             }
         };
 
