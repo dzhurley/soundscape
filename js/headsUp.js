@@ -1,7 +1,8 @@
 define([
     'underscore',
-    'threejs'
-], function(_, THREE) {
+    'threejs',
+    'three/scene'
+], function(_, THREE, scene) {
     return function() {
         var headsUp = {
             template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>"),
@@ -11,6 +12,8 @@ define([
                 this.active = null;
                 this.showing = false;
                 this.projector = new THREE.Projector();
+                this.activeVertices = [];
+                this.activeFaces = [];
 
                 App.container.addEventListener('click', function(evt) {
                     if (evt.target.nodeName === 'BUTTON') {
@@ -19,6 +22,23 @@ define([
                     this.updateMouse(evt);
                     this.updateActive();
                 }.bind(this));
+
+                App.vent.on('debugging', function(evt, debugging) {
+                    if (debugging) {
+                        return this.removeMarkers();
+                    }
+                }.bind(this));
+            },
+
+            removeMarkers: function() {
+                _.each(this.activeVertices, function(vertex) {
+                    scene.remove(vertex);
+                });
+                _.each(this.activeFaces, function(face) {
+                    scene.remove(face);
+                });
+                this.activeVertices = [];
+                this.activeFaces = [];
             },
 
             updateMouse: function(evt) {
@@ -37,14 +57,25 @@ define([
             updateActive: function() {
                 var intersects = this.findIntersects();
                 var data;
+
                 if (intersects.length === 0) {
                     this.active = null;
+                    this.removeMarkers();
                     return;
                 }
 
                 var face = intersects[0].face;
                 if (face != this.active) {
                     this.active = face;
+                    _.each([face.a, face.b, face.c], function(index) {
+                        return this.activeVertices.push(
+                            App.three.mesh.globe.geometry.vertices[index]
+                        );
+                    }.bind(this));
+                    this.activeFaces.push(face);
+
+                    this.addVertexMarkers();
+                    this.addFaceMarkers();
                 }
 
                 if (face.data && face.data.artist) {
@@ -56,26 +87,27 @@ define([
                 }
             },
 
-            createVertexMarkers: function() {
-                var markers = [];
-                _.each(this.globe.geometry.vertices, function(vertex, i) {
-                    var spritey = this.makeTextSprite(' ' + i + ' ');
-                    spritey.position = vertex.clone().multiplyScalar(1.1);
-                    markers.push(spritey);
+            addVertexMarkers: function() {
+                _.each(this.activeVertices, function(vertex) {
+                    var spritey = this.makeTextSprite(
+                        ' ' + App.three.mesh.globe.geometry.vertices.indexOf(vertex) + ' '
+                    );
+                    spritey.position = vertex.clone().multiplyScalar(1.005);
+                    scene.add(spritey);
                 }.bind(this));
-                return markers;
             },
 
-            createFaceMarkers: function() {
-                var markers = [];
-                _.each(this.globe.geometry.faces, function(face, i) {
-                    var spritey = this.makeTextSprite(' ' + i + ' ');
-                    spritey.position = face.centroid.clone().multiplyScalar(1.1);
-                    markers.push(spritey);
+            addFaceMarkers: function() {
+                _.each(this.activeFaces, function(face, i) {
+                    var spritey = this.makeTextSprite(
+                        ' ' + App.three.mesh.globe.geometry.faces.indexOf(face) + ' '
+                    );
+                    spritey.position = face.centroid.clone().multiplyScalar(1.005);
+                    scene.add(spritey);
                 }.bind(this));
-                return markers;
             },
 
+            // TODO: push into constants.js, along with other relevant info to make tips
             spriteDefaults: {
                 'fontface': 'Inconsolata',
                 'fontsize': '14',
@@ -84,10 +116,10 @@ define([
                 'backgroundColor': '#272727'
             },
 
-            makeTextSprite: function( message, parameters ) {
+            makeTextSprite: function(message) {
                 var canvas = document.createElement('canvas');
                 var context = canvas.getContext('2d');
-                context.font = 'Bold ' + this.spriteDefaults.fontsize + 'px ' + this.spriteDefaults.fontface;
+                context.font = this.spriteDefaults.fontsize + 'px ' + this.spriteDefaults.fontface;
 
                 // get size data (height depends only on font size)
                 var metrics = context.measureText(message);
@@ -97,15 +129,13 @@ define([
                 context.strokeStyle = this.spriteDefaults.borderColor;
                 context.lineWidth = this.spriteDefaults.borderThickness;
 
+                var xAndY = this.spriteDefaults.borderThickness / 2;
+                var width = textWidth + this.spriteDefaults.borderThickness;
                 // 1.4 is extra height factor for text below baseline: g,j,p,q.
-                this.roundRect(
-                    context,
-                    this.spriteDefaults.borderThickness / 2,
-                    this.spriteDefaults.borderThickness / 2,
-                    textWidth + this.spriteDefaults.borderThickness,
-                    this.spriteDefaults.fontsize * 1.4 + this.spriteDefaults.borderThickness,
-                    6
+                var height = (
+                    this.spriteDefaults.fontsize * 1.1 + this.spriteDefaults.borderThickness
                 );
+                context.fillRect(xAndY, xAndY, xAndY + width, xAndY + height);
 
                 // text
                 context.fillStyle = this.spriteDefaults.borderColor;
@@ -127,20 +157,7 @@ define([
                 return sprite;  
             },
 
-            roundRect: function(ctx, x, y, w, h, r) {
-                ctx.beginPath();
-                ctx.moveTo(x+r, y);
-                ctx.lineTo(x+w-r, y);
-                ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-                ctx.lineTo(x+w, y+h-r);
-                ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-                ctx.lineTo(x+r, y+h);
-                ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-                ctx.lineTo(x, y+r);
-                ctx.quadraticCurveTo(x, y, x+r, y);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();   
+            roundRect: function(ctx, x, y, w, h) {
             }
         };
 
