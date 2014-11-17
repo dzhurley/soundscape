@@ -15,6 +15,7 @@ define([
                 this.activeMarkers = [];
 
                 App.container.addEventListener('click', function(evt) {
+                    // TODO: play with hover instead
                     if (evt.target.nodeName === 'BUTTON') {
                         return false;
                     }
@@ -62,6 +63,8 @@ define([
                 if (face != this.active) {
                     this.active = face;
                     this.removeMarkers();
+
+                    // TODO: mark artist territory instead of only one face
                     this.addVertexMarkers(face);
                     this.addFaceMarkers(face);
                 }
@@ -98,41 +101,48 @@ define([
 
             // TODO: push into constants.js, along with other relevant info to make tips
             spriteDefaults: {
-                'fontface': 'Inconsolata',
-                'fontsize': '14',
+                'backgroundColor': '#272727',
                 'borderThickness': '2',
-                'borderColor': '#d7d7d7',
-                'backgroundColor': '#272727'
+                'color': '#d7d7d7',
+                'fontface': 'Inconsolata',
+                'fontsize': '400'
+            },
+
+            getMarkProp: function(key) {
+                var value = this.spriteDefaults[key];
+                // if the value is a string, return it, otherwise return
+                // the number as an integer
+                return isNaN(value) ? value : +value;
             },
 
             makeMark: function(message) {
                 var canvas = document.createElement('canvas');
+                canvas.width = canvas.height = 1100;
                 var context = canvas.getContext('2d');
-                context.font = this.spriteDefaults.fontsize + 'px ' + this.spriteDefaults.fontface;
+
+                var backgroundColor = this.getMarkProp('backgroundColor');
+                var borderThickness = this.getMarkProp('borderThickness');
+                var color = this.getMarkProp('color');
+                var fontface = this.getMarkProp('fontface');
+                var fontsize = this.getMarkProp('fontsize');
+
+                context.font = fontsize + 'px ' + fontface;
 
                 // get size data (height depends only on font size)
-                var metrics = context.measureText(message);
-                var textWidth = metrics.width;
+                var textWidth  = context.measureText(message).width;
 
-                context.fillStyle = this.spriteDefaults.backgroundColor;
-                context.strokeStyle = this.spriteDefaults.borderColor;
-                context.lineWidth = this.spriteDefaults.borderThickness;
-
-                var xAndY = this.spriteDefaults.borderThickness / 2;
-                var width = textWidth + this.spriteDefaults.borderThickness;
-                // 1.4 is extra height factor for text below baseline: g,j,p,q.
-                var height = (
-                    this.spriteDefaults.fontsize * 1.1 + this.spriteDefaults.borderThickness
+                context.fillStyle = backgroundColor;
+                context.fillRect(
+                    borderThickness,
+                    borderThickness,
+                    textWidth + borderThickness,
+                    fontsize * 1.4 + borderThickness
                 );
-                context.fillRect(xAndY, xAndY, xAndY + width, xAndY + height);
 
                 // text
-                context.fillStyle = this.spriteDefaults.borderColor;
-                context.fillText(
-                    message,
-                    this.spriteDefaults.borderThickness,
-                    this.spriteDefaults.fontsize + this.spriteDefaults.borderThickness
-                );
+                context.fillStyle = color;
+                context.textAlign = 'center';
+                context.fillText(message, canvas.width / 2, fontsize);
 
                 // canvas contents will be used for a texture
                 var texture = new THREE.Texture(canvas);
@@ -140,13 +150,10 @@ define([
                 var spriteMaterial = new THREE.SpriteMaterial({
                     map: texture,
                     useScreenCoordinates: false,
-                    alignment: new THREE.Vector2( 0, 1 )
+                    alignment: new THREE.Vector2( 1, 1 )
                 });
                 var sprite = new THREE.Sprite(spriteMaterial);
                 return sprite;  
-            },
-
-            roundRect: function(ctx, x, y, w, h) {
             }
         };
 
