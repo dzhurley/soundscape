@@ -85,10 +85,7 @@ define([
                 var mark, generalVert, vertex;
                 _.each([face.a, face.b, face.c], function(index) {
                     vertex = mesh.globe.geometry.vertices[index];
-                    generalIndices = _.map(mesh.utils.generalVert(vertex), function(vert) {
-                        return mesh.globe.geometry.vertices.indexOf(vertex);
-                    });
-
+                    generalIndices = mesh.utils.generalVert(vertex);
                     mark = this.makeMark(JSON.stringify(generalIndices));
                     mark.position = vertex.clone().multiplyScalar(1.005);
                     this.activeMarkers.push(mark);
@@ -151,13 +148,7 @@ define([
 
                 var texture = new THREE.Texture(canvas);
                 texture.needsUpdate = true;
-                var spriteMaterial = new THREE.SpriteMaterial({
-                    map: texture,
-                    useScreenCoordinates: false,
-                    alignment: new THREE.Vector2( 1, 1 )
-                });
-                var sprite = new THREE.Sprite(spriteMaterial);
-                return sprite;  
+                return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
             }
         };
 
