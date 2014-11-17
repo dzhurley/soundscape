@@ -52,6 +52,12 @@ define([
 
             generalVert: function(vert) {
                 var sames;
+
+                if (!_.isNumber(vert)) {
+                    // we got a vertex, not and index
+                    vert = this.geo.vertices.indexOf(vert);
+                }
+
                 if (_.contains(this.northVerts, vert)) {
                     // handle case where vertex is one of the pole vertices
                     sames = this.northVerts;

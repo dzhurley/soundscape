@@ -62,11 +62,13 @@ define([
                 var face = intersects[0].face;
                 if (face != this.active) {
                     this.active = face;
-                    this.removeMarkers();
 
-                    // TODO: mark artist territory instead of only one face
-                    this.addVertexMarkers(face);
-                    this.addFaceMarkers(face);
+                    if (App.debugging) {
+                        this.removeMarkers();
+                        // TODO: mark artist territory instead of only one face
+                        this.addVertexMarkers(face);
+                        this.addFaceMarkers(face);
+                    }
                 }
 
                 if (face.data && face.data.artist) {
@@ -79,11 +81,15 @@ define([
             },
 
             addVertexMarkers: function(face) {
+                var mesh = App.three.mesh;
+                var mark, generalVert, vertex;
                 _.each([face.a, face.b, face.c], function(index) {
-                    vertex = App.three.mesh.globe.geometry.vertices[index];
-                    var mark = this.makeMark(
-                        ' ' + App.three.mesh.globe.geometry.vertices.indexOf(vertex) + ' '
-                    );
+                    vertex = mesh.globe.geometry.vertices[index];
+                    generalIndices = _.map(mesh.utils.generalVert(vertex), function(vert) {
+                        return mesh.globe.geometry.vertices.indexOf(vertex);
+                    });
+
+                    mark = this.makeMark(JSON.stringify(generalIndices));
                     mark.position = vertex.clone().multiplyScalar(1.005);
                     this.activeMarkers.push(mark);
                     scene.add(mark);
@@ -91,25 +97,22 @@ define([
             },
 
             addFaceMarkers: function(face) {
-                var mark = this.makeMark(
-                    ' ' + App.three.mesh.globe.geometry.faces.indexOf(face) + ' '
-                );
+                var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
                 mark.position = face.centroid.clone().multiplyScalar(1.005);
                 this.activeMarkers.push(mark);
                 scene.add(mark);
             },
 
             // TODO: push into constants.js, along with other relevant info to make tips
-            spriteDefaults: {
+            markDefaults: {
                 'backgroundColor': '#272727',
-                'borderThickness': '2',
                 'color': '#d7d7d7',
                 'fontface': 'Inconsolata',
                 'fontsize': '400'
             },
 
             getMarkProp: function(key) {
-                var value = this.spriteDefaults[key];
+                var value = this.markDefaults[key];
                 // if the value is a string, return it, otherwise return
                 // the number as an integer
                 return isNaN(value) ? value : +value;
@@ -117,34 +120,35 @@ define([
 
             makeMark: function(message) {
                 var canvas = document.createElement('canvas');
-                canvas.width = canvas.height = 1100;
+                canvas.width = canvas.height = 1600;
                 var context = canvas.getContext('2d');
 
                 var backgroundColor = this.getMarkProp('backgroundColor');
-                var borderThickness = this.getMarkProp('borderThickness');
                 var color = this.getMarkProp('color');
                 var fontface = this.getMarkProp('fontface');
                 var fontsize = this.getMarkProp('fontsize');
 
                 context.font = fontsize + 'px ' + fontface;
 
-                // get size data (height depends only on font size)
                 var textWidth  = context.measureText(message).width;
+                if (textWidth > canvas.width) {
+                    canvas.width = canvas.height = textWidth;
+                    context = canvas.getContext('2d');
+                    context.font = fontsize + 'px ' + fontface;
+                }
 
                 context.fillStyle = backgroundColor;
                 context.fillRect(
-                    borderThickness,
-                    borderThickness,
-                    textWidth + borderThickness,
-                    fontsize * 1.4 + borderThickness
+                    0,
+                    canvas.height / 2 - fontsize * 1.3,
+                    canvas.width,
+                    canvas.height / 2
                 );
 
-                // text
                 context.fillStyle = color;
                 context.textAlign = 'center';
-                context.fillText(message, canvas.width / 2, fontsize);
+                context.fillText(message, canvas.width / 2, canvas.height / 2);
 
-                // canvas contents will be used for a texture
                 var texture = new THREE.Texture(canvas);
                 texture.needsUpdate = true;
                 var spriteMaterial = new THREE.SpriteMaterial({
