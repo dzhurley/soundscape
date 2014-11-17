@@ -12,8 +12,7 @@ define([
                 this.active = null;
                 this.showing = false;
                 this.projector = new THREE.Projector();
-                this.activeVertices = [];
-                this.activeFaces = [];
+                this.activeMarkers = [];
 
                 App.container.addEventListener('click', function(evt) {
                     if (evt.target.nodeName === 'BUTTON') {
@@ -24,21 +23,17 @@ define([
                 }.bind(this));
 
                 App.vent.on('debugging', function(evt, debugging) {
-                    if (debugging) {
+                    if (!debugging) {
                         return this.removeMarkers();
                     }
                 }.bind(this));
             },
 
             removeMarkers: function() {
-                _.each(this.activeVertices, function(vertex) {
-                    scene.remove(vertex);
+                _.each(this.activeMarkers, function(mark) {
+                    scene.remove(mark);
                 });
-                _.each(this.activeFaces, function(face) {
-                    scene.remove(face);
-                });
-                this.activeVertices = [];
-                this.activeFaces = [];
+                this.activeMarkers = [];
             },
 
             updateMouse: function(evt) {
@@ -60,22 +55,15 @@ define([
 
                 if (intersects.length === 0) {
                     this.active = null;
-                    this.removeMarkers();
                     return;
                 }
 
                 var face = intersects[0].face;
                 if (face != this.active) {
                     this.active = face;
-                    _.each([face.a, face.b, face.c], function(index) {
-                        return this.activeVertices.push(
-                            App.three.mesh.globe.geometry.vertices[index]
-                        );
-                    }.bind(this));
-                    this.activeFaces.push(face);
-
-                    this.addVertexMarkers();
-                    this.addFaceMarkers();
+                    this.removeMarkers();
+                    this.addVertexMarkers(face);
+                    this.addFaceMarkers(face);
                 }
 
                 if (face.data && face.data.artist) {
@@ -87,24 +75,25 @@ define([
                 }
             },
 
-            addVertexMarkers: function() {
-                _.each(this.activeVertices, function(vertex) {
-                    var spritey = this.makeTextSprite(
+            addVertexMarkers: function(face) {
+                _.each([face.a, face.b, face.c], function(index) {
+                    vertex = App.three.mesh.globe.geometry.vertices[index];
+                    var mark = this.makeMark(
                         ' ' + App.three.mesh.globe.geometry.vertices.indexOf(vertex) + ' '
                     );
-                    spritey.position = vertex.clone().multiplyScalar(1.005);
-                    scene.add(spritey);
+                    mark.position = vertex.clone().multiplyScalar(1.005);
+                    this.activeMarkers.push(mark);
+                    scene.add(mark);
                 }.bind(this));
             },
 
-            addFaceMarkers: function() {
-                _.each(this.activeFaces, function(face, i) {
-                    var spritey = this.makeTextSprite(
-                        ' ' + App.three.mesh.globe.geometry.faces.indexOf(face) + ' '
-                    );
-                    spritey.position = face.centroid.clone().multiplyScalar(1.005);
-                    scene.add(spritey);
-                }.bind(this));
+            addFaceMarkers: function(face) {
+                var mark = this.makeMark(
+                    ' ' + App.three.mesh.globe.geometry.faces.indexOf(face) + ' '
+                );
+                mark.position = face.centroid.clone().multiplyScalar(1.005);
+                this.activeMarkers.push(mark);
+                scene.add(mark);
             },
 
             // TODO: push into constants.js, along with other relevant info to make tips
@@ -116,7 +105,7 @@ define([
                 'backgroundColor': '#272727'
             },
 
-            makeTextSprite: function(message) {
+            makeMark: function(message) {
                 var canvas = document.createElement('canvas');
                 var context = canvas.getContext('2d');
                 context.font = this.spriteDefaults.fontsize + 'px ' + this.spriteDefaults.fontface;
