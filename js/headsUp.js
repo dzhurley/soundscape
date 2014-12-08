@@ -52,7 +52,7 @@ define([
 
             updateActive: function() {
                 var intersects = this.findIntersects();
-                var data;
+                var data, faces, vertices, edges;
 
                 if (intersects.length === 0) {
                     this.active = null;
@@ -60,18 +60,34 @@ define([
                 }
 
                 var face = intersects[0].face;
+                var isPainted = face.data && face.data.artist;
                 if (face != this.active) {
                     this.active = face;
 
                     if (App.debugging) {
                         this.removeMarkers();
-                        // TODO: mark artist territory instead of only one face
-                        this.addVertexMarkers(face);
-                        this.addFaceMarkers(face);
+
+                        if (isPainted) {
+                            // Really the best way?
+                            edges = App.plotter.postMessage({
+                                msg: 'edgesForArtist',
+                                artistName: this.active.data.artist
+                            });
+
+                            faces = _.filter(App.three.mesh.globe.geometry.faces, function(face) {
+                                return face.data.artist === this.active.data.artist;
+                            }.bind(this));
+                            for (var i in faces) {
+                                this.addFaceMarkers(faces[i]);
+                            }
+                        } else {
+                            this.addVertexMarkers([face.a, face.b, face.c]);
+                            this.addFaceMarkers(face);
+                        }
                     }
                 }
 
-                if (face.data && face.data.artist) {
+                if (isPainted) {
                     data = _.extend({}, this.active.data);
                     App.headsUpDisplay.innerHTML = this.template(data);
                     App.headsUpDisplay.style.display = 'block';
@@ -80,10 +96,15 @@ define([
                 }
             },
 
-            addVertexMarkers: function(face) {
+            setVerticesFromArtistEdges: function(edges) {
+                vertices = App.three.mesh.utils.uniqueVerticesForEdges(edges);
+                this.addVertexMarkers(vertices);
+            },
+
+            addVertexMarkers: function(vertices) {
                 var mesh = App.three.mesh;
                 var mark, generalVert, vertex;
-                _.each([face.a, face.b, face.c], function(index) {
+                _.each(vertices, function(index) {
                     vertex = mesh.globe.geometry.vertices[index];
                     generalIndices = mesh.utils.generalVert(vertex);
                     mark = this.makeMark(JSON.stringify(generalIndices));

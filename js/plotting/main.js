@@ -21,6 +21,13 @@ define([
 
             initOnMessage: function() {
                 this.worker.onmessage = function(evt) {
+                    // TODO: better dispatch
+
+                    if (evt.data.msg === 'edgesForArtist') {
+                        App.headsUp.setVerticesFromArtistEdges(evt.data.edges);
+                        return;
+                    }
+
                     var newFaces = JSON.parse(evt.data.faces);
                     var oldFaces = App.three.mesh.globe.geometry.faces;
 

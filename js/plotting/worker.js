@@ -92,6 +92,16 @@ require({
                         break;
                     }
                 }
+            },
+
+            edgesForArtist: function(evt) {
+                var artists = this.plotter.artister.artists;
+                var artist = _.findWhere(artists, { name: evt.data.artistName });
+
+                postMessage({
+                    msg: 'edgesForArtist',
+                    edges: artist.edges
+                });
             }
         };
 

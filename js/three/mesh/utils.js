@@ -94,6 +94,12 @@ define([
                 return false;
             },
 
+            uniqueVerticesForEdges: function(edges) {
+                return _.uniq(_.flatten(_.map(edges, function(edge) {
+                    return [edge.v1, edge.v2];
+                })));
+            },
+
             facesForEdge: function(edge) {
                 return _.filter(this.geo.faces, function(face) {
                     if (this.sameEdge(edge, {v1: face.a, v2: face.b})) {
