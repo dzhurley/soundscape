@@ -144,7 +144,6 @@ define([
 
             addEquidistantMarks: function(num) {
                 if (this.markers && this.markers.length) {
-                    // TODO: check on scene addition/removal?
                     return this.markers;
                 }
                 this.markers = [];

@@ -75,10 +75,9 @@ define(['underscore'], function(_) {
         });
     };
 
-    var packUrlParams = function(params) {
+    var packUrlParams = function(base, params) {
         // pack key/values into encoded url params, delimited by '&'
-        // TODO: support for leading '?'?
-        return _.map(_.keys(params), function(key) {
+        return base + '?' + _.map(_.keys(params), function(key) {
             return _.map([key, params[key]], encodeURIComponent).join('=');
         }).join('&');
     };

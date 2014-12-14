@@ -15,7 +15,6 @@ define([
                 this.activeMarkers = [];
 
                 App.container.addEventListener('click', function(evt) {
-                    // TODO: play with hover instead
                     if (evt.target.nodeName === 'BUTTON') {
                         return false;
                     }
@@ -121,16 +120,8 @@ define([
                 scene.add(mark);
             },
 
-            // TODO: push into constants.js, along with other relevant info to make tips
-            markDefaults: {
-                'backgroundColor': '#272727',
-                'color': '#d7d7d7',
-                'fontface': 'Inconsolata',
-                'fontsize': '400'
-            },
-
             getMarkProp: function(key) {
-                var value = this.markDefaults[key];
+                var value = App.constants.labels[key];
                 // if the value is a string, return it, otherwise return
                 // the number as an integer
                 return isNaN(value) ? value : +value;

@@ -5,6 +5,13 @@ define({
         widthAndHeight: 50
     },
 
+    labels: {
+        'backgroundColor': '#272727',
+        'color': '#d7d7d7',
+        'fontface': 'Inconsolata',
+        'fontsize': '400'
+    },
+
     stars: {
         number: 1000,
 

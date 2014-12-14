@@ -10,7 +10,7 @@ define([
 
             sourceUrl: function(params) {
                 params = _.extend({}, this.activeSource.defaultParams, params || {});
-                return this.activeSource.baseUrl + '?' + h.packUrlParams(params);
+                return h.packUrlParams(this.activeSource.baseUrl, params);
             },
 
             checkSource: function(evt) {
