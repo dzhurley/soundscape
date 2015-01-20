@@ -155,7 +155,7 @@ define([
                     mark.position.x = points[i][0];
                     mark.position.y = points[i][1];
                     mark.position.z = points[i][2];
-                    mark.position.multiplyScalar(this.mesh.geometry.radius + 2);
+                    mark.position.multiplyScalar(this.mesh.geometry.parameters.radius + 2);
                     this.markers.push(mark);
                     scene.add(mark);
                 }
@@ -191,10 +191,16 @@ define([
             findClosestFace: function(candidates, target) {
                 // compute the distance between each one of the candidates and
                 // the target to find the closest candidate
-                var closest, newDistance, lastDistance;
+                var closest, newDistance, lastDistance, targetCentroid;
                 for (var i = 0; i < candidates.length; i++) {
-                    faceVector = candidates[i].centroid.normalize();
-                    newDistance = target.centroid.normalize().distanceTo(faceVector);
+                    faceVector = new THREE.Vector3()
+                        .addVectors(candidates[i].a, candidates[i].b, candidates[i].c)
+                        .divideScalar(3)
+                        .normalize();
+                    targetCentroid = new THREE.Vector3()
+                        .addVectors(target.a, target.b, target.c)
+                        .divideScalar(3);
+                    newDistance = targetCentroid.normalize().distanceTo(faceVector);
                     if (!closest) {
                         closest = candidates[i];
                         lastDistance = newDistance;

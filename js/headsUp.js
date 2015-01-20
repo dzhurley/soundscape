@@ -11,7 +11,6 @@ define([
             init: function() {
                 this.active = null;
                 this.showing = false;
-                this.projector = new THREE.Projector();
                 this.activeMarkers = [];
 
                 App.container.addEventListener('click', function(evt) {
@@ -43,7 +42,7 @@ define([
 
             findIntersects: function() {
                 var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
-                this.projector.unprojectVector(vector, App.three.camera);
+                vector.unproject(App.three.camera);
                 var position = App.three.camera.position;
                 var ray = new THREE.Raycaster(position, vector.sub(position).normalize());
                 return ray.intersectObject(App.three.mesh.globe);
@@ -115,7 +114,10 @@ define([
 
             addFaceMarkers: function(face) {
                 var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
-                mark.position = face.centroid.clone().multiplyScalar(1.005);
+                mark.position = new THREE.Vector3()
+                    .addVectors(face.a, face.b, face.c)
+                    .divideScalar(3)
+                    .multiplyScalar(1.005);
                 this.activeMarkers.push(mark);
                 scene.add(mark);
             },
