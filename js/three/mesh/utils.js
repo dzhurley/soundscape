@@ -188,19 +188,20 @@ define([
                 });
             },
 
+            faceCentroid: function(face) {
+                return new THREE.Vector3()
+                    .addVectors(face.a, face.b, face.c)
+                    .divideScalar(3);
+            },
+
             findClosestFace: function(candidates, target) {
                 // compute the distance between each one of the candidates and
                 // the target to find the closest candidate
                 var closest, newDistance, lastDistance, targetCentroid;
                 for (var i = 0; i < candidates.length; i++) {
-                    faceVector = new THREE.Vector3()
-                        .addVectors(candidates[i].a, candidates[i].b, candidates[i].c)
-                        .divideScalar(3)
-                        .normalize();
-                    targetCentroid = new THREE.Vector3()
-                        .addVectors(target.a, target.b, target.c)
-                        .divideScalar(3);
-                    newDistance = targetCentroid.normalize().distanceTo(faceVector);
+                    faceVector = this.faceCentroid(candidates[i]).normalize();
+                    targetCentroid = this.faceCentroid(target).normalize();
+                    newDistance = targetCentroid.distanceTo(faceVector);
                     if (!closest) {
                         closest = candidates[i];
                         lastDistance = newDistance;

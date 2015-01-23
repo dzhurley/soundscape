@@ -22,11 +22,8 @@ define([
             },
 
             moveCameraToFace: function(evt, face) {
-                App.three.camera.position = new THREE.Vector3()
-                    .addVectors(face.a, face.b, face.c)
-                    .divideScalar(3)
-                    .multiplyScalar(1.75);
-                App.three.camera.lookAt(scene.position);
+                App.three.camera.position = this.mesh.utils.faceCentroid(face);
+                App.three.camera.lookAt(scene.position.multiplyScalar(1.75));
             },
 
             animate: function() {

@@ -101,7 +101,7 @@ define([
 
             addVertexMarkers: function(vertices) {
                 var mesh = App.three.mesh;
-                var mark, generalVert, vertex;
+                var mark, generalIndices, vertex;
                 _.each(vertices, function(index) {
                     vertex = mesh.globe.geometry.vertices[index];
                     generalIndices = mesh.utils.generalVert(vertex);
@@ -114,10 +114,7 @@ define([
 
             addFaceMarkers: function(face) {
                 var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
-                mark.position = new THREE.Vector3()
-                    .addVectors(face.a, face.b, face.c)
-                    .divideScalar(3)
-                    .multiplyScalar(1.005);
+                mark.position = App.three.mesh.utils.faceCentroid(face).multiplyScalar(1.005);
                 this.activeMarkers.push(mark);
                 scene.add(mark);
             },
