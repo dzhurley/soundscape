@@ -7,10 +7,6 @@ THREE.HalfEdgeStructure = function(object) {
 
     // edges keyed on 'v1:v2'
     this.edges = {};
-    // TODO: should be mapping, keyed on index?
-    this.faces = [];
-    // TODO: should be mapping, keyed on index?
-    this.vertices = [];
 
     function createHalfEdge(edge, face) {
         return {
@@ -21,27 +17,13 @@ THREE.HalfEdgeStructure = function(object) {
         };
     }
 
-    function createVertex(vertex) {
-        return {
-            x: vertex.x,
-            y: vertex.y,
-            z: vertex.z,
-            edge: undefined
-        };
-    }
-
-    function createFace(face) {
-        return {
-            edge: undefined
-        };
-    }
-
-    function getNextEdgeKey(faceEdges, edge) {
+    function getNextEdgeKey(faceEdges, index) {
         // safe wrap on indexing edges
-        if (faceEdges.length === edge) {
+        index = parseInt(index, 10);
+        if (faceEdges.length === index + 1) {
             return faceEdges[0].v1 + ':' + faceEdges[0].v2;
         }
-        return faceEdges[edge + 1].v1 + ':' + faceEdges[edge + 1].v2;
+        return faceEdges[index + 1].v1 + ':' + faceEdges[index + 1].v2;
     }
 
     var faceEdges = [];
@@ -62,6 +44,8 @@ THREE.HalfEdgeStructure = function(object) {
             edge = faceEdges[j];
             edgeKey = edge.v1 + ':' + edge.v2;
             this.edges[edgeKey] = createHalfEdge(edge, face);
+            // save edge information on vertex
+            edge.v1.edge = this.edges[edgeKey];
         }
 
         for (j in faceEdges) {
@@ -69,7 +53,7 @@ THREE.HalfEdgeStructure = function(object) {
             edgeKey = edge.v1 + ':' + edge.v2;
 
             // set next edge in rotation on current edge
-            nextEdgeKey = getNextEdgeKey(faceEdges, edge);
+            nextEdgeKey = getNextEdgeKey(faceEdges, j);
             this.edges[edgeKey].next = this.edges[nextEdgeKey];
 
             // find pairs for half edges
@@ -81,7 +65,6 @@ THREE.HalfEdgeStructure = function(object) {
         }
 
         // use last edge from iteration to inform face
-        // TODO: store reference to array of faces?
         face.edge = edge;
     }
 };

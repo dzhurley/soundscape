@@ -1,7 +1,7 @@
 define([
     'underscore',
     'helpers',
-    'threejs',
+    'heds',
     'three/scene',
     'three/mesh/utils'
 ], function(_, h, THREE, scene, Utils) {
@@ -12,6 +12,7 @@ define([
 
             init: function() {
                 this.globe = this.createGlobe();
+                this.heds = new THREE.HalfEdgeStructure(this.globe);
                 this.wireframe = this.createWireframe();
                 this.stars = this.createStars();
 

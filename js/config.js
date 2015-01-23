@@ -10,6 +10,7 @@ requirejs.config({
         threejs: '../bower_components/threejs/build/three',
         fly: './lib/FlyControls',
         orbital: './lib/OrbitControls',
+        heds: './lib/HalfEdgeStructure',
 
         sources: 'sources',
         lib: 'lib',
@@ -28,6 +29,11 @@ requirejs.config({
         },
 
         orbital: {
+            deps: ['threejs'],
+            exports: 'THREE'
+        },
+
+        heds: {
             deps: ['threejs'],
             exports: 'THREE'
         }
