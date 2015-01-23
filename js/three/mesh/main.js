@@ -12,7 +12,7 @@ define([
 
             init: function() {
                 this.globe = this.createGlobe();
-                this.outlines = this.createOutlines();
+                this.wireframe = this.createWireframe();
                 this.stars = this.createStars();
 
                 this.utils = new Utils(this.globe);
@@ -37,19 +37,8 @@ define([
                 );
             },
 
-            createOutlines: function() {
-                return new THREE.Mesh(
-                    new THREE.SphereGeometry(this.radius + 0.1,
-                                             this.widthAndHeight,
-                                             this.widthAndHeight),
-                    new THREE.MeshLambertMaterial({
-                        color: new THREE.Color(0x000000),
-                        shading: THREE.FlatShading,
-                        side: THREE.DoubleSide,
-                        wireframe: true,
-                        wireframeLineWidth: 2
-                    })
-                );
+            createWireframe: function() {
+                return new THREE.WireframeHelper(this.globe);
             },
 
             createStars: function() {
@@ -73,7 +62,7 @@ define([
             addToScene: function() {
                 scene.add(mesh.globe);
                 if (App.debugging) {
-                    scene.add(this.outlines);
+                    scene.add(mesh.wireframe);
                 }
                 _.map(mesh.stars, function(star) {
                     scene.add(star);
@@ -81,7 +70,7 @@ define([
             },
 
             toggleDebugging: function(evt, debugging) {
-                return debugging ? scene.add(this.outlines) : scene.remove(this.outlines);
+                return debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
             },
 
             update: function() {
