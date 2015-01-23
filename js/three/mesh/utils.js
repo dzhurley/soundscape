@@ -8,88 +8,29 @@ define([
         var Utils = {
             geo: mesh.geometry,
             mesh: mesh,
-            northVerts: [],
-            southVerts: [],
-            seams: [],
 
             init: function() {
-                // THREE doesn't combine the two polar vertices into one object,
-                // instead storing a separate vertex for each face that connects
-                // to the pole. These return the groupings of both pole's vertices
-                // to compare with in plotting.faces.validFace.
-                this.northVerts = _.filter(this.geo.vertices, function(v) {
-                    return v.y === this.geo.radius;
-                }.bind(this));
-                this.southVerts = _.filter(this.geo.vertices, function(v) {
-                    return v.y === -this.geo.radius;
-                }.bind(this));
-
-                var indexify = function(vert) {
-                    return this.geo.vertices.indexOf(vert);
-                };
-                this.northVerts = _.map(this.northVerts, indexify.bind(this));
-                this.southVerts = _.map(this.southVerts, indexify.bind(this));
-
-                // there exists a seam on the globe running across the surface from
-                // pole to pole where 2 vertices share the same coordinates. we need
-                // pairings of these seam vertices to properly find valid adjacent
-                // faces in plotting.faces.validFace.
-                this.seams = {};
-
-                var first;
-                var pair;
-                var second;
-                for (var i = 1; i < this.geo.widthSegments; i++) {
-                    first = (i * this.geo.widthSegments) + i;
-                    second = ((i + 1) * this.geo.widthSegments) + i;
-                    pair = [first, second];
-
-                    // store at both spots for more reasonable lookup
-                    this.seams[first] = pair;
-                    this.seams[second] = pair;
-                }
+                // make sure we don't have to deal with duplicate pole/seam vertices
+                this.geo.mergeVertices();
             },
 
             generalVert: function(vert) {
-                var sames;
-
                 if (!_.isNumber(vert)) {
-                    // we got a vertex, not and index
+                    // we got a vertex, not an index
                     vert = this.geo.vertices.indexOf(vert);
                 }
-
-                if (_.contains(this.northVerts, vert)) {
-                    // handle case where vertex is one of the pole vertices
-                    sames = this.northVerts;
-                } else if (_.contains(this.southVerts, vert)) {
-                    sames = this.southVerts;
-                } else if (_.has(this.seams, '' + vert)) {
-                    // handle case where vertex is on the seam
-                    sames = this.seams['' + vert];
-                } else {
-                    sames = [vert];
-                }
-                return sames;
+                return [vert];
             },
 
             generalEdge: function(edge) {
-                var genEdge = {};
-                if (!_.isArray(edge.v1)) {
-                    genEdge.v1 = this.generalVert(edge.v1, 'v1');
-                }
-                if (!_.isArray(edge.v2)) {
-                    genEdge.v2 = this.generalVert(edge.v2, 'v2');
-                }
-                return genEdge;
+                return {v1: [edge.v1], v2: [edge.v2]};
             },
 
             sameEdge: function(first, second) {
-                var firstVerts = this.generalEdge(first);
-                var secondVerts = this.generalEdge(second);
-                if (_.isEqual(firstVerts.v1, secondVerts.v1)) {
-                    return _.isEqual(firstVerts.v2, secondVerts.v2);
-                } else if (_.isEqual(firstVerts.v1, secondVerts.v2)) {
-                    return _.isEqual(firstVerts.v2, secondVerts.v1);
+                if (_.isEqual(first.v1, second.v1)) {
+                    return _.isEqual(first.v2, second.v2);
+                } else if (_.isEqual(first.v1, second.v2)) {
+                    return _.isEqual(first.v2, second.v1);
                 }
                 return false;
             },
@@ -114,8 +55,7 @@ define([
             },
 
             removeEdge: function(edges, edge) {
-                // remove an edge from a set of edges, taking into account the poles
-                // and seam in comparisons.
+                // remove an edge from a set of edges
                 var verts = this.generalEdge(edge);
                 var match = _.find(edges, function(e) {
                     return _.contains(verts.v1, e.v1) && _.contains(verts.v2, e.v2);
