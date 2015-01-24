@@ -2,29 +2,33 @@
  * @author dzhurley / http://shiftfoc.us/
  */
 
+function keyForEdge(edge) {
+    return edge.v1 + ':' + edge.v2;
+}
+
+function createHalfEdge(edge, face) {
+    return {
+        pair: undefined,
+        next: undefined,
+        vertex: edge.v1,
+        face: face
+    };
+}
+
+function getNextEdgeKey(faceEdges, index) {
+    // safe wrap on indexing edges
+    index = parseInt(index, 10);
+    if (faceEdges.length === index + 1) {
+        return keyForEdge(faceEdges[0]);
+    }
+    return keyForEdge(faceEdges[index + 1]);
+}
+
 THREE.HalfEdgeStructure = function(object) {
     this.geometry = object.geometry !== undefined ? object.geometry : new THREE.Geometry();
 
     // edges keyed on 'v1:v2'
     this.edges = {};
-
-    function createHalfEdge(edge, face) {
-        return {
-            pair: undefined,
-            next: undefined,
-            vertex: edge.v1,
-            face: face
-        };
-    }
-
-    function getNextEdgeKey(faceEdges, index) {
-        // safe wrap on indexing edges
-        index = parseInt(index, 10);
-        if (faceEdges.length === index + 1) {
-            return faceEdges[0].v1 + ':' + faceEdges[0].v2;
-        }
-        return faceEdges[index + 1].v1 + ':' + faceEdges[index + 1].v2;
-    }
 
     var faceEdges = [];
     var edgeKey = '';
@@ -42,7 +46,7 @@ THREE.HalfEdgeStructure = function(object) {
 
         for (j in faceEdges) {
             edge = faceEdges[j];
-            edgeKey = edge.v1 + ':' + edge.v2;
+            edgeKey = keyForEdge(edge);
             this.edges[edgeKey] = createHalfEdge(edge, face);
             // save edge information on vertex
             edge.v1.edge = this.edges[edgeKey];
@@ -50,7 +54,7 @@ THREE.HalfEdgeStructure = function(object) {
 
         for (j in faceEdges) {
             edge = faceEdges[j];
-            edgeKey = edge.v1 + ':' + edge.v2;
+            edgeKey = keyForEdge(edge);
 
             // set next edge in rotation on current edge
             nextEdgeKey = getNextEdgeKey(faceEdges, j);
@@ -65,8 +69,10 @@ THREE.HalfEdgeStructure = function(object) {
         }
 
         // use last edge from iteration to inform face
-        face.edge = edge;
+        face.edge = this.edges[edgeKey];
     }
+
+    // TODO: deal with unpaired edges related to poles/seam
 };
  
 THREE.HalfEdgeStructure.prototype = {
@@ -74,7 +80,10 @@ THREE.HalfEdgeStructure.prototype = {
 
     edgesForFace: function(face) { },
 
-    facesForEdge: function(edge) { },
+    facesForEdge: function(edge) {
+        var halfEdge = this.edges[keyForEdge(edge)];
+        return [halfEdge.face, halfEdge.pair.face];
+    },
 
     facesForVertex: function(vertex) { },
 

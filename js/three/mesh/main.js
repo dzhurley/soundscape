@@ -16,7 +16,7 @@ define([
                 this.wireframe = this.createWireframe();
                 this.stars = this.createStars();
 
-                this.utils = new Utils(this.globe);
+                this.utils = new Utils(this.globe, this.heds);
 
                 App.vent.on('debugging', this.toggleDebugging.bind(this));
             },

@@ -6,6 +6,7 @@ require({
         underscore: '../../bower_components/underscore-amd/underscore-min',
 
         threejs: '../../bower_components/threejs/build/three',
+        heds: '../lib/HalfEdgeStructure',
 
         constants: '../constants',
         three: '../three',
@@ -15,14 +16,21 @@ require({
 
     shim: {
         eventbus: { exports: 'EventBus' },
-        threejs: { exports: 'THREE' }
+
+        threejs: { exports: 'THREE' },
+
+        heds: {
+            deps: ['threejs'],
+            exports: 'THREE'
+        }
     }
 }, [
     'underscore',
     'constants',
     'three/mesh/utils',
+    'heds',
     'plotting/seeder'
-], function(_, Constants, Utils, Plotter) {
+], function(_, Constants, Utils, THREE, Plotter) {
     // stick args in the worker context
     this.globe = Constants.globe;
     this.Utils = Utils;
@@ -44,7 +52,7 @@ require({
                     vertexColors: THREE.FaceColors
                 });
                 this.mesh = new THREE.Mesh(geometry, material);
-                this.mesh.utils = new Utils(this.mesh);
+                this.mesh.utils = new Utils(this.mesh, new THREE.HalfEdgeStructure(this.mesh));
                 this.plotter = new Plotter(this.mesh);
             },
 
@@ -55,7 +63,10 @@ require({
                     if (face.data.pending) {
                         var index = faces.indexOf(face).toString();
                         indexedFace = {};
-                        indexedFace[index] = face;
+                        indexedFace[index] = {
+                            color: face.color,
+                            data: face.data
+                        };
                         delete face.data.pending;
                     }
 

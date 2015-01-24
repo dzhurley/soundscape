@@ -4,10 +4,11 @@ define([
     'threejs',
     'three/scene'
 ], function(_, h, THREE, scene) {
-    return function(mesh) {
+    return function(mesh, heds) {
         var Utils = {
             geo: mesh.geometry,
             mesh: mesh,
+            heds: heds,
 
             init: function() {
                 // make sure we don't have to deal with duplicate pole/seam vertices
@@ -42,6 +43,7 @@ define([
             },
 
             facesForEdge: function(edge) {
+                // return this.heds.facesForEdge(edge);
                 return _.filter(this.geo.faces, function(face) {
                     if (this.sameEdge(edge, {v1: face.a, v2: face.b})) {
                         return true;
