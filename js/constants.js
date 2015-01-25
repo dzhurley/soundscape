@@ -9,7 +9,7 @@ define({
         'backgroundColor': '#272727',
         'color': '#d7d7d7',
         'fontface': 'Inconsolata',
-        'fontsize': '400'
+        'fontsize': '300'
     },
 
     stars: {

@@ -106,7 +106,7 @@ define([
                     vertex = mesh.globe.geometry.vertices[index];
                     generalIndices = mesh.utils.generalVert(vertex);
                     mark = this.makeMark(JSON.stringify(generalIndices));
-                    mark.position = vertex.clone().multiplyScalar(1.005);
+                    mark.position.copy(vertex.clone().multiplyScalar(1.01));
                     this.activeMarkers.push(mark);
                     scene.add(mark);
                 }.bind(this));
@@ -114,7 +114,7 @@ define([
 
             addFaceMarkers: function(face) {
                 var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
-                mark.position = App.three.mesh.utils.faceCentroid(face).multiplyScalar(1.005);
+                mark.position.copy(App.three.mesh.utils.faceCentroid(face).multiplyScalar(1.01));
                 this.activeMarkers.push(mark);
                 scene.add(mark);
             },
@@ -138,19 +138,17 @@ define([
 
                 context.font = fontsize + 'px ' + fontface;
 
-                var textWidth  = context.measureText(message).width;
-                if (textWidth > canvas.width) {
-                    canvas.width = canvas.height = textWidth;
-                    context = canvas.getContext('2d');
-                    context.font = fontsize + 'px ' + fontface;
-                }
+                var textWidth = context.measureText(message).width;
+                canvas.width = canvas.height = textWidth;
+                context = canvas.getContext('2d');
+                context.font = fontsize + 'px ' + fontface;
 
                 context.fillStyle = backgroundColor;
                 context.fillRect(
                     0,
-                    canvas.height / 2 - fontsize * 1.3,
+                    canvas.height / 3 - fontsize,
                     canvas.width,
-                    canvas.height / 2
+                    canvas.height / 1.25
                 );
 
                 context.fillStyle = color;

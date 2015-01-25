@@ -130,7 +130,9 @@ define([
 
             faceCentroid: function(face) {
                 return new THREE.Vector3()
-                    .addVectors(face.a, face.b, face.c)
+                    .add(this.geo.vertices[face.a])
+                    .add(this.geo.vertices[face.b])
+                    .add(this.geo.vertices[face.c])
                     .divideScalar(3);
             },
 
