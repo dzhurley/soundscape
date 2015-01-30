@@ -26,10 +26,14 @@ define([
             },
 
             createGlobe: function() {
+                var geometry = new THREE.SphereGeometry(this.radius,
+                                                        this.widthAndHeight,
+                                                        this.widthAndHeight);
+                // make sure we don't have to deal with duplicate pole/seam vertices
+                geometry.mergeVertices();
+
                 return new THREE.Mesh(
-                    new THREE.SphereGeometry(this.radius,
-                                             this.widthAndHeight,
-                                             this.widthAndHeight),
+                    geometry,
                     new THREE.MeshLambertMaterial({
                         shading: THREE.FlatShading,
                         side: THREE.DoubleSide,

@@ -78,7 +78,9 @@ THREE.HalfEdgeStructure = function(object) {
 THREE.HalfEdgeStructure.prototype = {
     constructor: THREE.HalfEdgeStructure,
 
-    edgesForFace: function(face) { },
+    edgesForFace: function(face) {
+        return [face.edge, face.edge.next, face.edge.next.next];
+    },
 
     facesForEdge: function(edge) {
         var halfEdge = this.edges[keyForEdge(edge)];
@@ -87,7 +89,10 @@ THREE.HalfEdgeStructure.prototype = {
 
     facesForVertex: function(vertex) { },
 
-    isSameEdge: function(first, second) { },
+    isSameEdge: function(first, second) {
+        return first.v1 === second.v1 && first.v2 === second.v2 ||
+               first.v1 === second.v2 && first.v2 === second.v1;
+    },
 
     isSameFace: function(first, second) { },
 

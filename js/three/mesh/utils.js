@@ -10,11 +10,6 @@ define([
             mesh: mesh,
             heds: heds,
 
-            init: function() {
-                // make sure we don't have to deal with duplicate pole/seam vertices
-                this.geo.mergeVertices();
-            },
-
             generalVert: function(vert) {
                 if (!_.isNumber(vert)) {
                     // we got a vertex, not an index
@@ -28,12 +23,7 @@ define([
             },
 
             sameEdge: function(first, second) {
-                if (_.isEqual(first.v1, second.v1)) {
-                    return _.isEqual(first.v2, second.v2);
-                } else if (_.isEqual(first.v1, second.v2)) {
-                    return _.isEqual(first.v2, second.v1);
-                }
-                return false;
+                return this.heds.isSameEdge(first, second);
             },
 
             uniqueVerticesForEdges: function(edges) {
@@ -179,7 +169,6 @@ define([
             }
         };
 
-        Utils.init();
         return Utils;
     };
 });

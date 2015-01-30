@@ -5,7 +5,14 @@ define([
 ], function(_, THREE, scene) {
     return function() {
         var headsUp = {
-            template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>"),
+            template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
+                                 "<span>face.a = <%= a %></span>" +
+                                 "<span>face.b = <%= b %></span>" +
+                                 "<span>face.c = <%= c %></span>"),
+
+            blankTemplate: _.template("<span>face.a = <%= a %></span>" +
+                                      "<span>face.b = <%= b %></span>" +
+                                      "<span>face.c = <%= c %></span>"),
             mouse: { x: 0, y: 0 },
 
             init: function() {
@@ -86,11 +93,21 @@ define([
                 }
 
                 if (isPainted) {
-                    data = _.extend({}, this.active.data);
+                    data = _.extend({}, this.active.data, {
+                        a: this.active.a,
+                        b: this.active.b,
+                        c: this.active.c,
+                    });
                     App.headsUpDisplay.innerHTML = this.template(data);
                     App.headsUpDisplay.style.display = 'block';
                 } else {
-                    App.headsUpDisplay.style.display = 'none';
+                    data = _.extend({}, this.active.data, {
+                        a: this.active.a,
+                        b: this.active.b,
+                        c: this.active.c,
+                    });
+                    App.headsUpDisplay.innerHTML = this.blankTemplate(data);
+                    App.headsUpDisplay.style.display = 'block';
                 }
             },
 

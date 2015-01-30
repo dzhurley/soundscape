@@ -52,7 +52,8 @@ require({
                     vertexColors: THREE.FaceColors
                 });
                 this.mesh = new THREE.Mesh(geometry, material);
-                this.mesh.utils = new Utils(this.mesh, new THREE.HalfEdgeStructure(this.mesh));
+                this.heds = new THREE.HalfEdgeStructure(this.mesh);
+                this.mesh.utils = new Utils(this.mesh, this.heds);
                 this.plotter = new Plotter(this.mesh);
             },
 
