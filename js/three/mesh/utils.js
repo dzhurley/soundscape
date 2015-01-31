@@ -33,17 +33,7 @@ define([
             },
 
             facesForEdge: function(edge) {
-                // return this.heds.facesForEdge(edge);
-                return _.filter(this.geo.faces, function(face) {
-                    if (this.sameEdge(edge, {v1: face.a, v2: face.b})) {
-                        return true;
-                    } else if (this.sameEdge(edge, {v1: face.a, v2: face.c})) {
-                        return true;
-                    } else if (this.sameEdge(edge, {v1: face.b, v2: face.c})) {
-                        return true;
-                    }
-                    return false;
-                }.bind(this), edge);
+                return this.heds.facesForEdge(edge);
             },
 
             removeEdge: function(edges, edge) {
@@ -155,17 +145,7 @@ define([
             },
 
             adjacentFaces: function(face) {
-                var faces = [];
-                var edges = [
-                    { v1: face.a, v2: face.b },
-                    { v1: face.b, v2: face.c },
-                    { v1: face.c, v2: face.a }
-                ];
-
-                _.each(edges, function(edge) {
-                    faces.push(_.without(this.facesForEdge(edge), face));
-                }.bind(this));
-                return _.flatten(faces);
+                return this.heds.adjacentFaces(face);
             }
         };
 

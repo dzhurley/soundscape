@@ -49,7 +49,7 @@ THREE.HalfEdgeStructure = function(object) {
             edgeKey = keyForEdge(edge);
             this.edges[edgeKey] = createHalfEdge(edge, face);
             // save edge information on vertex
-            edge.v1.edge = this.edges[edgeKey];
+            this.geometry.vertices[edge.v1].edge = this.edges[edgeKey];
         }
 
         for (j in faceEdges) {
@@ -71,15 +71,25 @@ THREE.HalfEdgeStructure = function(object) {
         // use last edge from iteration to inform face
         face.edge = this.edges[edgeKey];
     }
-
-    // TODO: deal with unpaired edges related to poles/seam
 };
  
 THREE.HalfEdgeStructure.prototype = {
     constructor: THREE.HalfEdgeStructure,
 
+    adjacentFaces: function(face) {
+        return [
+            face.edge.pair.face,
+            face.edge.next.pair.face,
+            face.edge.next.next.pair.face
+        ];
+    },
+
     edgesForFace: function(face) {
-        return [face.edge, face.edge.next, face.edge.next.next];
+        return [
+            face.edge,
+            face.edge.next,
+            face.edge.next.next
+        ];
     },
 
     facesForEdge: function(edge) {
@@ -87,11 +97,24 @@ THREE.HalfEdgeStructure.prototype = {
         return [halfEdge.face, halfEdge.pair.face];
     },
 
-    facesForVertex: function(vertex) { },
+    facesForVertex: function(vertex) {
+        var faces = [];
+
+        function accumFaces(edge) {
+            if (_.contains(faces, edge.face)) { return; }
+            faces.push(edge.face);
+            return accumFaces(edge.next.pair);
+        }
+
+        faces.push(vertex.edge.face);
+        accumFaces(vertex.edge.pair);
+
+        return faces;
+    },
 
     isSameEdge: function(first, second) {
         return first.v1 === second.v1 && first.v2 === second.v2 ||
-               first.v1 === second.v2 && first.v2 === second.v1;
+            first.v1 === second.v2 && first.v2 === second.v1;
     },
 
     isSameFace: function(first, second) { },

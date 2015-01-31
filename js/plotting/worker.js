@@ -46,6 +46,8 @@ require({
                 var geometry = new THREE.SphereGeometry(globe.radius,
                                                         globe.widthAndHeight,
                                                         globe.widthAndHeight);
+                // make sure we don't have to deal with duplicate pole/seam vertices
+                geometry.mergeVertices();
                 var material = new THREE.MeshLambertMaterial({
                     shading: THREE.FlatShading,
                     side: THREE.DoubleSide,
