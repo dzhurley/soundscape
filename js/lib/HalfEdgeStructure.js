@@ -110,23 +110,6 @@ THREE.HalfEdgeStructure.prototype = {
         accumFaces(vertex.edge.pair);
 
         return faces;
-    },
-
-    isSameEdge: function(first, second) {
-        return first.v1 === second.v1 && first.v2 === second.v2 ||
-            first.v1 === second.v2 && first.v2 === second.v1;
-    },
-
-    isSameFace: function(first, second) { },
-
-    // old utils methods:
-    //
-    // addEquidistantMarks
-    // faceCentroid
-    // findClosestFace
-    // findClosestFreeFace
-    // findEquidistantFaces
-    // removeEdge
-    // resetFaces
+    }
 };
 

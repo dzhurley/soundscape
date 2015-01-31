@@ -10,6 +10,15 @@ define([
             mesh: mesh,
             heds: heds,
 
+            faceCentroid: function(face) {
+                // save deprecated face.centroid
+                return new THREE.Vector3()
+                    .add(this.geo.vertices[face.a])
+                    .add(this.geo.vertices[face.b])
+                    .add(this.geo.vertices[face.c])
+                    .divideScalar(3);
+            },
+
             generalVert: function(vert) {
                 if (!_.isNumber(vert)) {
                     // we got a vertex, not an index
@@ -23,7 +32,9 @@ define([
             },
 
             sameEdge: function(first, second) {
-                return this.heds.isSameEdge(first, second);
+                // TODO: push to heds
+                return first.v1 === second.v1 && first.v2 === second.v2 ||
+                    first.v1 === second.v2 && first.v2 === second.v1;
             },
 
             uniqueVerticesForEdges: function(edges) {
@@ -108,14 +119,6 @@ define([
                     // return at most one face for each intersection
                     return hit[0];
                 });
-            },
-
-            faceCentroid: function(face) {
-                return new THREE.Vector3()
-                    .add(this.geo.vertices[face.a])
-                    .add(this.geo.vertices[face.b])
-                    .add(this.geo.vertices[face.c])
-                    .divideScalar(3);
             },
 
             findClosestFace: function(candidates, target) {
