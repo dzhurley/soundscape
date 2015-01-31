@@ -1,5 +1,10 @@
 /**
  * @author dzhurley / http://shiftfoc.us/
+ *
+ * An implementation of a Half-Edge Data Structure for Three.js geometries.
+ *
+ * For more information on this structure:
+ * http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml
  */
 
 function keyForEdge(edge) {
@@ -24,8 +29,15 @@ function getNextEdgeKey(faceEdges, index) {
     return keyForEdge(faceEdges[index + 1]);
 }
 
-THREE.HalfEdgeStructure = function(object) {
-    this.geometry = object.geometry !== undefined ? object.geometry : new THREE.Geometry();
+THREE.HalfEdgeStructure = function(geometry) {
+    if (geometry instanceof THREE.Geometry === false) {
+        console.error('geometry not an instance of THREE.Geometry.', geometry);
+        return;
+    }
+    this.geometry = geometry;
+
+    // must merge vertices to properly set `pair` and `next` references
+    this.geometry.mergeVertices();
 
     // edges keyed on 'v1:v2'
     this.edges = {};
@@ -34,30 +46,31 @@ THREE.HalfEdgeStructure = function(object) {
     var edgeKey = '';
     var nextEdgeKey = '';
     var pairEdgeKey = '';
-    var edge, face, i = 0, j = 0;
 
-    for (i in this.geometry.faces) {
-        face = this.geometry.faces[i];
+    var face, edge, faceIndex, edgeIndex;
+
+    for (faceIndex in this.geometry.faces) {
+        face = this.geometry.faces[faceIndex];
 
         // always counter-clockwise
         faceEdges = [{v1: face.a, v2: face.b},
                      {v1: face.b, v2: face.c},
                      {v1: face.c, v2: face.a}];
 
-        for (j in faceEdges) {
-            edge = faceEdges[j];
+        for (edgeIndex in faceEdges) {
+            edge = faceEdges[edgeIndex];
             edgeKey = keyForEdge(edge);
             this.edges[edgeKey] = createHalfEdge(edge, face);
             // save edge information on vertex
             this.geometry.vertices[edge.v1].edge = this.edges[edgeKey];
         }
 
-        for (j in faceEdges) {
-            edge = faceEdges[j];
+        for (edgeIndex in faceEdges) {
+            edge = faceEdges[edgeIndex];
             edgeKey = keyForEdge(edge);
 
             // set next edge in rotation on current edge
-            nextEdgeKey = getNextEdgeKey(faceEdges, j);
+            nextEdgeKey = getNextEdgeKey(faceEdges, edgeIndex);
             this.edges[edgeKey].next = this.edges[nextEdgeKey];
 
             // find pairs for half edges

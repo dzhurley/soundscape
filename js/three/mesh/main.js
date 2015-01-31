@@ -12,7 +12,7 @@ define([
 
             init: function() {
                 this.globe = this.createGlobe();
-                this.heds = new THREE.HalfEdgeStructure(this.globe);
+                this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
                 this.wireframe = this.createWireframe();
                 this.stars = this.createStars();
 
@@ -26,14 +26,10 @@ define([
             },
 
             createGlobe: function() {
-                var geometry = new THREE.SphereGeometry(this.radius,
-                                                        this.widthAndHeight,
-                                                        this.widthAndHeight);
-                // make sure we don't have to deal with duplicate pole/seam vertices
-                geometry.mergeVertices();
-
                 return new THREE.Mesh(
-                    geometry,
+                    new THREE.SphereGeometry(this.radius,
+                                             this.widthAndHeight,
+                                             this.widthAndHeight),
                     new THREE.MeshLambertMaterial({
                         shading: THREE.FlatShading,
                         side: THREE.DoubleSide,
