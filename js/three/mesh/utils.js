@@ -19,18 +19,6 @@ define([
                     .divideScalar(3);
             },
 
-            generalVert: function(vert) {
-                if (!_.isNumber(vert)) {
-                    // we got a vertex, not an index
-                    vert = this.geo.vertices.indexOf(vert);
-                }
-                return [vert];
-            },
-
-            generalEdge: function(edge) {
-                return {v1: [edge.v1], v2: [edge.v2]};
-            },
-
             sameEdge: function(first, second) {
                 // TODO: push to heds
                 return first.v1 === second.v1 && first.v2 === second.v2 ||
@@ -48,17 +36,15 @@ define([
             },
 
             removeEdge: function(edges, edge) {
-                // remove an edge from a set of edges
-                var verts = this.generalEdge(edge);
                 var match = _.find(edges, function(e) {
-                    return _.contains(verts.v1, e.v1) && _.contains(verts.v2, e.v2);
+                    return edge.v1 === e.v1 && edge.v2 === e.v2;
                 });
 
                 if (match) {
                     edges.splice(edges.indexOf(match), 1);
                 } else {
                     match = _.find(edges, function(e) {
-                        return _.contains(verts.v1, e.v2) && _.contains(verts.v2, e.v1);
+                        return edge.v1 === e.v2 && edge.v2 === e.v1;
                     });
                     if (match) {
                         edges.splice(edges.indexOf(match), 1);

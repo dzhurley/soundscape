@@ -40,7 +40,6 @@ define([
 
             validFace: function(artist, edge) {
                 var swappers = [];
-                var verts = this.mesh.utils.generalEdge(edge);
 
                 function intertains(first, second) {
                     return !_.isEmpty(_.intersection(first, second));
@@ -49,12 +48,12 @@ define([
                 var face = _.filter(this.faces, function(f) {
                     var valid = false;
 
-                    if (_.contains(verts.v1, f.a)) {
-                        valid = intertains(verts.v2, [f.b, f.c]);
-                    } else if (_.contains(verts.v1, f.b)) {
-                        valid = intertains(verts.v2, [f.a, f.c]);
-                    } else if (_.contains(verts.v1, f.c)) {
-                        valid = intertains(verts.v2, [f.a, f.b]);
+                    if (edge.v1 === f.a) {
+                        valid = edge.v2 === f.b || edge.v2 === f.c;
+                    } else if (edge.v1 === f.b) {
+                        valid = edge.v2 === f.a || edge.v2 === f.c;
+                    } else if (edge.v1 === f.c) {
+                        valid = edge.v2 === f.a || edge.v2 === f.b;
                     }
 
                     if (valid && !_.isUndefined(f.data.artist)) {

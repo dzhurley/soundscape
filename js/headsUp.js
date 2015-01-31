@@ -118,11 +118,10 @@ define([
 
             addVertexMarkers: function(vertices) {
                 var mesh = App.three.mesh;
-                var mark, generalIndices, vertex;
+                var mark, vertex;
                 _.each(vertices, function(index) {
+                    mark = this.makeMark(JSON.stringify(index));
                     vertex = mesh.globe.geometry.vertices[index];
-                    generalIndices = mesh.utils.generalVert(vertex);
-                    mark = this.makeMark(JSON.stringify(generalIndices));
                     mark.position.copy(vertex.clone().multiplyScalar(1.005));
                     this.activeMarkers.push(mark);
                     scene.add(mark);
