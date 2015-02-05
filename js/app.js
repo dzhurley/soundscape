@@ -4,12 +4,12 @@ define([
     'three/controls',
     'plotting/main',
     'sources/main',
-    'headsUp'
-], function(EventBus, Threes, Controls, Plotter, Sourcer, HeadsUp) {
+    'hud'
+], function(EventBus, Threes, Controls, Plotter, Sourcer, Hud) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
-            headsUpDisplay: document.getElementById('heads-up'),
+            hudContainer: document.getElementById('hud'),
             sourcesOverlay: document.getElementById('sources-overlay'),
             sourcesButton: document.getElementById('toggle-overlay'),
             sourcesPrompt: document.getElementById('sources'),
@@ -24,7 +24,7 @@ define([
                 this.three = new Threes();
                 this.plotter = new Plotter();
                 this.sourcer = new Sourcer();
-                this.headsUp = new HeadsUp();
+                this.hud = new Hud();
 
                 this.bindHandlers();
                 this.container.appendChild(this.three.renderer.domElement);

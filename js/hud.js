@@ -4,7 +4,7 @@ define([
     'three/scene'
 ], function(_, THREE, scene) {
     return function() {
-        var headsUp = {
+        var hud = {
             template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
                                  "<span>face.a = <%= a %></span>" +
                                  "<span>face.b = <%= b %></span>" +
@@ -98,16 +98,16 @@ define([
                         b: this.active.b,
                         c: this.active.c,
                     });
-                    App.headsUpDisplay.innerHTML = this.template(data);
-                    App.headsUpDisplay.style.display = 'block';
+                    App.hudContainer.innerHTML = this.template(data);
+                    App.hudContainer.style.display = 'block';
                 } else {
                     data = _.extend({}, this.active.data, {
                         a: this.active.a,
                         b: this.active.b,
                         c: this.active.c,
                     });
-                    App.headsUpDisplay.innerHTML = this.blankTemplate(data);
-                    App.headsUpDisplay.style.display = 'block';
+                    App.hudContainer.innerHTML = this.blankTemplate(data);
+                    App.hudContainer.style.display = 'block';
                 }
             },
 
@@ -179,7 +179,7 @@ define([
             }
         };
 
-        headsUp.init();
-        return headsUp;
+        hud.init();
+        return hud;
     };
 });

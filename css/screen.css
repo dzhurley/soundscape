@@ -18,7 +18,7 @@ canvas {
     z-index: 1;
 }
 
-#heads-up {
+#hud {
     padding: 10px;
     color: #d7d7d7;
     background-color: #272727;
@@ -30,7 +30,7 @@ canvas {
     z-index: 2;
 }
 
-#heads-up span {
+#hud span {
     display: block;
     padding: 0.5rem;
 }

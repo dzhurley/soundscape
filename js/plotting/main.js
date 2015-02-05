@@ -24,7 +24,7 @@ define([
                     // TODO: better dispatch
 
                     if (evt.data.msg === 'edgesForArtist') {
-                        App.headsUp.setVerticesFromArtistEdges(evt.data.edges);
+                        App.hud.setVerticesFromArtistEdges(evt.data.edges);
                         return;
                     }
 
