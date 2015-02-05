@@ -86,19 +86,23 @@ require({
                 });
             },
 
+            batchOnce: function(evt) {
+                for (var j = 0; j <= this.plotter.batchSize; j++) {
+                    if (this.plotter.looper.loopOnce(this.remaining)) {
+                        break;
+                    }
+                }
+
+                // TODO: send back progress
+                postMessage({
+                    msg: 'batched',
+                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                });
+            },
+
             batch: function(evt) {
                 for (var i = 0; i < this.remaining.length; i++) {
-                    for (var j = 0; j <= this.plotter.batchSize; j++) {
-                        if (this.plotter.looper.loopOnce(this.remaining)) {
-                            break;
-                        }
-                    }
-
-                    // TODO: send back progress
-                    postMessage({
-                        msg: 'batched',
-                        faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
-                    });
+                    this.batchOnce(evt);
 
                     if (this.plotter.stop) {
                         break;

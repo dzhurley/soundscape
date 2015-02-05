@@ -39,9 +39,9 @@ define([
 
                     App.three.mesh.globe.geometry.colorsNeedUpdate = true;
 
-                    if (evt.data.msg === 'seeded') {
-                        this.postMessage({ msg: 'batch' });
-                    }
+//                     if (evt.data.msg === 'seeded') {
+//                         this.postMessage({ msg: 'batch' });
+//                     }
                 }.bind(this);
             }
         };

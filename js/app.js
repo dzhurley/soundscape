@@ -15,6 +15,7 @@ define([
             sourcesPrompt: document.getElementById('sources'),
             debuggingButton: document.getElementById('toggle-debugging'),
             controlsButton: document.getElementById('toggle-controls'),
+            batchButton: document.getElementById('batch'),
 
             debugging: true,
 
@@ -59,6 +60,12 @@ define([
                 this.controlsButton.addEventListener(
                     'click',
                     this.toggleControls.bind(this)
+                );
+                this.batchButton.addEventListener(
+                    'click',
+                    function() {
+                        App.plotter.postMessage({ msg: 'batchOnce' });
+                    }.bind(this)
                 );
                 this.sourcesPrompt.addEventListener(
                     'submit',
