@@ -37,24 +37,9 @@ require({
     this.Plotter = Plotter;
 
     this.EventManager = function() {
-        var eventManager = {
+        return {
             dispatchEvent: function(evt) {
                 return this[evt.data.msg](evt);
-            },
-
-            init: function() {
-                var geometry = new THREE.SphereGeometry(globe.radius,
-                                                        globe.widthAndHeight,
-                                                        globe.widthAndHeight);
-                var material = new THREE.MeshLambertMaterial({
-                    shading: THREE.FlatShading,
-                    side: THREE.DoubleSide,
-                    vertexColors: THREE.FaceColors
-                });
-                this.mesh = new THREE.Mesh(geometry, material);
-                this.heds = new THREE.HalfEdgeStructure(this.mesh.geometry);
-                this.mesh.utils = new Utils(this.mesh, this.heds);
-                this.plotter = new Plotter(this.mesh);
             },
 
             newFaces: function(faces) {
@@ -77,17 +62,17 @@ require({
 
             seed: function(evt) {
                 // reset stopping flag
-                this.plotter.stop = false;
-                this.remaining = this.plotter.seed(JSON.parse(evt.data.artists));
+                plotter.stop = false;
+                this.remaining = plotter.seed(JSON.parse(evt.data.artists));
                 // TODO: send back progress
                 postMessage({
                     msg: 'seeded',
-                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
                 });
             },
 
             processOneArtist: function() {
-                return this.plotter.looper.loopOnce(this.remaining);
+                return plotter.looper.loopOnce(this.remaining);
             },
 
             oneArtist: function(evt) {
@@ -96,12 +81,12 @@ require({
                 // TODO: send back progress
                 postMessage({
                     msg: 'looped',
-                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
                 });
             },
 
             batchOnce: function(evt) {
-                for (var j = 0; j <= this.plotter.batchSize; j++) {
+                for (var j = 0; j <= plotter.batchSize; j++) {
                     if (this.processOneArtist()) {
                         break;
                     }
@@ -110,7 +95,7 @@ require({
                 // TODO: send back progress
                 postMessage({
                     msg: 'batched',
-                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
                 });
             },
 
@@ -118,14 +103,14 @@ require({
                 for (var i = 0; i < this.remaining.length; i++) {
                     this.batchOnce(evt);
 
-                    if (this.plotter.stop) {
+                    if (plotter.stop) {
                         break;
                     }
                 }
             },
 
             edgesForArtist: function(evt) {
-                var artists = this.plotter.artister.artists;
+                var artists = plotter.artister.artists;
                 var artist = _.findWhere(artists, { name: evt.data.artistName });
 
                 postMessage({
@@ -134,13 +119,26 @@ require({
                 });
             }
         };
-
-        eventManager.init();
-        return eventManager;
     };
 
     onmessage = function(evt) {
-        this.eventManager = this.eventManager || new EventManager();
+        if (!this.started) {
+            var geometry = new THREE.SphereGeometry(globe.radius,
+                                                    globe.widthAndHeight,
+                                                    globe.widthAndHeight);
+            var material = new THREE.MeshLambertMaterial({
+                shading: THREE.FlatShading,
+                side: THREE.DoubleSide,
+                vertexColors: THREE.FaceColors
+            });
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.heds = new THREE.HalfEdgeStructure(this.mesh.geometry);
+            this.mesh.utils = new Utils(this.mesh, this.heds);
+            this.plotter = new Plotter(this.mesh);
+            this.eventManager = new EventManager();
+            this.started = true;
+        }
+
         this.eventManager.dispatchEvent(evt);
     };
 });

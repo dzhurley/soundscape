@@ -51,6 +51,7 @@ define([
                 }
             },
 
+            // TODO: improve binding sitch
             bindHandlers: function() {
                 // ux events to listen on for state changes
                 this.debuggingButton.addEventListener('click', function() {
