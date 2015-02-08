@@ -49,7 +49,7 @@ define([
                 return false;
             },
 
-            // TODO: sort out and combine loop/loopOnce
+            // TODO: merge with loopOnce, only used to seed
             loop: function(randos) {
                 this.remaining = randos;
                 var currentPass;

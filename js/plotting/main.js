@@ -31,17 +31,21 @@ define([
                     var newFaces = JSON.parse(evt.data.faces);
                     var oldFaces = App.three.mesh.globe.geometry.faces;
 
+                    function getFaceIndex(face) {
+                        return parseInt(_.keys(face)[0], 10);
+                    }
+
+                    console.log('painting new faces:', _.map(newFaces, function(face) {
+                        return getFaceIndex(face);
+                    }));
+
                     _.each(newFaces, function(face) {
-                        var index = parseInt(_.keys(face)[0], 10);
+                        index = getFaceIndex(face);
                         oldFaces[index].color.copy(face[index].color);
                         oldFaces[index].data = face[index].data;
                     }.bind(this));
 
                     App.three.mesh.globe.geometry.colorsNeedUpdate = true;
-
-//                     if (evt.data.msg === 'seeded') {
-//                         this.postMessage({ msg: 'batch' });
-//                     }
                 }.bind(this);
             }
         };

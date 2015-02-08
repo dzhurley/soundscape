@@ -86,9 +86,23 @@ require({
                 });
             },
 
+            processOneArtist: function() {
+                return this.plotter.looper.loopOnce(this.remaining);
+            },
+
+            oneArtist: function(evt) {
+                this.processOneArtist();
+
+                // TODO: send back progress
+                postMessage({
+                    msg: 'looped',
+                    faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+                });
+            },
+
             batchOnce: function(evt) {
                 for (var j = 0; j <= this.plotter.batchSize; j++) {
-                    if (this.plotter.looper.loopOnce(this.remaining)) {
+                    if (this.processOneArtist()) {
                         break;
                     }
                 }
