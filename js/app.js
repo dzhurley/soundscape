@@ -13,9 +13,12 @@ define([
             sourcesOverlay: document.getElementById('sources-overlay'),
             sourcesButton: document.getElementById('toggle-overlay'),
             sourcesPrompt: document.getElementById('sources'),
+
             debuggingButton: document.getElementById('toggle-debugging'),
             controlsButton: document.getElementById('toggle-controls'),
-            batchButton: document.getElementById('batch'),
+            oneArtistButton: document.getElementById('one-artist'),
+            oneBatchButton: document.getElementById('one-batch'),
+            allBatchButton: document.getElementById('all-batch'),
 
             debugging: true,
 
@@ -50,31 +53,32 @@ define([
 
             bindHandlers: function() {
                 // ux events to listen on for state changes
-                this.debuggingButton.addEventListener(
-                    'click',
-                    function() {
-                        App.debugging = !App.debugging;
-                        App.vent.trigger('debugging', App.debugging);
-                    }
-                );
+                this.debuggingButton.addEventListener('click', function() {
+                    App.debugging = !App.debugging;
+                    App.vent.trigger('debugging', App.debugging);
+                });
+
                 this.controlsButton.addEventListener(
-                    'click',
-                    this.toggleControls.bind(this)
-                );
-                this.batchButton.addEventListener(
-                    'click',
-                    function() {
-                        App.plotter.postMessage({ msg: 'batchOnce' });
-                    }.bind(this)
-                );
+                    'click', this.toggleControls.bind(this));
+
+                this.oneArtistButton.addEventListener('click', function() {
+                    App.plotter.postMessage({ msg: 'oneArtist' });
+                }.bind(this));
+
+                this.oneBatchButton.addEventListener('click', function() {
+                    App.plotter.postMessage({ msg: 'batchOnce' });
+                }.bind(this));
+
+                this.allBatchButton.addEventListener('click', function() {
+                    App.plotter.postMessage({ msg: 'batch' });
+                }.bind(this));
+
                 this.sourcesPrompt.addEventListener(
-                    'submit',
-                    this.sourcer.checkSource.bind(this.sourcer)
-                );
+                    'submit', this.sourcer.checkSource.bind(this.sourcer));
+
                 this.sourcesButton.addEventListener(
-                    'click',
-                    this.toggleSources.bind(this)
-                );
+                    'click', this.toggleSources.bind(this));
+
                 this.focusUsername();
 
                 this.vent.on('submitted', function() {
