@@ -112,12 +112,10 @@ require({
             },
 
             edgesForArtist: function(evt) {
-                var artist = _.findWhere(App.artistManager.artists,
-                                         { name: evt.data.artistName });
-
+                var edges = App.artistManager.edgesForArtist(evt.data.artistName);
                 postMessage({
                     msg: 'edgesForArtist',
-                    edges: artist.edges
+                    edges: edges
                 });
             }
         };

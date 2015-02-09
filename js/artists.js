@@ -5,6 +5,11 @@ define(['underscore'], function(_) {
         var artistManager = {
             artistIndex: 0,
 
+            edgesForArtist: function(artistName) {
+                var artist = _.findWhere(this.artists, { name: artistName });
+                return artist && artist.edges;
+            },
+
             setData: function(data) {
                 this.artists = _.shuffle(data);
                 this.artistIndex = 0;
