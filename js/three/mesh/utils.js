@@ -19,12 +19,6 @@ define([
                     .divideScalar(3);
             },
 
-            sameEdge: function(first, second) {
-                // TODO: push to heds
-                return first.v1 === second.v1 && first.v2 === second.v2 ||
-                    first.v1 === second.v2 && first.v2 === second.v1;
-            },
-
             uniqueVerticesForEdges: function(edges) {
                 return _.uniq(_.flatten(_.map(edges, function(edge) {
                     return [edge.v1, edge.v2];
