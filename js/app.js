@@ -4,8 +4,9 @@ define([
     'three/controls',
     'plotting/main',
     'sources/main',
+    'artists',
     'hud'
-], function(EventBus, Threes, Controls, Plotter, Sourcer, Hud) {
+], function(EventBus, Threes, Controls, Plotter, Sourcer, ArtistManager, Hud) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
@@ -28,6 +29,7 @@ define([
                 this.three = new Threes();
                 this.plotter = new Plotter();
                 this.sourcer = new Sourcer();
+                this.artistManager = new ArtistManager();
                 this.hud = new Hud();
 
                 this.bindHandlers();

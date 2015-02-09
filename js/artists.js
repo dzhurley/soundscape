@@ -1,17 +1,16 @@
 define(['underscore'], function(_) {
-    return function(meshUtils) {
+    return function() {
         var nextArtistCallCount = 0;
 
-        var artister = {
+        var artistManager = {
             artistIndex: 0,
-            meshUtils: meshUtils,
 
             setData: function(data) {
                 this.artists = _.shuffle(data);
                 this.artistIndex = 0;
             },
 
-            // TODO: rework in entirety
+            // TODO: rework in entirety, and most likely move
             expandArtistEdges: function(face, artist, edge) {
                 var second;
                 var third;
@@ -30,22 +29,7 @@ define(['underscore'], function(_) {
                 }
                 artist.edges.push(second, third);
 
-                // if (face.data.artist && face.data.artist !== artist.name) {
-                //     // we're swapping with another, so update the swapped artist
-                //     // with new edges/faces info
-                //     var faces;
-                //     var swappedArtist = _.findWhere(this.artists,
-                //                                     {name: face.data.artist});
-                //     swappedArtist.faces++;
-                //     _.each([edge, second, third], function(e) {
-                //         faces = App.heds.facesForEdge(e);
-                //         if (!_.contains(faces, face)) {
-                //             // only remove this edge if it isn't in another face
-                //             // belonging to `swappedArtist`
-                //             this.meshUtils.removeEdge(swappedArtist.edges, e);
-                //         }
-                //     }.bind(this), face);
-                // }
+                // TODO: handle swapping
             },
 
             nextArtist: function() {
@@ -66,7 +50,7 @@ define(['underscore'], function(_) {
                     // look towards the next artist and record how far we've recursed
                     nextArtistCallCount++;
                     this.artistIndex++;
-                    return artister.nextArtist();
+                    return artistManager.nextArtist();
                 }
                 // set up next call for next artist
                 this.artistIndex++;
@@ -76,6 +60,6 @@ define(['underscore'], function(_) {
             }
         };
 
-        return artister;
+        return artistManager;
     };
 });

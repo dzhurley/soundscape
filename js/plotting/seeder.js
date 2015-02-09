@@ -1,19 +1,16 @@
 define([
     'underscore',
     'helpers',
-    'plotting/artists',
     'plotting/faces',
     'plotting/looper'
-], function(_, h, ArtistPlotter, FacePlotter, Looper) {
+], function(_, h, FacePlotter, Looper) {
 
     return function(mesh) {
         var seeder = {
             init: function() {
                 this.meshUtils = mesh.utils;
-                this.artister = new ArtistPlotter(this.meshUtils);
-                // TODO: don't depend on passing so much
-                this.facePlotter = new FacePlotter(this.artister, mesh);
-                this.looper = new Looper(this.facePlotter, this.artister, this);
+                this.facePlotter = new FacePlotter(mesh);
+                this.looper = new Looper(this.facePlotter, this);
 
                 // how many faces to paint before allowing a rerender
                 this.batchSize = 1;
@@ -50,11 +47,11 @@ define([
                     alert('user has no plays');
                     return;
                 }
-                this.artister.setData(preppedData);
-                this.batchSize = this.artister.artists.length;
+                App.artistManager.setData(preppedData);
+                this.batchSize = App.artistManager.artists.length;
 
                 // seed the planet
-                var seeds = this.meshUtils.findEquidistantFaces(this.artister.artists.length);
+                var seeds = this.meshUtils.findEquidistantFaces(App.artistManager.artists.length);
                 var seedIndices = _.pluck(seeds, 'faceIndex');
                 this.looper.loop(seedIndices);
 

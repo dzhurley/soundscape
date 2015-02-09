@@ -2,21 +2,19 @@ define([
     'underscore',
     'helpers',
     'threejs',
-    'plotting/artists',
     'plotting/faces'
-], function(_, h, THREE, ArtistPlotter, FacePlotter) {
-    return function(facePlotter, artister, plotter) {
+], function(_, h, THREE, FacePlotter) {
+    return function(facePlotter, plotter) {
         var looper = {
             facePlotter: facePlotter,
-            artister: artister,
             plotter: plotter,
             remaining: [],
 
             setNewFace: function(face, artist) {
                 // TODO: doesn't belong here
                 // paint face with artist color and info
-                index = this.artister.artists.indexOf(artist);
-                face.color.setHex(h.spacedColor(this.artister.artists.length, artist.rank));
+                index = App.artistManager.artists.indexOf(artist);
+                face.color.setHex(h.spacedColor(App.artistManager.artists.length, artist.rank));
                 face.color.multiplyScalar(artist.normCount);
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;
@@ -30,7 +28,7 @@ define([
                 var remainingIndex;
 
                 // choose random face for each face to paint
-                artist = this.artister.nextArtist();
+                artist = App.artistManager.nextArtist();
                 if (!artist) {
                     // no more faces left for any artist to paint
                     return true;

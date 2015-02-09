@@ -3,13 +3,12 @@ define([
     'helpers',
     'threejs'
 ], function(_, h, THREE) {
-    return function(artister, mesh) {
+    return function(mesh) {
         var facePlotter = {
             init: function() {
                 this.mesh = mesh;
                 this.faces = this.mesh.geometry.faces;
                 this.vertices = this.mesh.geometry.vertices;
-                this.artister = artister;
             },
 
             handleSwappers: function(startFace) {
@@ -90,7 +89,7 @@ define([
 
                     if (!_.isArray(faceOrSwap)) {
                         // found valid face, stop looking for more
-                        this.artister.expandArtistEdges(faceOrSwap, artist, edge);
+                        App.artistManager.expandArtistEdges(faceOrSwap, artist, edge);
                         return {
                             face: faceOrSwap,
                             index: this.faces.indexOf(faceOrSwap)

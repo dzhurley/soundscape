@@ -8,6 +8,7 @@ require({
         threejs: '../../bower_components/threejs/build/three',
         heds: '../lib/HalfEdgeStructure',
 
+        artists: '../artists',
         constants: '../constants',
         three: '../three',
         plotting: '../plotting',
@@ -29,8 +30,9 @@ require({
     'constants',
     'three/mesh/utils',
     'heds',
+    'artists',
     'plotting/seeder'
-], function(_, Constants, Utils, THREE, Plotter) {
+], function(_, Constants, Utils, THREE, ArtistManager, Plotter) {
     // stick args in the worker context
     this.globe = Constants.globe;
     this.Utils = Utils;
@@ -110,8 +112,8 @@ require({
             },
 
             edgesForArtist: function(evt) {
-                var artists = App.plotter.artister.artists;
-                var artist = _.findWhere(artists, { name: evt.data.artistName });
+                var artist = _.findWhere(App.artistManager.artists,
+                                         { name: evt.data.artistName });
 
                 postMessage({
                     msg: 'edgesForArtist',
@@ -136,6 +138,7 @@ require({
             this.App.heds = new THREE.HalfEdgeStructure(this.App.mesh.geometry);
             this.App.mesh.utils = new Utils(this.App.mesh);
             this.App.plotter = new Plotter(this.App.mesh);
+            this.App.artistManager = new ArtistManager();
             this.App.eventManager = new EventManager();
         }
 
