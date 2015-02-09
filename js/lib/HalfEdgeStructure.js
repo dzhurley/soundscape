@@ -7,28 +7,6 @@
  * http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml
  */
 
-function keyForEdge(edge) {
-    return edge.v1 + ':' + edge.v2;
-}
-
-function createHalfEdge(edge, face) {
-    return {
-        pair: undefined,
-        next: undefined,
-        vertex: edge.v1,
-        face: face
-    };
-}
-
-function getNextEdgeKey(faceEdges, index) {
-    // safe wrap on indexing edges
-    index = parseInt(index, 10);
-    if (faceEdges.length === index + 1) {
-        return keyForEdge(faceEdges[0]);
-    }
-    return keyForEdge(faceEdges[index + 1]);
-}
-
 THREE.HalfEdgeStructure = function(geometry) {
     if (geometry instanceof THREE.Geometry === false) {
         console.error('geometry not an instance of THREE.Geometry.', geometry);
@@ -59,18 +37,18 @@ THREE.HalfEdgeStructure = function(geometry) {
 
         for (edgeIndex in faceEdges) {
             edge = faceEdges[edgeIndex];
-            edgeKey = keyForEdge(edge);
-            this.edges[edgeKey] = createHalfEdge(edge, face);
+            edgeKey = this.keyForEdge(edge);
+            this.edges[edgeKey] = this.createHalfEdge(edge, face);
             // save edge information on vertex
             this.geometry.vertices[edge.v1].edge = this.edges[edgeKey];
         }
 
         for (edgeIndex in faceEdges) {
             edge = faceEdges[edgeIndex];
-            edgeKey = keyForEdge(edge);
+            edgeKey = this.keyForEdge(edge);
 
             // set next edge in rotation on current edge
-            nextEdgeKey = getNextEdgeKey(faceEdges, edgeIndex);
+            nextEdgeKey = this.getNextEdgeKey(faceEdges, edgeIndex);
             this.edges[edgeKey].next = this.edges[nextEdgeKey];
 
             // find pairs for half edges
@@ -89,6 +67,28 @@ THREE.HalfEdgeStructure = function(geometry) {
 THREE.HalfEdgeStructure.prototype = {
     constructor: THREE.HalfEdgeStructure,
 
+    keyForEdge: function(edge) {
+        return edge.v1 + ':' + edge.v2;
+    },
+
+    createHalfEdge: function(edge, face) {
+        return {
+            pair: undefined,
+            next: undefined,
+            vertex: edge.v1,
+            face: face
+        };
+    },
+
+    getNextEdgeKey: function(faceEdges, index) {
+        // safe wrap on indexing edges
+        index = parseInt(index, 10);
+        if (faceEdges.length === index + 1) {
+            return this.keyForEdge(faceEdges[0]);
+        }
+        return this.keyForEdge(faceEdges[index + 1]);
+    },
+
     adjacentFaces: function(face) {
         return [
             face.edge.pair.face,
@@ -106,7 +106,7 @@ THREE.HalfEdgeStructure.prototype = {
     },
 
     facesForEdge: function(edge) {
-        var halfEdge = this.edges[keyForEdge(edge)];
+        var halfEdge = this.edges[this.keyForEdge(edge)];
         return [halfEdge.face, halfEdge.pair.face];
     },
 
