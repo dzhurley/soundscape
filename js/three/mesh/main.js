@@ -12,11 +12,11 @@ define([
 
             init: function() {
                 this.globe = this.createGlobe();
-                this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
+                App.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
                 this.wireframe = this.createWireframe();
                 this.stars = this.createStars();
 
-                this.utils = new Utils(this.globe, this.heds);
+                this.utils = new Utils(this.globe);
 
                 App.vent.on('debugging', this.toggleDebugging.bind(this));
             },

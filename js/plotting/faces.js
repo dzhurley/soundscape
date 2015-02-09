@@ -19,7 +19,7 @@ define([
                 var path = [currentFace];
 
                 while (currentFace != goal) {
-                    candidates = this.mesh.utils.adjacentFaces(currentFace);
+                    candidates = App.heds.adjacentFaces(currentFace);
                     currentFace = this.mesh.utils.findClosestFace(candidates, goal);
                     path.push(currentFace);
                 }

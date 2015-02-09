@@ -62,17 +62,17 @@ require({
 
             seed: function(evt) {
                 // reset stopping flag
-                plotter.stop = false;
-                this.remaining = plotter.seed(JSON.parse(evt.data.artists));
+                App.plotter.stop = false;
+                this.remaining = App.plotter.seed(JSON.parse(evt.data.artists));
                 // TODO: send back progress
                 postMessage({
                     msg: 'seeded',
-                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                 });
             },
 
             processOneArtist: function() {
-                return plotter.looper.loopOnce(this.remaining);
+                return App.plotter.looper.loopOnce(this.remaining);
             },
 
             oneArtist: function(evt) {
@@ -81,12 +81,12 @@ require({
                 // TODO: send back progress
                 postMessage({
                     msg: 'looped',
-                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                 });
             },
 
             batchOnce: function(evt) {
-                for (var j = 0; j <= plotter.batchSize; j++) {
+                for (var j = 0; j <= App.plotter.batchSize; j++) {
                     if (this.processOneArtist()) {
                         break;
                     }
@@ -95,7 +95,7 @@ require({
                 // TODO: send back progress
                 postMessage({
                     msg: 'batched',
-                    faces: JSON.stringify(this.newFaces(mesh.geometry.faces))
+                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                 });
             },
 
@@ -103,14 +103,14 @@ require({
                 for (var i = 0; i < this.remaining.length; i++) {
                     this.batchOnce(evt);
 
-                    if (plotter.stop) {
+                    if (App.plotter.stop) {
                         break;
                     }
                 }
             },
 
             edgesForArtist: function(evt) {
-                var artists = plotter.artister.artists;
+                var artists = App.plotter.artister.artists;
                 var artist = _.findWhere(artists, { name: evt.data.artistName });
 
                 postMessage({
@@ -122,7 +122,8 @@ require({
     };
 
     onmessage = function(evt) {
-        if (!this.started) {
+        if (!this.App) {
+            this.App = {};
             var geometry = new THREE.SphereGeometry(globe.radius,
                                                     globe.widthAndHeight,
                                                     globe.widthAndHeight);
@@ -131,14 +132,13 @@ require({
                 side: THREE.DoubleSide,
                 vertexColors: THREE.FaceColors
             });
-            this.mesh = new THREE.Mesh(geometry, material);
-            this.heds = new THREE.HalfEdgeStructure(this.mesh.geometry);
-            this.mesh.utils = new Utils(this.mesh, this.heds);
-            this.plotter = new Plotter(this.mesh);
-            this.eventManager = new EventManager();
-            this.started = true;
+            this.App.mesh = new THREE.Mesh(geometry, material);
+            this.App.heds = new THREE.HalfEdgeStructure(this.App.mesh.geometry);
+            this.App.mesh.utils = new Utils(this.App.mesh);
+            this.App.plotter = new Plotter(this.App.mesh);
+            this.App.eventManager = new EventManager();
         }
 
-        this.eventManager.dispatchEvent(evt);
+        this.App.eventManager.dispatchEvent(evt);
     };
 });

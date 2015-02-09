@@ -4,11 +4,10 @@ define([
     'threejs',
     'three/scene'
 ], function(_, h, THREE, scene) {
-    return function(mesh, heds) {
+    return function(mesh) {
         var Utils = {
             geo: mesh.geometry,
             mesh: mesh,
-            heds: heds,
 
             faceCentroid: function(face) {
                 // save deprecated face.centroid
@@ -104,10 +103,6 @@ define([
                     return !f.data.artist;
                 });
                 return this.findClosestFace(freeFaces, startFace);
-            },
-
-            adjacentFaces: function(face) {
-                return this.heds.adjacentFaces(face);
             }
         };
 

@@ -18,10 +18,10 @@ define(['underscore'], function(_) {
 
                 // find the other sides of the face that we'll overtake
                 artist.edges.splice(artist.edges.indexOf(edge), 1);
-                if (this.meshUtils.heds.isSameEdge(edge, {v1: face.a, v2: face.b})) {
+                if (App.heds.isSameEdge(edge, {v1: face.a, v2: face.b})) {
                     second = {v1: face.a, v2: face.c};
                     third = {v1: face.b, v2: face.c};
-                } else if (this.meshUtils.heds.isSameEdge(edge, {v1: face.a, v2: face.c})) {
+                } else if (App.heds.isSameEdge(edge, {v1: face.a, v2: face.c})) {
                     second = {v1: face.a, v2: face.b};
                     third = {v1: face.b, v2: face.c};
                 } else {
@@ -38,7 +38,7 @@ define(['underscore'], function(_) {
                 //                                     {name: face.data.artist});
                 //     swappedArtist.faces++;
                 //     _.each([edge, second, third], function(e) {
-                //         faces = this.meshUtils.heds.facesForEdge(e);
+                //         faces = App.heds.facesForEdge(e);
                 //         if (!_.contains(faces, face)) {
                 //             // only remove this edge if it isn't in another face
                 //             // belonging to `swappedArtist`
