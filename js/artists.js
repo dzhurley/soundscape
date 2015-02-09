@@ -1,4 +1,16 @@
-define(['underscore'], function(_) {
+define([
+    'underscore',
+    'helpers',
+    'threejs'
+], function(_, h, THREE) {
+    // {
+    //     color,
+    //     faces,
+    //     name,
+    //     outerBoundaryEdges,
+    //     plays,
+    // }
+
     return function() {
         var nextArtistCallCount = 0;
 
@@ -10,8 +22,33 @@ define(['underscore'], function(_) {
                 return artist && artist.edges;
             },
 
-            setData: function(data) {
-                this.artists = _.shuffle(data);
+            processArtists: function(artists) {
+                var totalPlays = _.reduce(artists, function(memo, artist) {
+                    return memo + artist.playCount;
+                }, 0);
+
+                _.map(artists, function(artist, i) {
+                    artist.edges = [];
+
+                    // faces available for a given artist to paint
+                    artist.faces = Math.floor(artist.playCount * this.totalFaces / totalPlays);
+
+                    // color generated from rank
+                    artist.color = new THREE.Color(h.spacedColor(artists.length, i));
+                    artist.color.multiplyScalar(artist.normCount);
+
+                    return artist;
+                }.bind(this));
+
+                // don't bother with artists that don't merit faces
+                return _.filter(artists, function(artist) {
+                    return artist.faces > 0;
+                });
+            },
+
+            setData: function(artists, totalFaces) {
+                this.totalFaces = totalFaces;
+                this.artists = _.shuffle(this.processArtists(artists));
                 this.artistIndex = 0;
             },
 

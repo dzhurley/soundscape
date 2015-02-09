@@ -106,7 +106,7 @@ define(['underscore'], function(_) {
         var first = ("00" + (~ ~(r * 255)).toString(16)).slice(-2);
         var second = ("00" + (~ ~(g * 255)).toString(16)).slice(-2);
         var third = ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
-        return "0x" + first + second + third;
+        return "#" + first + second + third;
     };
 
     return {

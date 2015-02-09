@@ -16,38 +16,18 @@ define([
                 this.batchSize = 1;
             },
 
-            preProcessData: function(data) {
-                var totalPlays = _.reduce(data, function(memo, d) {
-                    return memo + d.playCount;
-                }, 0);
+            seed: function(data) {
+                if (!data.length) {
+                    // TODO: find a nicer way
+                    alert('user has no plays');
+                    return;
+                }
+                App.artistManager.setData(data, this.facePlotter.faces.length);
 
                 _.map(this.facePlotter.faces, function(face) {
                     face.data = {};
                 });
 
-                _.map(data, function(d, i) {
-                    d.edges = [];
-                    // faces available for a given artist to paint
-                    d.faces = Math.floor(d.playCount * this.facePlotter.faces.length / totalPlays);
-                    // since incoming data is sorted, rank artists as we preProcess
-                    d.rank = i;
-                    return d;
-                }.bind(this));
-
-                // don't bother with artists that don't merit faces
-                return _.filter(data, function(d) {
-                    return d.faces > 0;
-                });
-            },
-
-            seed: function(data) {
-                var preppedData = this.preProcessData(data);
-                if (!preppedData.length) {
-                    // TODO: find a nicer way
-                    alert('user has no plays');
-                    return;
-                }
-                App.artistManager.setData(preppedData);
                 this.batchSize = App.artistManager.artists.length;
 
                 // seed the planet

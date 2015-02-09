@@ -14,11 +14,13 @@ define([
                 // TODO: doesn't belong here
                 // paint face with artist color and info
                 index = App.artistManager.artists.indexOf(artist);
-                face.color.setHex(h.spacedColor(App.artistManager.artists.length, artist.rank));
-                face.color.multiplyScalar(artist.normCount);
+
+                face.color.set(artist.color);
+
                 face.data.artist = artist.name;
                 face.data.plays = artist.playCount;
                 face.data.pending = true;
+
                 artist.faces--;
             },
 

@@ -31,11 +31,9 @@ THREE.HalfEdgeStructure = function(geometry) {
         face = this.geometry.faces[faceIndex];
 
         // always counter-clockwise
-        faceEdges = [
-            this.rawEdgeFromVertices(face.a, face.b),
-            this.rawEdgeFromVertices(face.b, face.c),
-            this.rawEdgeFromVertices(face.c, face.a),
-        ];
+        faceEdges = [this.rawEdgeFromVertices(face.a, face.b),
+                     this.rawEdgeFromVertices(face.b, face.c),
+                     this.rawEdgeFromVertices(face.c, face.a)];
 
         for (edgeIndex in faceEdges) {
             edge = faceEdges[edgeIndex];
@@ -108,11 +106,9 @@ THREE.HalfEdgeStructure.prototype = {
     },
 
     edgesForFace: function(face) {
-        return [
-            face.edge,
-            face.edge.next,
-            face.edge.next.next
-        ];
+        return [face.edge,
+                face.edge.next,
+                face.edge.next.next];
     },
 
     facesForEdge: function(edge) {
@@ -136,7 +132,8 @@ THREE.HalfEdgeStructure.prototype = {
     },
 
     verticesForEdge: function(edge) {
-        return [this.geometry.vertices[edge.v1], this.geometry.vertices[edge.v2]];
+        return [this.geometry.vertices[edge.v1],
+                this.geometry.vertices[edge.v2]];
     },
 
     isSameEdge: function(first, second) {
