@@ -25,27 +25,6 @@ define([
                 })));
             },
 
-            facesForEdge: function(edge) {
-                return this.heds.facesForEdge(edge);
-            },
-
-            removeEdge: function(edges, edge) {
-                var match = _.find(edges, function(e) {
-                    return edge.v1 === e.v1 && edge.v2 === e.v2;
-                });
-
-                if (match) {
-                    edges.splice(edges.indexOf(match), 1);
-                } else {
-                    match = _.find(edges, function(e) {
-                        return edge.v1 === e.v2 && edge.v2 === e.v1;
-                    });
-                    if (match) {
-                        edges.splice(edges.indexOf(match), 1);
-                    }
-                }
-            },
-
             resetFaces: function() {
                 // zero face values for fresh paint
                 _.map(this.mesh.geometry.faces, function(f) {

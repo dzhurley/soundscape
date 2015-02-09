@@ -135,6 +135,10 @@ THREE.HalfEdgeStructure.prototype = {
         return faces;
     },
 
+    verticesForEdge: function(edge) {
+        return [this.geometry.vertices[edge.v1], this.geometry.vertices[edge.v2]];
+    },
+
     isSameEdge: function(first, second) {
         // TODO: rework calling code to use HalfEdgeStructure methods
         return first.v1 === second.v1 && first.v2 === second.v2 ||

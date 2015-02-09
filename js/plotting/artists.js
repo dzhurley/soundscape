@@ -11,6 +11,7 @@ define(['underscore'], function(_) {
                 this.artistIndex = 0;
             },
 
+            // TODO: rework in entirety
             expandArtistEdges: function(face, artist, edge) {
                 var second;
                 var third;
@@ -29,22 +30,22 @@ define(['underscore'], function(_) {
                 }
                 artist.edges.push(second, third);
 
-                if (face.data.artist && face.data.artist !== artist.name) {
-                    // we're swapping with another, so update the swapped artist
-                    // with new edges/faces info
-                    var faces;
-                    var swappedArtist = _.findWhere(this.artists,
-                                                    {name: face.data.artist});
-                    swappedArtist.faces++;
-                    _.each([edge, second, third], function(e) {
-                        faces = this.meshUtils.facesForEdge(e);
-                        if (!_.contains(faces, face)) {
-                            // only remove this edge if it isn't in another face
-                            // belonging to `swappedArtist`
-                            this.meshUtils.removeEdge(swappedArtist.edges, e);
-                        }
-                    }.bind(this), face);
-                }
+                // if (face.data.artist && face.data.artist !== artist.name) {
+                //     // we're swapping with another, so update the swapped artist
+                //     // with new edges/faces info
+                //     var faces;
+                //     var swappedArtist = _.findWhere(this.artists,
+                //                                     {name: face.data.artist});
+                //     swappedArtist.faces++;
+                //     _.each([edge, second, third], function(e) {
+                //         faces = this.meshUtils.heds.facesForEdge(e);
+                //         if (!_.contains(faces, face)) {
+                //             // only remove this edge if it isn't in another face
+                //             // belonging to `swappedArtist`
+                //             this.meshUtils.removeEdge(swappedArtist.edges, e);
+                //         }
+                //     }.bind(this), face);
+                // }
             },
 
             nextArtist: function() {
