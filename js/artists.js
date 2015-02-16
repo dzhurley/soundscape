@@ -11,9 +11,16 @@ define([
         var artistManager = {
             artistIndex: 0,
 
+            init: function() {
+                App.bus.on('edgesForArtist', this.edgesForArtist.bind(this));
+            },
+
             edgesForArtist: function(artistName) {
                 var artist = _.findWhere(this.artists, { name: artistName });
-                return artist && artist.edges;
+                postMessage({
+                    type: 'setEdgesForArtist',
+                    payload: { edges: artist && artist.edges }
+                });
             },
 
             processArtists: function(artists) {
@@ -96,6 +103,7 @@ define([
             }
         };
 
+        artistManager.init();
         return artistManager;
     };
 });

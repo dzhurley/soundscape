@@ -7,7 +7,7 @@ define([
             init: function() {
                 this.seeder = new Seeder(mesh);
 
-                App.events.bus.on('plot.*', function(method, payload) {
+                App.bus.on('plot.*', function(method, payload) {
                     this[method](payload);
                 }.bind(this));
             },

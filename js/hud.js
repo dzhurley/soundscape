@@ -34,7 +34,7 @@ define([
                     }
                 }.bind(this));
 
-                App.bus.on('edgesForArtist', function(data) {
+                App.bus.on('setEdgesForArtist', function(data) {
                     this.setVerticesFromArtistEdges(data.edges);
                 }.bind(this));
             },
