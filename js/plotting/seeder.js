@@ -22,7 +22,10 @@ define([
                     alert('user has no plays');
                     return;
                 }
-                App.artistManager.setData(data, this.facePlotter.faces.length);
+                App.artistManager.setArtists({
+                    artists: data,
+                    totalFaces: this.facePlotter.faces.length
+                });
 
                 _.map(this.facePlotter.faces, function(face) {
                     face.data = {};

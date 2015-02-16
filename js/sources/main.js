@@ -64,7 +64,7 @@ define([
                         // Success!
                         var data = JSON.parse(request.responseText);
                         this.artists = this.activeSource.parseData(data);
-                        var stringified = JSON.stringify(this.artists);
+                        var stringified = JSON.stringify(_.shuffle(this.artists));
                         App.bus.emitOnWorker('plot.seed', stringified);
                         localStorage[username] = stringified;
                     }

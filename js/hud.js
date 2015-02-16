@@ -33,10 +33,6 @@ define([
                         return this.removeMarkers();
                     }
                 }.bind(this));
-
-                App.bus.on('setEdgesForArtist', function(data) {
-                    this.setVerticesFromArtistEdges(data.edges);
-                }.bind(this));
             },
 
             removeMarkers: function() {
@@ -77,8 +73,7 @@ define([
                         this.removeMarkers();
 
                         if (isPainted) {
-                            // Really the best way?
-                            App.bus.emitOnWorker('edgesForArtist', this.active.data.artist);
+                            this.setVerticesFromArtistEdges(this.active.data.artist);
 
                             faces = _.filter(App.three.mesh.globe.geometry.faces, function(face) {
                                 return face.data.artist === this.active.data.artist;
@@ -112,7 +107,8 @@ define([
                 }
             },
 
-            setVerticesFromArtistEdges: function(edges) {
+            setVerticesFromArtistEdges: function(artist) {
+                var edges = App.artistManager.edgesForArtist(artist);
                 vertices = App.three.mesh.utils.uniqueVerticesForEdges(edges);
                 this.addVertexMarkers(vertices);
             },

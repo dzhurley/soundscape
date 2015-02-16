@@ -68,5 +68,8 @@ require({
         } else {
             self.App.bus.emit(event.data.type, event.data.payload);
         }
+
+        // TODO: explore transferrable objects for artists
+        self.App.bus.emit('getArtists');
     };
 });

@@ -12,15 +12,13 @@ define([
             artistIndex: 0,
 
             init: function() {
-                App.bus.on('edgesForArtist', this.edgesForArtist.bind(this));
+                App.bus.on('getArtists', this.getArtists.bind(this));
+                App.bus.on('updateArtists', this.updateArtists.bind(this));
             },
 
             edgesForArtist: function(artistName) {
                 var artist = _.findWhere(this.artists, { name: artistName });
-                postMessage({
-                    type: 'setEdgesForArtist',
-                    payload: { edges: artist && artist.edges }
-                });
+                return artist && artist.edges;
             },
 
             processArtists: function(artists) {
@@ -47,9 +45,25 @@ define([
                 });
             },
 
-            setData: function(artists, totalFaces) {
-                this.totalFaces = totalFaces;
-                this.artists = _.shuffle(this.processArtists(artists));
+            getArtists: function() {
+                postMessage({
+                    type: 'updateArtists',
+                    payload: {
+                        artists: JSON.stringify(this.artists),
+                        artistIndex: this.artistIndex
+                    }
+                });
+            },
+
+            updateArtists: function(payload) {
+                payload.artists = JSON.parse(payload.artists);
+                this.artists = payload.artists;
+                this.artistIndex = payload.artistIndex;
+            },
+
+            setArtists: function(payload) {
+                this.totalFaces = payload.totalFaces;
+                this.artists = this.processArtists(payload.artists);
                 this.artistIndex = 0;
             },
 
