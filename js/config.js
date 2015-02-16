@@ -5,7 +5,7 @@ requirejs.config({
         text: '../bower_components/requirejs-text/text',
         underscore: '../bower_components/underscore-amd/underscore-min',
 
-        eventbus: '../bower_components/EventBus/dist/EventBus',
+        eventEmitter: '../bower_components/eventemitter2/lib/eventemitter2',
 
         threejs: '../bower_components/threejs/build/three',
         fly: './lib/FlyControls',
@@ -19,7 +19,7 @@ requirejs.config({
     },
 
     shim: {
-        eventbus: { exports: 'EventBus' },
+        eventEmitter: { exports: 'EventEmitter' },
 
         threejs: { exports: 'THREE' },
 

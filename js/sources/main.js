@@ -44,7 +44,7 @@ define([
             },
 
             getArtistsForUser: function(username) {
-                App.vent.trigger('submitted');
+                App.bus.emit('submitted');
 
                 if (_.contains(_.keys(localStorage), username)) {
                     this.artists = JSON.parse(localStorage[username]);

@@ -3,13 +3,7 @@ define([
     'helpers',
     'threejs'
 ], function(_, h, THREE) {
-    // {
-    //     color,
-    //     faces,
-    //     name,
-    //     outerBoundaryEdges,
-    //     plays,
-    // }
+    // { color, faces, name, outerBoundaryEdges, plays }
 
     return function() {
         var nextArtistCallCount = 0;

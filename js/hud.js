@@ -28,7 +28,7 @@ define([
                     this.updateActive();
                 }.bind(this));
 
-                App.vent.on('debugging', function(evt, debugging) {
+                App.bus.on('debugging', function(evt, debugging) {
                     if (!debugging) {
                         return this.removeMarkers();
                     }

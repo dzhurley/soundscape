@@ -18,7 +18,7 @@ define([
 
                 this.utils = new Utils(this.globe);
 
-                App.vent.on('debugging', this.toggleDebugging.bind(this));
+                App.bus.on('debugging', this.toggleDebugging.bind(this));
             },
 
             resetGlobe: function() {

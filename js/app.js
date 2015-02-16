@@ -1,12 +1,12 @@
 define([
-    'eventbus',
+    'eventEmitter',
     'three/main',
     'three/controls',
     'plotting/main',
     'sources/main',
     'artists',
     'hud'
-], function(EventBus, Threes, Controls, Plotter, Sourcer, ArtistManager, Hud) {
+], function(EventEmitter, Threes, Controls, Plotter, Sourcer, ArtistManager, Hud) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
@@ -25,7 +25,7 @@ define([
 
             init: function(constants) {
                 this.constants = constants || {};
-                this.vent = new EventBus();
+                this.bus = new EventEmitter();
                 this.three = new Threes();
                 this.plotter = new Plotter();
                 this.sourcer = new Sourcer();
@@ -58,7 +58,7 @@ define([
                 // ux events to listen on for state changes
                 this.debuggingButton.addEventListener('click', function() {
                     App.debugging = !App.debugging;
-                    App.vent.trigger('debugging', App.debugging);
+                    App.bus.emit('debugging', App.debugging);
                 });
 
                 this.controlsButton.addEventListener(
@@ -84,7 +84,7 @@ define([
 
                 this.focusUsername();
 
-                this.vent.on('submitted', function() {
+                this.bus.on('submitted', function() {
                     App.three.mesh.resetGlobe();
                     if (_.isUndefined(App.three.controls)) {
                         App.three.controls = new Controls();
