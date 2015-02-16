@@ -57,7 +57,7 @@ define([
 
             updateActive: function() {
                 var intersects = this.findIntersects();
-                var data, faces, vertices, edges;
+                var data, faces, vertices;
 
                 if (intersects.length === 0) {
                     this.active = null;
@@ -74,10 +74,7 @@ define([
 
                         if (isPainted) {
                             // Really the best way?
-                            edges = App.plotter.postMessage({
-                                msg: 'edgesForArtist',
-                                artistName: this.active.data.artist
-                            });
+                            App.bus.emitOnWorker('edgesForArtist', this.active.data.artist);
 
                             faces = _.filter(App.three.mesh.globe.geometry.faces, function(face) {
                                 return face.data.artist === this.active.data.artist;

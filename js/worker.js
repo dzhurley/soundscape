@@ -2,21 +2,23 @@ importScripts('../../bower_components/requirejs/require.js');
 
 require({
     paths: {
-        text: '../../bower_components/requirejs-text/text',
-        underscore: '../../bower_components/underscore-amd/underscore-min',
+        text: '../bower_components/requirejs-text/text',
+        underscore: '../bower_components/underscore-amd/underscore-min',
 
-        threejs: '../../bower_components/threejs/build/three',
-        heds: '../lib/HalfEdgeStructure',
+        eventEmitter: '../bower_components/eventemitter2/lib/eventemitter2',
 
-        artists: '../artists',
-        constants: '../constants',
-        three: '../three',
-        plotting: '../plotting',
-        helpers: '../helpers'
+        threejs: '../bower_components/threejs/build/three',
+        heds: 'lib/HalfEdgeStructure',
+
+        artists: 'artists',
+        constants: 'constants',
+        three: 'three',
+        plotting: 'plotting',
+        helpers: 'helpers'
     },
 
     shim: {
-        eventbus: { exports: 'EventBus' },
+        eventEmitter: { exports: 'EventEmitter' },
 
         threejs: { exports: 'THREE' },
 
@@ -33,15 +35,10 @@ require({
     'artists',
     'plotting/seeder'
 ], function(_, Constants, Utils, THREE, ArtistManager, Plotter) {
-    // stick args in the worker context
-    this.globe = Constants.globe;
-    this.Utils = Utils;
-    this.Plotter = Plotter;
-
-    this.EventManager = function() {
+    EventManager = function() {
         return {
             dispatchEvent: function(evt) {
-                return this[evt.data.msg](evt);
+                return this[evt.data.type](evt.data.payload);
             },
 
             newFaces: function(faces) {
@@ -62,14 +59,16 @@ require({
                 }));
             },
 
-            seed: function(evt) {
+            seed: function(payload) {
                 // reset stopping flag
                 App.plotter.stop = false;
-                this.remaining = App.plotter.seed(JSON.parse(evt.data.artists));
+                this.remaining = App.plotter.seed(JSON.parse(payload));
                 // TODO: send back progress
                 postMessage({
-                    msg: 'seeded',
-                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    type: 'seeded',
+                    payload: {
+                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    }
                 });
             },
 
@@ -77,17 +76,19 @@ require({
                 return App.plotter.looper.loopOnce(this.remaining);
             },
 
-            oneArtist: function(evt) {
+            oneArtist: function() {
                 this.processOneArtist();
 
                 // TODO: send back progress
                 postMessage({
-                    msg: 'looped',
-                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    type: 'looped',
+                    payload: {
+                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    }
                 });
             },
 
-            batchOnce: function(evt) {
+            batchOnce: function() {
                 for (var j = 0; j <= App.plotter.batchSize; j++) {
                     if (this.processOneArtist()) {
                         break;
@@ -96,14 +97,16 @@ require({
 
                 // TODO: send back progress
                 postMessage({
-                    msg: 'batched',
-                    faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    type: 'batched',
+                    payload: {
+                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                    }
                 });
             },
 
-            batch: function(evt) {
+            batch: function() {
                 for (var i = 0; i < this.remaining.length; i++) {
-                    this.batchOnce(evt);
+                    this.batchOnce();
 
                     if (App.plotter.stop) {
                         break;
@@ -111,35 +114,35 @@ require({
                 }
             },
 
-            edgesForArtist: function(evt) {
-                var edges = App.artistManager.edgesForArtist(evt.data.artistName);
+            edgesForArtist: function(payload) {
+                var edges = App.artistManager.edgesForArtist(payload);
                 postMessage({
-                    msg: 'edgesForArtist',
-                    edges: edges
+                    type: 'edgesForArtist',
+                    payload: { edges: edges }
                 });
             }
         };
     };
 
     onmessage = function(evt) {
-        if (!this.App) {
-            this.App = {};
-            var geometry = new THREE.SphereGeometry(globe.radius,
-                                                    globe.widthAndHeight,
-                                                    globe.widthAndHeight);
+        if (!self.App) {
+            self.App = {};
+            var geometry = new THREE.SphereGeometry(Constants.globe.radius,
+                                                    Constants.globe.widthAndHeight,
+                                                    Constants.globe.widthAndHeight);
             var material = new THREE.MeshLambertMaterial({
                 shading: THREE.FlatShading,
                 side: THREE.DoubleSide,
                 vertexColors: THREE.FaceColors
             });
-            this.App.mesh = new THREE.Mesh(geometry, material);
-            this.App.heds = new THREE.HalfEdgeStructure(this.App.mesh.geometry);
-            this.App.mesh.utils = new Utils(this.App.mesh);
-            this.App.plotter = new Plotter(this.App.mesh);
-            this.App.artistManager = new ArtistManager();
-            this.App.eventManager = new EventManager();
+            self.App.mesh = new THREE.Mesh(geometry, material);
+            self.App.heds = new THREE.HalfEdgeStructure(self.App.mesh.geometry);
+            self.App.mesh.utils = new Utils(self.App.mesh);
+            self.App.plotter = new Plotter(self.App.mesh);
+            self.App.artistManager = new ArtistManager();
+            self.App.eventManager = new EventManager();
         }
 
-        this.App.eventManager.dispatchEvent(evt);
+        self.App.eventManager.dispatchEvent(evt);
     };
 });

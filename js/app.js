@@ -1,51 +1,51 @@
 define([
-    'eventEmitter',
+    'dispatch',
     'three/main',
     'three/controls',
-    'plotting/main',
     'sources/main',
     'artists',
     'hud'
-], function(EventEmitter, Threes, Controls, Plotter, Sourcer, ArtistManager, Hud) {
+], function(Dispatch, Threes, Controls, Sourcer, ArtistManager, Hud) {
     return function() {
         var app = {
             container: document.getElementById('scape'),
             hudContainer: document.getElementById('hud'),
             sourcesOverlay: document.getElementById('sources-overlay'),
-            sourcesButton: document.getElementById('toggle-overlay'),
+            sourcesButton: document.getElementById('toggleOverlay'),
+            controlsButton: document.getElementById('toggleControls'),
             sourcesPrompt: document.getElementById('sources'),
-
-            debuggingButton: document.getElementById('toggle-debugging'),
-            controlsButton: document.getElementById('toggle-controls'),
-            oneArtistButton: document.getElementById('one-artist'),
-            oneBatchButton: document.getElementById('one-batch'),
-            allBatchButton: document.getElementById('all-batch'),
 
             debugging: true,
 
             init: function(constants) {
                 this.constants = constants || {};
-                this.bus = new EventEmitter();
+                this.bus = new Dispatch();
                 this.three = new Threes();
-                this.plotter = new Plotter();
                 this.sourcer = new Sourcer();
                 this.artistManager = new ArtistManager();
                 this.hud = new Hud();
 
                 this.bindHandlers();
                 this.container.appendChild(this.three.renderer.domElement);
-                this.animate();
-            },
+                this.focusUsername();
 
-            toggleControls: function() {
-                this.three.controls.toggleControls();
+                this.animate();
             },
 
             focusUsername: function() {
                 this.sourcesPrompt.querySelector('#username').focus();
             },
 
-            toggleSources: function(evt) {
+            toggleControls: function() {
+                this.three.controls.toggleControls();
+            },
+
+            toggleDebugging: function(evt) {
+                App.debugging = !App.debugging;
+                App.bus.emit('debugging');
+            },
+
+            toggleOverlay: function(evt) {
                 var classes = this.sourcesOverlay.classList;
                 classes.toggle('closed');
                 if (!_.contains(classes, 'closed')) {
@@ -53,36 +53,20 @@ define([
                 }
             },
 
-            // TODO: improve binding sitch
             bindHandlers: function() {
-                // ux events to listen on for state changes
-                this.debuggingButton.addEventListener('click', function() {
-                    App.debugging = !App.debugging;
-                    App.bus.emit('debugging', App.debugging);
-                });
-
-                this.controlsButton.addEventListener(
-                    'click', this.toggleControls.bind(this));
-
-                this.oneArtistButton.addEventListener('click', function() {
-                    App.plotter.postMessage({ msg: 'oneArtist' });
+                _.each(document.querySelectorAll('.worker button'), function(button) {
+                    button.addEventListener('click', function() {
+                        return App.bus.emitOnWorker.call(App.bus, button.id);
+                    });
                 }.bind(this));
 
-                this.oneBatchButton.addEventListener('click', function() {
-                    App.plotter.postMessage({ msg: 'batchOnce' });
-                }.bind(this));
-
-                this.allBatchButton.addEventListener('click', function() {
-                    App.plotter.postMessage({ msg: 'batch' });
+                _.each(document.querySelectorAll('.main button'), function(button) {
+                    button.addEventListener(
+                        'click', this[button.id].bind(this));
                 }.bind(this));
 
                 this.sourcesPrompt.addEventListener(
                     'submit', this.sourcer.checkSource.bind(this.sourcer));
-
-                this.sourcesButton.addEventListener(
-                    'click', this.toggleSources.bind(this));
-
-                this.focusUsername();
 
                 this.bus.on('submitted', function() {
                     App.three.mesh.resetGlobe();

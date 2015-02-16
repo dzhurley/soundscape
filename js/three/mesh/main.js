@@ -70,8 +70,8 @@ define([
                 });
             },
 
-            toggleDebugging: function(evt, debugging) {
-                return debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
+            toggleDebugging: function(evt) {
+                return App.debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
             },
 
             update: function() {

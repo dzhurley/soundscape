@@ -12,7 +12,6 @@
     <section id="hud">Face Data</section>
 
     <section id="sources-overlay">
-      <button id="toggle-overlay">></button>
       <form id="sources">
         <select id="source">
           <option value="last">last.fm</option>
@@ -24,15 +23,16 @@
     </section>
 
     <div class="actions">
-      <div class="batching">
-        <button id="one-artist">One Artist</button>
-        <button id="one-batch">One Batch</button>
-        <button id="all-batch">All Batch</button>
+      <div class="worker">
+        <button id="oneArtist">One Artist</button>
+        <button id="batchOnce">One Batch</button>
+        <button id="batch">All Batch</button>
       </div>
 
-      <div class="toggles">
-        <button id="toggle-debugging">Toggle Debugging</button>
-        <button id="toggle-controls">Fly</button>
+      <div class="main">
+        <button id="toggleDebugging">Toggle Debugging</button>
+        <button id="toggleControls">Fly</button>
+        <button id="toggleOverlay">Form</button>
       </div>
     </div>
     <script data-main="js/config" src="bower_components/requirejs/require.js"></script>

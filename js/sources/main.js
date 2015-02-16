@@ -50,10 +50,7 @@ define([
                     this.artists = JSON.parse(localStorage[username]);
 
                     if (this.artists) {
-                        App.plotter.worker.postMessage({
-                            msg: 'seed',
-                            artists: JSON.stringify(this.artists)
-                        });
+                        App.bus.emitOnWorker('seed', JSON.stringify(this.artists));
                         return;
                     }
                 }
@@ -68,10 +65,7 @@ define([
                         var data = JSON.parse(request.responseText);
                         this.artists = this.activeSource.parseData(data);
                         var stringified = JSON.stringify(this.artists);
-                        App.plotter.worker.postMessage({
-                            msg: 'seed',
-                            artists: stringified
-                        });
+                        App.bus.emitOnWorker('seed', stringified);
                         localStorage[username] = stringified;
                     }
                 }.bind(this);
