@@ -33,6 +33,10 @@ define([
                         return this.removeMarkers();
                     }
                 }.bind(this));
+
+                App.bus.on('edgesForArtist', function(data) {
+                    this.setVerticesFromArtistEdges(data.edges);
+                }.bind(this));
             },
 
             removeMarkers: function() {

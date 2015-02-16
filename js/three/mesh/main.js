@@ -19,6 +19,9 @@ define([
                 this.utils = new Utils(this.globe);
 
                 App.bus.on('debugging', this.toggleDebugging.bind(this));
+                App.bus.on('faces.*', function(payload) {
+                    this.updateFaces(JSON.parse(payload.faces));
+                }.bind(this));
             },
 
             resetGlobe: function() {
@@ -72,6 +75,26 @@ define([
 
             toggleDebugging: function(evt) {
                 return App.debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
+            },
+
+            updateFaces: function(newFaces) {
+                var oldFaces = this.globe.geometry.faces;
+
+                function getFaceIndex(face) {
+                    return parseInt(_.keys(face)[0], 10);
+                }
+
+                console.log('painting new faces:', _.map(newFaces, function(face) {
+                    return getFaceIndex(face);
+                }));
+
+                _.each(newFaces, function(face) {
+                    index = getFaceIndex(face);
+                    oldFaces[index].color.copy(face[index].color);
+                    oldFaces[index].data = face[index].data;
+                }.bind(this));
+
+                this.globe.geometry.colorsNeedUpdate = true;
             },
 
             update: function() {

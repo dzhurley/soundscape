@@ -14,8 +14,7 @@ requirejs.config({
 
         sources: 'sources',
         lib: 'lib',
-        three: 'three',
-        plotting: 'plotting'
+        three: 'three'
     },
 
     shim: {

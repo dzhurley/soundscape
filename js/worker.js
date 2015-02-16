@@ -65,7 +65,7 @@ require({
                 this.remaining = App.plotter.seed(JSON.parse(payload));
                 // TODO: send back progress
                 postMessage({
-                    type: 'seeded',
+                    type: 'faces.seeded',
                     payload: {
                         faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                     }
@@ -81,7 +81,7 @@ require({
 
                 // TODO: send back progress
                 postMessage({
-                    type: 'looped',
+                    type: 'faces.looped',
                     payload: {
                         faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                     }
@@ -97,7 +97,7 @@ require({
 
                 // TODO: send back progress
                 postMessage({
-                    type: 'batched',
+                    type: 'faces.batched',
                     payload: {
                         faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
                     }
