@@ -16,6 +16,12 @@ define([
                 App.bus.on('updateArtists', this.updateArtists.bind(this));
             },
 
+            artistsRemaining: function() {
+                return _.reduce(this.artists, function(memo, artist) {
+                    return memo + (artist.faces ? 1 : 0);
+                }, 0);
+            },
+
             edgesForArtist: function(artistName) {
                 var artist = _.findWhere(this.artists, { name: artistName });
                 return artist && artist.edges;

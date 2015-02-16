@@ -11,9 +11,6 @@ define([
                 this.meshUtils = mesh.utils;
                 this.facePlotter = new FacePlotter(mesh);
                 this.looper = new Looper(this.facePlotter, this);
-
-                // how many faces to paint before allowing a rerender
-                this.batchSize = 1;
             },
 
             seed: function(data) {
@@ -30,8 +27,6 @@ define([
                 _.map(this.facePlotter.faces, function(face) {
                     face.data = {};
                 });
-
-                this.batchSize = App.artistManager.artists.length;
 
                 // seed the planet
                 var seeds = this.meshUtils.findEquidistantFaces(App.artistManager.artists.length);

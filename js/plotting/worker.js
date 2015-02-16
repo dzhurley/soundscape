@@ -60,7 +60,7 @@ define([
             },
 
             batchOnce: function() {
-                for (var j = 0; j <= this.seeder.batchSize; j++) {
+                for (var j = 0; j <= App.artistManager.artistsRemaining(); j++) {
                     if (this.processOneArtist()) {
                         break;
                     }
