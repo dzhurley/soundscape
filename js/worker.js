@@ -1,4 +1,4 @@
-importScripts('../../bower_components/requirejs/require.js');
+importScripts('../bower_components/requirejs/require.js');
 
 require({
     paths: {
@@ -30,87 +30,26 @@ require({
 }, [
     'underscore',
     'constants',
-    'three/mesh/utils',
-    'heds',
+    'eventEmitter',
     'artists',
-    'plotting/seeder'
-], function(_, Constants, Utils, THREE, ArtistManager, Plotter) {
+    'heds',
+    'three/mesh/utils',
+    'plotting/worker'
+], function(_, Constants, EventEmitter, ArtistManager, THREE, Utils, Plotter) {
     EventManager = function() {
-        return {
-            dispatchEvent: function(evt) {
-                return this[evt.data.type](evt.data.payload);
+        var eventManager = {
+            init: function() {
+                this.bus = new EventEmitter({ wildcard: true });
             },
 
-            newFaces: function(faces) {
-                return _.compact(_.map(faces, function(face) {
-                    var indexedFace = null;
-
-                    if (face.data.pending) {
-                        var index = faces.indexOf(face).toString();
-                        indexedFace = {};
-                        indexedFace[index] = {
-                            color: face.color,
-                            data: face.data
-                        };
-                        delete face.data.pending;
-                    }
-
-                    return indexedFace;
-                }));
-            },
-
-            seed: function(payload) {
-                // reset stopping flag
-                App.plotter.stop = false;
-                this.remaining = App.plotter.seed(JSON.parse(payload));
-                // TODO: send back progress
-                postMessage({
-                    type: 'faces.seeded',
-                    payload: {
-                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
-                    }
-                });
-            },
-
-            processOneArtist: function() {
-                return App.plotter.looper.loopOnce(this.remaining);
-            },
-
-            oneArtist: function() {
-                this.processOneArtist();
-
-                // TODO: send back progress
-                postMessage({
-                    type: 'faces.looped',
-                    payload: {
-                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
-                    }
-                });
-            },
-
-            batchOnce: function() {
-                for (var j = 0; j <= App.plotter.batchSize; j++) {
-                    if (this.processOneArtist()) {
-                        break;
-                    }
-                }
-
-                // TODO: send back progress
-                postMessage({
-                    type: 'faces.batched',
-                    payload: {
-                        faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
-                    }
-                });
-            },
-
-            batch: function() {
-                for (var i = 0; i < this.remaining.length; i++) {
-                    this.batchOnce();
-
-                    if (App.plotter.stop) {
-                        break;
-                    }
+            dispatchEvent: function(event) {
+                // TODO: remove intermediary and use EventEmitter directly from onmessage
+                if (event.data.type.indexOf('plot') > -1) {
+                    this.bus.emit(event.data.type,
+                                  event.data.type.split('.')[1],
+                                  event.data.payload);
+                } else {
+                    this[event.data.type](event.data.payload);
                 }
             },
 
@@ -122,6 +61,9 @@ require({
                 });
             }
         };
+
+        eventManager.init();
+        return eventManager;
     };
 
     onmessage = function(evt) {
@@ -135,14 +77,15 @@ require({
                 side: THREE.DoubleSide,
                 vertexColors: THREE.FaceColors
             });
+
             self.App.mesh = new THREE.Mesh(geometry, material);
             self.App.heds = new THREE.HalfEdgeStructure(self.App.mesh.geometry);
             self.App.mesh.utils = new Utils(self.App.mesh);
-            self.App.plotter = new Plotter(self.App.mesh);
             self.App.artistManager = new ArtistManager();
-            self.App.eventManager = new EventManager();
+            self.App.events = new EventManager();
+            self.App.plotter = new Plotter(self.App.mesh);
         }
 
-        self.App.eventManager.dispatchEvent(evt);
+        self.App.events.dispatchEvent(evt);
     };
 });

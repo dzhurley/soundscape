@@ -56,7 +56,8 @@ define([
             bindHandlers: function() {
                 _.each(document.querySelectorAll('.worker button'), function(button) {
                     button.addEventListener('click', function() {
-                        return App.bus.emitOnWorker.call(App.bus, button.id);
+                        // TODO too specific
+                        return App.bus.emitOnWorker.call(App.bus, 'plot.' + button.id);
                     });
                 }.bind(this));
 
