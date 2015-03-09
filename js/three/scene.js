@@ -1,5 +1,5 @@
-define([
-    'threejs'
-], function(THREE) {
-    return new THREE.Scene();
-});
+var THREE = require('three');
+
+var scene = new THREE.Scene();
+
+module.exports = scene;

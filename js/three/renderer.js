@@ -1,7 +1,6 @@
-define([
-    'threejs'
-], function(THREE) {
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    return renderer;
-});
+var THREE = require('three');
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+module.exports = renderer;

@@ -1,40 +1,38 @@
-define([
-    'underscore',
-    'three/renderer',
-    'three/camera',
-    'three/scene',
-    'three/light',
-    'three/mesh/main'
-], function(_, renderer, camera, scene, light, Mesh) {
-    return function() {
-        var threes = {
-            renderer: renderer,
-            camera: camera,
-            scene: scene,
-            light: light,
+var _ = require('underscore');
 
-            init: function() {
-                this.mesh = new Mesh();
-                this.mesh.addToScene();
-                this.light.addToScene();
+var renderer = require('./renderer');
+var camera = require('./camera');
+var scene = require('./scene');
+var light = require('./light');
+var Mesh = require('./mesh/main');
 
-                this.camera.lookAt(scene.position);
-            },
+var threes = {
+    renderer: renderer,
+    camera: camera,
+    scene: scene,
+    light: light,
 
-            moveCameraToFace: function(evt, face) {
-                App.three.camera.position = this.mesh.utils.faceCentroid(face);
-                App.three.camera.lookAt(scene.position.multiplyScalar(1.75));
-            },
+    init: function() {
+        this.mesh = Mesh;
+        this.mesh.addToScene();
+        this.light.addToScene();
 
-            animate: function() {
-                if (this.controls) {
-                    this.controls.update(1);
-                }
-                this.renderer.render(this.scene, this.camera);
-            }
-        };
+        this.camera.lookAt(scene.position);
+    },
 
-        threes.init();
-        return threes;
-    };
-});
+    moveCameraToFace: function(evt, face) {
+        App.three.camera.position = this.mesh.utils.faceCentroid(face);
+        App.three.camera.lookAt(scene.position.multiplyScalar(1.75));
+    },
+
+    animate: function() {
+        if (this.controls) {
+            this.controls.update(1);
+        }
+        this.renderer.render(this.scene, this.camera);
+    }
+};
+
+threes.init();
+
+module.exports = threes;

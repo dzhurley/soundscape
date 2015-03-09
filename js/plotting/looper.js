@@ -1,91 +1,91 @@
-define([
-    'underscore',
-    'helpers',
-    'threejs',
-    'plotting/faces'
-], function(_, h, THREE, FacePlotter) {
-    return function(facePlotter, plotter) {
-        var looper = {
-            facePlotter: facePlotter,
-            plotter: plotter,
-            remaining: [],
+var _ = require('underscore');
+var THREE = require('three');
 
-            setNewFace: function(face, artist) {
-                // TODO: doesn't belong here
-                // paint face with artist color and info
-                index = App.artistManager.artists.indexOf(artist);
+var h = require('../helpers');
+var FacePlotter = require('./faces');
 
-                face.color.set(artist.color);
+var looper = function(facePlotter, plotter) { 
+    this.facePlotter = facePlotter;
+    this.plotter = plotter;
+    this.remaining = [];
+};
 
-                face.data.artist = artist.name;
-                face.data.plays = artist.playCount;
-                face.data.pending = true;
+looper.prototype = {
 
-                artist.faces--;
-            },
+    setNewFace: function(face, artist) {
+        // TODO: doesn't belong here
+        // paint face with artist color and info
+        index = App.artistManager.artists.indexOf(artist);
 
-            runIteration: function(rando) {
-                var artist;
-                var faceInfo;
-                var remainingIndex;
+        face.color.set(artist.color);
 
-                // choose random face for each face to paint
-                artist = App.artistManager.nextArtist();
-                if (!artist) {
-                    // no more faces left for any artist to paint
-                    return true;
-                }
-                faceInfo = this.facePlotter.nextFace(artist, rando);
+        face.data.artist = artist.name;
+        face.data.plays = artist.playCount;
+        face.data.pending = true;
 
-                if (faceInfo.face) {
-                    remainingIndex = this.remaining.indexOf(faceInfo.index);
-                    if (remainingIndex > -1) {
-                        this.remaining.splice(remainingIndex, 1);
-                    }
-                    if (faceInfo.face !== true) {
-                        this.setNewFace(faceInfo.face, artist);
-                    }
-                }
-                return false;
-            },
+        artist.faces--;
+    },
 
-            // TODO: merge with loopOnce, only used to seed
-            loop: function(randos) {
-                this.remaining = randos;
-                var currentPass;
-                var i = 0;
+    runIteration: function(rando) {
+        var artist;
+        var faceInfo;
+        var remainingIndex;
 
-                while (this.remaining.length) {
-                    currentPass = _.clone(this.remaining);
+        // choose random face for each face to paint
+        artist = App.artistManager.nextArtist();
+        if (!artist) {
+            // no more faces left for any artist to paint
+            return true;
+        }
+        faceInfo = this.facePlotter.nextFace(artist, rando);
 
-                    for (i in currentPass) {
-                        if (this.runIteration(currentPass[i])) {
-                            // we're done with all the faces
-                            return;
-                        }
-                    }
-                    i = 0;
-
-                    if (currentPass.length === this.remaining.length) {
-                        // nothing got painted on this pass, so bail
-                        return;
-                    }
-                }
-            },
-
-            loopOnce: function(remaining) {
-                var startingLength = remaining.length;
-                this.remaining = remaining;
-                var iterationResult = this.runIteration(this.remaining[0]);
-                if (startingLength === this.remaining.length) {
-                    // no paints on this pass, no use trying again
-                    this.plotter.stop = true;
-                }
-                console.log('remaining', this.remaining.length);
-                return iterationResult;
+        if (faceInfo.face) {
+            remainingIndex = this.remaining.indexOf(faceInfo.index);
+            if (remainingIndex > -1) {
+                this.remaining.splice(remainingIndex, 1);
             }
-        };
+            if (faceInfo.face !== true) {
+                this.setNewFace(faceInfo.face, artist);
+            }
+        }
+        return false;
+    },
 
-        return looper;
-    };
-});
+    // TODO: merge with loopOnce, only used to seed
+    loop: function(randos) {
+        this.remaining = randos;
+        var currentPass;
+        var i = 0;
+
+        while (this.remaining.length) {
+            currentPass = _.clone(this.remaining);
+
+            for (i in currentPass) {
+                if (this.runIteration(currentPass[i])) {
+                    // we're done with all the faces
+                    return;
+                }
+            }
+            i = 0;
+
+            if (currentPass.length === this.remaining.length) {
+                // nothing got painted on this pass, so bail
+                return;
+            }
+        }
+    },
+
+    loopOnce: function(remaining) {
+        var startingLength = remaining.length;
+        this.remaining = remaining;
+        var iterationResult = this.runIteration(this.remaining[0]);
+        if (startingLength === this.remaining.length) {
+            // no paints on this pass, no use trying again
+            this.plotter.stop = true;
+        }
+        console.log('remaining', this.remaining.length);
+        return iterationResult;
+    }
+};
+
+module.exports = looper;

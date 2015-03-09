@@ -1,46 +1,42 @@
-define([
-    'underscore',
-    'eventEmitter',
-], function(_, EventEmitter) {
-    return function() {
-        var dispatch = {
-            init: function() {
-                this.bus = new EventEmitter({ wildcard: true });
+var _ = require('underscore');
+var EventEmitter = require('eventemitter2').EventEmitter2;
 
-                this.worker = new Worker('js/worker.js');
-                this.worker.onmessage = this.onWorkerMessage.bind(this);
-                this.worker.onerror = this.onWorkerError.bind(this);
-            },
+var dispatch = {
+    init: function() {
+        this.bus = new EventEmitter({ wildcard: true });
 
-            emitOnWorker: function(event, data) {
-                this.worker.postMessage({
-                    type: event,
-                    payload: data
-                });
-            },
+        this.worker = new Worker('js/worker.js');
+        this.worker.onmessage = this.onWorkerMessage.bind(this);
+        this.worker.onerror = this.onWorkerError.bind(this);
+    },
 
-            onWorkerMessage: function(event) {
-                this.bus.emit(event.data.type, event.data.payload);
-            },
+    emitOnWorker: function(event, data) {
+        this.worker.postMessage({
+            type: event,
+            payload: data
+        });
+    },
 
-            onWorkerError: function(event) {
-                console.error('Worker Error:', arguments);
-            },
+    onWorkerMessage: function(event) {
+        this.bus.emit(event.data.type, event.data.payload);
+    },
 
-            emit: function(event, data) {
-                this.bus.emit(event, data);
-            },
+    onWorkerError: function(event) {
+        console.error('Worker Error:', arguments);
+    },
 
-            on: function(event, callback) {
-                this.bus.on(event, callback);
-            },
+    emit: function(event, data) {
+        this.bus.emit(event, data);
+    },
 
-            off: function(event) {
-                this.bus.off(event);
-            }
-        };
+    on: function(event, callback) {
+        this.bus.on(event, callback);
+    },
 
-        dispatch.init();
-        return dispatch;
-    };
-});
+    off: function(event) {
+        this.bus.off(event);
+    }
+};
+
+dispatch.init();
+module.exports = dispatch;

@@ -1,7 +1,3 @@
-requirejs([
-    'constants',
-    'app'
-], function(Constants, App) {
-    window.App = new App();
-    window.App.init(Constants);
-});
+var app = require('./app');
+
+global.App = app;

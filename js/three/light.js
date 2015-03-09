@@ -1,14 +1,12 @@
-define([
-    'threejs',
-    'three/scene'
-], function(THREE, scene) {
-    var light = {
-        ambient: new THREE.AmbientLight(0xf0f0f0),
+var THREE = require('three');
+var scene = require('./scene');
 
-        addToScene: function() {
-            scene.add(light.ambient);
-        }
-    };
+var light = {
+    ambient: new THREE.AmbientLight(0xf0f0f0),
 
-    return light;
-});
+    addToScene: function() {
+        scene.add(light.ambient);
+    }
+};
+
+module.exports = light;

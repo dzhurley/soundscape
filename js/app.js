@@ -1,88 +1,81 @@
-define([
-    'dispatch',
-    'three/main',
-    'three/controls',
-    'sources/main',
-    'artists',
-    'hud'
-], function(Dispatch, Threes, Controls, Sourcer, ArtistManager, Hud) {
-    return function() {
-        var app = {
-            container: document.getElementById('scape'),
-            hudContainer: document.getElementById('hud'),
-            sourcesOverlay: document.getElementById('sources-overlay'),
-            sourcesButton: document.getElementById('toggleOverlay'),
-            controlsButton: document.getElementById('toggleControls'),
-            sourcesPrompt: document.getElementById('sources'),
+var _ = require('underscore');
 
-            debugging: true,
+var Dispatch = require('./dispatch');
+var Threes = require('./three/main');
+var Sourcer = require('./sources/main');
+var ArtistManager = require('./artists');
+var Hud = require('./hud');
 
-            init: function(constants) {
-                this.constants = constants || {};
-                this.bus = new Dispatch();
-                this.three = new Threes();
-                this.sourcer = new Sourcer();
-                this.artistManager = new ArtistManager();
-                this.hud = new Hud();
+var App = {
+    container: document.getElementById('scape'),
+    hudContainer: document.getElementById('hud'),
+    sourcesOverlay: document.getElementById('sources-overlay'),
+    sourcesButton: document.getElementById('toggleOverlay'),
+    controlsButton: document.getElementById('toggleControls'),
+    sourcesPrompt: document.getElementById('sources'),
 
-                this.bindHandlers();
-                this.container.appendChild(this.three.renderer.domElement);
-                this.focusUsername();
+    debugging: true,
 
-                this.animate();
-            },
+    init: function(constants) {
+        this.hud = Hud.bind(this.container);
 
-            focusUsername: function() {
-                this.sourcesPrompt.querySelector('#username').focus();
-            },
+        this.bindHandlers();
+        this.container.appendChild(Threes.renderer.domElement);
+        this.focusUsername();
 
-            toggleControls: function() {
-                this.three.controls.toggleControls();
-            },
+        this.animate();
+    },
 
-            toggleDebugging: function(evt) {
-                App.debugging = !App.debugging;
-                App.bus.emit('debugging');
-            },
+    focusUsername: function() {
+        this.sourcesPrompt.querySelector('#username').focus();
+    },
 
-            toggleOverlay: function(evt) {
-                var classes = this.sourcesOverlay.classList;
-                classes.toggle('closed');
-                if (!_.contains(classes, 'closed')) {
-                    this.focusUsername();
+    toggleControls: function() {
+        this.three.controls.toggleControls();
+    },
+
+    toggleDebugging: function(evt) {
+        App.debugging = !App.debugging;
+        App.bus.emit('debugging');
+    },
+
+    toggleOverlay: function(evt) {
+        var classes = this.sourcesOverlay.classList;
+        classes.toggle('closed');
+        if (!_.contains(classes, 'closed')) {
+            this.focusUsername();
+        }
+    },
+
+    bindHandlers: function() {
+        _.each(document.querySelectorAll('.worker button'), function(button) {
+            button.addEventListener('click', function() {
+                // TODO too specific
+                return App.bus.emitOnWorker.call(App.bus, 'plot.' + button.id);
+            });
+        }.bind(this));
+
+        _.each(document.querySelectorAll('.main button'), function(button) {
+            button.addEventListener(
+                'click', this[button.id].bind(this));
+        }.bind(this));
+
+        this.sourcesPrompt.addEventListener(
+            'submit', Sourcer.checkSource.bind(this.sourcer));
+
+            Dispatch.on('submitted', function() {
+                App.three.mesh.resetGlobe();
+                if (_.isUndefined(App.three.controls)) {
+                    App.three.controls = new Controls();
                 }
-            },
+            });
+    },
 
-            bindHandlers: function() {
-                _.each(document.querySelectorAll('.worker button'), function(button) {
-                    button.addEventListener('click', function() {
-                        // TODO too specific
-                        return App.bus.emitOnWorker.call(App.bus, 'plot.' + button.id);
-                    });
-                }.bind(this));
+    animate: function() {
+        window.requestAnimationFrame(App.animate);
+        Threes.animate();
+    }
+};
 
-                _.each(document.querySelectorAll('.main button'), function(button) {
-                    button.addEventListener(
-                        'click', this[button.id].bind(this));
-                }.bind(this));
-
-                this.sourcesPrompt.addEventListener(
-                    'submit', this.sourcer.checkSource.bind(this.sourcer));
-
-                this.bus.on('submitted', function() {
-                    App.three.mesh.resetGlobe();
-                    if (_.isUndefined(App.three.controls)) {
-                        App.three.controls = new Controls();
-                    }
-                });
-            },
-
-            animate: function() {
-                window.requestAnimationFrame(App.animate);
-                App.three.animate();
-            }
-        };
-
-        return app;
-    };
-});
+App.init();
+module.exports = App;

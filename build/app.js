@@ -1,3 +1,3105 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/derekhurley/soundscape/js/app.js":[function(require,module,exports){
+var _ = require('underscore');
+
+var Dispatch = require('./dispatch');
+var Threes = require('./three/main');
+var Sourcer = require('./sources/main');
+var ArtistManager = require('./artists');
+var Hud = require('./hud');
+
+var App = {
+    container: document.getElementById('scape'),
+    hudContainer: document.getElementById('hud'),
+    sourcesOverlay: document.getElementById('sources-overlay'),
+    sourcesButton: document.getElementById('toggleOverlay'),
+    controlsButton: document.getElementById('toggleControls'),
+    sourcesPrompt: document.getElementById('sources'),
+
+    debugging: true,
+
+    init: function(constants) {
+        this.hud = Hud.bind(this.container);
+
+        this.bindHandlers();
+        this.container.appendChild(Threes.renderer.domElement);
+        this.focusUsername();
+
+        this.animate();
+    },
+
+    focusUsername: function() {
+        this.sourcesPrompt.querySelector('#username').focus();
+    },
+
+    toggleControls: function() {
+        this.three.controls.toggleControls();
+    },
+
+    toggleDebugging: function(evt) {
+        App.debugging = !App.debugging;
+        App.bus.emit('debugging');
+    },
+
+    toggleOverlay: function(evt) {
+        var classes = this.sourcesOverlay.classList;
+        classes.toggle('closed');
+        if (!_.contains(classes, 'closed')) {
+            this.focusUsername();
+        }
+    },
+
+    bindHandlers: function() {
+        _.each(document.querySelectorAll('.worker button'), function(button) {
+            button.addEventListener('click', function() {
+                // TODO too specific
+                return App.bus.emitOnWorker.call(App.bus, 'plot.' + button.id);
+            });
+        }.bind(this));
+
+        _.each(document.querySelectorAll('.main button'), function(button) {
+            button.addEventListener(
+                'click', this[button.id].bind(this));
+        }.bind(this));
+
+        this.sourcesPrompt.addEventListener(
+            'submit', Sourcer.checkSource.bind(this.sourcer));
+
+            Dispatch.on('submitted', function() {
+                App.three.mesh.resetGlobe();
+                if (_.isUndefined(App.three.controls)) {
+                    App.three.controls = new Controls();
+                }
+            });
+    },
+
+    animate: function() {
+        window.requestAnimationFrame(App.animate);
+        Threes.animate();
+    }
+};
+
+App.init();
+module.exports = App;
+
+},{"./artists":"/Users/derekhurley/soundscape/js/artists.js","./dispatch":"/Users/derekhurley/soundscape/js/dispatch.js","./hud":"/Users/derekhurley/soundscape/js/hud.js","./sources/main":"/Users/derekhurley/soundscape/js/sources/main.js","./three/main":"/Users/derekhurley/soundscape/js/three/main.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/artists.js":[function(require,module,exports){
+var _ = require('underscore');
+var h = require('./helpers');
+var THREE = require('three');
+
+var Dispatch = require('./dispatch');
+
+// { color, faces, name, outerBoundaryEdges, plays }
+
+var nextArtistCallCount = 0;
+
+var artistManager = {
+    artistIndex: 0,
+
+    init: function() {
+        Dispatch.on('getArtists', this.getArtists.bind(this));
+        Dispatch.on('updateArtists', this.updateArtists.bind(this));
+    },
+
+    artistsRemaining: function() {
+        return _.reduce(this.artists, function(memo, artist) {
+            return memo + (artist.faces ? 1 : 0);
+        }, 0);
+    },
+
+    edgesForArtist: function(artistName) {
+        var artist = _.findWhere(this.artists, { name: artistName });
+        return artist && artist.edges;
+    },
+
+    processArtists: function(artists) {
+        var totalPlays = _.reduce(artists, function(memo, artist) {
+            return memo + artist.playCount;
+        }, 0);
+
+        _.map(artists, function(artist, i) {
+            artist.edges = [];
+
+            // faces available for a given artist to paint
+            artist.faces = Math.floor(artist.playCount * this.totalFaces / totalPlays);
+
+            // color generated from rank
+            artist.color = new THREE.Color(h.spacedColor(artists.length, i));
+            artist.color.multiplyScalar(artist.normCount);
+
+            return artist;
+        }.bind(this));
+
+        // don't bother with artists that don't merit faces
+        return _.filter(artists, function(artist) {
+            return artist.faces > 0;
+        });
+    },
+
+    getArtists: function() {
+        postMessage({
+            type: 'updateArtists',
+            payload: {
+                artists: JSON.stringify(this.artists),
+                artistIndex: this.artistIndex
+            }
+        });
+    },
+
+    updateArtists: function(payload) {
+        payload.artists = JSON.parse(payload.artists);
+        this.artists = payload.artists;
+        this.artistIndex = payload.artistIndex;
+    },
+
+    setArtists: function(payload) {
+        this.totalFaces = payload.totalFaces;
+        this.artists = this.processArtists(payload.artists);
+        this.artistIndex = 0;
+    },
+
+    // TODO: rework in entirety, and most likely move
+    expandArtistEdges: function(face, artist, edge) {
+        var second;
+        var third;
+
+        // find the other sides of the face that we'll overtake
+        artist.edges.splice(artist.edges.indexOf(edge), 1);
+        if (App.heds.isSameEdge(edge, {v1: face.a, v2: face.b})) {
+            second = {v1: face.a, v2: face.c};
+            third = {v1: face.b, v2: face.c};
+        } else if (App.heds.isSameEdge(edge, {v1: face.a, v2: face.c})) {
+            second = {v1: face.a, v2: face.b};
+            third = {v1: face.b, v2: face.c};
+        } else {
+            second = {v1: face.a, v2: face.b};
+            third = {v1: face.a, v2: face.c};
+        }
+        artist.edges.push(second, third);
+
+        // TODO: handle swapping
+    },
+
+    nextArtist: function() {
+        var artist;
+
+        // rollover to beginning of artists
+        if (this.artistIndex === this.artists.length) {
+            this.artistIndex = 0;
+        }
+        artist = this.artists[this.artistIndex];
+        if (artist.faces === 0) {
+            if (nextArtistCallCount === this.artists.length) {
+                // when we've recursed to confirm every `artist.faces` is 0,
+                // we are done painting and return
+                return false;
+            }
+            // if there aren't any faces left to paint for this artist,
+            // look towards the next artist and record how far we've recursed
+            nextArtistCallCount++;
+            this.artistIndex++;
+            return artistManager.nextArtist();
+        }
+        // set up next call for next artist
+        this.artistIndex++;
+        // reset recursive logging
+        nextArtistCallCount = 0;
+        return artist;
+    }
+};
+
+artistManager.init();
+module.exports = artistManager;
+
+},{"./dispatch":"/Users/derekhurley/soundscape/js/dispatch.js","./helpers":"/Users/derekhurley/soundscape/js/helpers.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/constants.js":[function(require,module,exports){
+// used on both app and worker side to create some sense of coherence
+var constants = {
+    globe: {
+        radius: 50,
+        widthAndHeight: 50
+    },
+
+    labels: {
+        'backgroundColor': '#272727',
+        'color': '#d7d7d7',
+        'fontface': 'Inconsolata',
+        'fontsize': '300'
+    },
+
+    stars: {
+        number: 1000,
+
+        initialX: function() {
+            return Math.random() * 2 - 1;
+        },
+        initialY: function() {
+            return Math.random() * 2 - 1;
+        },
+        initialZ: function() {
+            return Math.random() * 2 - 1;
+        },
+
+        positionMultiplier: function() {
+            return Math.random() * 100 + 200;
+        },
+        scaleMultiplier: function() {
+            return Math.random() * 0.5;
+        }
+    }
+};
+
+module.exports = constants;
+
+},{}],"/Users/derekhurley/soundscape/js/dispatch.js":[function(require,module,exports){
+var _ = require('underscore');
+var EventEmitter = require('eventemitter2').EventEmitter2;
+
+var dispatch = {
+    init: function() {
+        this.bus = new EventEmitter({ wildcard: true });
+
+        this.worker = new Worker('js/worker.js');
+        this.worker.onmessage = this.onWorkerMessage.bind(this);
+        this.worker.onerror = this.onWorkerError.bind(this);
+    },
+
+    emitOnWorker: function(event, data) {
+        this.worker.postMessage({
+            type: event,
+            payload: data
+        });
+    },
+
+    onWorkerMessage: function(event) {
+        this.bus.emit(event.data.type, event.data.payload);
+    },
+
+    onWorkerError: function(event) {
+        console.error('Worker Error:', arguments);
+    },
+
+    emit: function(event, data) {
+        this.bus.emit(event, data);
+    },
+
+    on: function(event, callback) {
+        this.bus.on(event, callback);
+    },
+
+    off: function(event) {
+        this.bus.off(event);
+    }
+};
+
+dispatch.init();
+module.exports = dispatch;
+
+},{"eventemitter2":"/Users/derekhurley/soundscape/node_modules/eventemitter2/lib/eventemitter2.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/helpers.js":[function(require,module,exports){
+var _ = require('underscore');
+
+var boundedArray = function(min, max) {
+    // enumerates numbers between `min` and `max` inclusive
+    // and returns the array
+
+    min = min || 0;
+    max = max || 0;
+
+    var bounded = [];
+    for (var i = min; i <= max; ++i) {
+        bounded.push(i);
+    }
+
+    return bounded;
+};
+
+equidistantishPointsOnSphere = function(numPoints) {
+    // Find points in terms of x, y, z that are roughly equidistant from
+    // each other on a sphere. This applies Vogel's method, adapted from
+    // http://blog.marmakoide.org/?p=1
+
+    var goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    var thetaValues = _.map(boundedArray(0, numPoints - 1), function(n) {
+        return n * goldenAngle;
+    });
+    var zValues = evenlySpacedInRange((1 - 1.0 / numPoints),
+                                      (1.0 / numPoints - 1),
+                                      numPoints);
+                                      var radii = _.map(zValues, function(z) {
+                                          return Math.sqrt(1 - z * z);
+                                      });
+                                      var points = [];
+                                      for (var i = 0; i < numPoints; i++) {
+                                          points.push([
+                                              radii[i] * Math.cos(thetaValues[i]),
+                                              radii[i] * Math.sin(thetaValues[i]),
+                                              zValues[i]
+                                          ]);
+                                      }
+                                      return points;
+};
+
+var evenlySpacedInRange = function(min, max, num) {
+    // see linspace (port of numpy method)
+    // https://github.com/sloisel/numeric/blob/master/src/numeric.js
+    if (num < 2) {
+        return num === 1 ? [min] : [];
+    }
+    var result = Array(num);
+    num--;
+    for (var i = num; i >= 0; i--) {
+        result[i] = (i * max + (num - i) * min) / num;
+    }
+    return result;
+};
+
+var normalize = function(data, key, saveAs) {
+    // normalizes values in `data` at `data[key]` and optionally saves
+    // them on each item as `data[saveAs]`, returning `data` when saving
+    // and Array of normalized values when not
+
+    var counts = _.pluck(data, key);
+    var max = Math.max.apply(this, counts);
+    var min = Math.min.apply(this, counts);
+    var denom = max - min;
+
+    if (saveAs) {
+        _.each(data, function(datum) {
+            datum[saveAs] = (datum[key] - min) / denom;
+        });
+        return data;
+    }
+    return _.map(data, function(datum) {
+        return (datum[key] - min) / denom;
+    });
+};
+
+var packUrlParams = function(base, params) {
+    // pack key/values into encoded url params, delimited by '&'
+    return base + '?' + _.map(_.keys(params), function(key) {
+        return _.map([key, params[key]], encodeURIComponent).join('=');
+    }).join('&');
+};
+
+var randomBoundedArray = function(min, max) {
+    // shuffles boundedArray
+    return _.shuffle(boundedArray(min, max));
+};
+
+var spacedColor = function(numOfSteps, step) {
+    // http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1, g = f, b = 0; break;
+        case 1: r = q, g = 1, b = 0; break;
+        case 2: r = 0, g = 1, b = f; break;
+        case 3: r = 0, g = q, b = 1; break;
+        case 4: r = f, g = 0, b = 1; break;
+        case 5: r = 1, g = 0, b = q; break;
+    }
+
+    var first = ("00" + (~ ~(r * 255)).toString(16)).slice(-2);
+    var second = ("00" + (~ ~(g * 255)).toString(16)).slice(-2);
+    var third = ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    return "#" + first + second + third;
+};
+
+module.exports = {
+    boundedArray: boundedArray,
+    equidistantishPointsOnSphere: equidistantishPointsOnSphere,
+    evenlySpacedInRange: evenlySpacedInRange,
+    normalize: normalize,
+    packUrlParams: packUrlParams,
+    randomBoundedArray: randomBoundedArray,
+    spacedColor: spacedColor
+};
+
+},{"underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/hud.js":[function(require,module,exports){
+var _ = require('underscore');
+var THREE = require('three');
+
+var Dispatch = require('./dispatch');
+var scene = require('./three/scene');
+
+var hud = {
+    template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
+                         "<span>face.a = <%= a %></span>" +
+                         "<span>face.b = <%= b %></span>" +
+                         "<span>face.c = <%= c %></span>"),
+
+    blankTemplate: _.template("<span>face.a = <%= a %></span>" +
+                              "<span>face.b = <%= b %></span>" +
+                              "<span>face.c = <%= c %></span>"),
+    mouse: { x: 0, y: 0 },
+
+    init: function() {
+        this.active = null;
+        this.showing = false;
+        this.activeMarkers = [];
+
+        Dispatch.on('debugging', function(evt, debugging) {
+            if (!debugging) {
+                return this.removeMarkers();
+            }
+        }.bind(this));
+    },
+
+    bind: function(element) {
+        element.addEventListener('click', function(evt) {
+            if (evt.target.nodeName === 'BUTTON') {
+                return false;
+            }
+            this.updateMouse(evt);
+            this.updateActive();
+        }.bind(this));
+
+        return this;
+    },
+
+    removeMarkers: function() {
+        _.each(this.activeMarkers, function(mark) {
+            scene.remove(mark);
+        });
+        this.activeMarkers = [];
+    },
+
+    updateMouse: function(evt) {
+        this.mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
+    },
+
+    findIntersects: function() {
+        var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
+        vector.unproject(App.three.camera);
+        var position = App.three.camera.position;
+        var ray = new THREE.Raycaster(position, vector.sub(position).normalize());
+        return ray.intersectObject(App.three.mesh.globe);
+    },
+
+    updateActive: function() {
+        var intersects = this.findIntersects();
+        var data, faces, vertices;
+
+        if (intersects.length === 0) {
+            this.active = null;
+            return;
+        }
+
+        var face = intersects[0].face;
+        var isPainted = face.data && face.data.artist;
+        if (face != this.active) {
+            this.active = face;
+
+            if (App.debugging) {
+                this.removeMarkers();
+
+                if (isPainted) {
+                    this.setVerticesFromArtistEdges(this.active.data.artist);
+
+                    faces = _.filter(App.three.mesh.globe.geometry.faces, function(face) {
+                        return face.data.artist === this.active.data.artist;
+                    }.bind(this));
+                    for (var i in faces) {
+                        this.addFaceMarkers(faces[i]);
+                    }
+                } else {
+                    this.addVertexMarkers([face.a, face.b, face.c]);
+                    this.addFaceMarkers(face);
+                }
+            }
+        }
+
+        if (isPainted) {
+            data = _.extend({}, this.active.data, {
+                a: this.active.a,
+                b: this.active.b,
+                c: this.active.c,
+            });
+            App.hudContainer.innerHTML = this.template(data);
+            App.hudContainer.style.display = 'block';
+        } else {
+            data = _.extend({}, this.active.data, {
+                a: this.active.a,
+                b: this.active.b,
+                c: this.active.c,
+            });
+            App.hudContainer.innerHTML = this.blankTemplate(data);
+            App.hudContainer.style.display = 'block';
+        }
+    },
+
+    setVerticesFromArtistEdges: function(artist) {
+        var edges = App.artistManager.edgesForArtist(artist);
+        vertices = App.three.mesh.utils.uniqueVerticesForEdges(edges);
+        this.addVertexMarkers(vertices);
+    },
+
+    addVertexMarkers: function(vertices) {
+        var mesh = App.three.mesh;
+        var mark, vertex;
+        _.each(vertices, function(index) {
+            mark = this.makeMark(JSON.stringify(index));
+            vertex = mesh.globe.geometry.vertices[index];
+            mark.position.copy(vertex.clone().multiplyScalar(1.005));
+            this.activeMarkers.push(mark);
+            scene.add(mark);
+        }.bind(this));
+    },
+
+    addFaceMarkers: function(face) {
+        var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
+        mark.position.copy(App.three.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
+        this.activeMarkers.push(mark);
+        scene.add(mark);
+    },
+
+    getMarkProp: function(key) {
+        var value = App.constants.labels[key];
+        // if the value is a string, return it, otherwise return
+        // the number as an integer
+        return isNaN(value) ? value : +value;
+    },
+
+    makeMark: function(message) {
+        var canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 1600;
+        var context = canvas.getContext('2d');
+
+        var backgroundColor = this.getMarkProp('backgroundColor');
+        var color = this.getMarkProp('color');
+        var fontface = this.getMarkProp('fontface');
+        var fontsize = this.getMarkProp('fontsize');
+
+        context.font = fontsize + 'px ' + fontface;
+
+        var textWidth = context.measureText(message).width;
+        if (textWidth > canvas.width) {
+            canvas.width = canvas.height = textWidth;
+            context = canvas.getContext('2d');
+            context.font = fontsize + 'px ' + fontface;
+        }
+
+        context.fillStyle = backgroundColor;
+        context.fillRect(
+            canvas.width * 0.25,
+            canvas.height / 2 - fontsize,
+            canvas.width * 0.5,
+            canvas.height / 3
+        );
+
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.fillText(message, canvas.width / 2, canvas.height / 2);
+
+        var texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+        return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+    }
+};
+
+hud.init();
+module.exports = hud;
+
+},{"./dispatch":"/Users/derekhurley/soundscape/js/dispatch.js","./three/scene":"/Users/derekhurley/soundscape/js/three/scene.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/lib/FlyControls.js":[function(require,module,exports){
+/**
+ * @author James Baicoianu / http://www.baicoianu.com/
+ */
+
+var THREE = require('three');
+
+THREE.FlyControls = function ( object, domElement ) {
+
+	this.object = object;
+
+	this.domElement = ( domElement !== undefined ) ? domElement : document;
+	if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
+
+	// API
+
+	this.movementSpeed = 1.0;
+	this.rollSpeed = 0.005;
+
+	this.dragToLook = false;
+	this.autoForward = false;
+
+	// disable default target object behavior
+
+	// internals
+
+	this.tmpQuaternion = new THREE.Quaternion();
+
+	this.mouseStatus = 0;
+
+	this.moveState = { up: 0, down: 0, left: 0, right: 0, forward: 0, back: 0, pitchUp: 0, pitchDown: 0, yawLeft: 0, yawRight: 0, rollLeft: 0, rollRight: 0 };
+	this.moveVector = new THREE.Vector3( 0, 0, 0 );
+	this.rotationVector = new THREE.Vector3( 0, 0, 0 );
+
+	this.handleEvent = function ( event ) {
+
+		if ( typeof this[ event.type ] == 'function' ) {
+
+			this[ event.type ]( event );
+
+		}
+
+	};
+
+	this.keydown = function( event ) {
+
+		if ( event.altKey ) {
+
+			return;
+
+		}
+
+		//event.preventDefault();
+
+		switch ( event.keyCode ) {
+
+			case 16: /* shift */ this.movementSpeedMultiplier = .1; break;
+
+			case 87: /*W*/ this.moveState.forward = 1; break;
+			case 83: /*S*/ this.moveState.back = 1; break;
+
+			case 65: /*A*/ this.moveState.left = 1; break;
+			case 68: /*D*/ this.moveState.right = 1; break;
+
+			case 82: /*R*/ this.moveState.up = 1; break;
+			case 70: /*F*/ this.moveState.down = 1; break;
+
+			case 38: /*up*/ this.moveState.pitchUp = 1; break;
+			case 40: /*down*/ this.moveState.pitchDown = 1; break;
+
+			case 37: /*left*/ this.moveState.yawLeft = 1; break;
+			case 39: /*right*/ this.moveState.yawRight = 1; break;
+
+			case 81: /*Q*/ this.moveState.rollLeft = 1; break;
+			case 69: /*E*/ this.moveState.rollRight = 1; break;
+
+		}
+
+		this.updateMovementVector();
+		this.updateRotationVector();
+
+	};
+
+	this.keyup = function( event ) {
+
+		switch( event.keyCode ) {
+
+			case 16: /* shift */ this.movementSpeedMultiplier = 1; break;
+
+			case 87: /*W*/ this.moveState.forward = 0; break;
+			case 83: /*S*/ this.moveState.back = 0; break;
+
+			case 65: /*A*/ this.moveState.left = 0; break;
+			case 68: /*D*/ this.moveState.right = 0; break;
+
+			case 82: /*R*/ this.moveState.up = 0; break;
+			case 70: /*F*/ this.moveState.down = 0; break;
+
+			case 38: /*up*/ this.moveState.pitchUp = 0; break;
+			case 40: /*down*/ this.moveState.pitchDown = 0; break;
+
+			case 37: /*left*/ this.moveState.yawLeft = 0; break;
+			case 39: /*right*/ this.moveState.yawRight = 0; break;
+
+			case 81: /*Q*/ this.moveState.rollLeft = 0; break;
+			case 69: /*E*/ this.moveState.rollRight = 0; break;
+
+		}
+
+		this.updateMovementVector();
+		this.updateRotationVector();
+
+	};
+
+	this.mousedown = function( event ) {
+
+		if ( this.domElement !== document ) {
+
+			this.domElement.focus();
+
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		if ( this.dragToLook ) {
+
+			this.mouseStatus ++;
+
+		} else {
+
+			switch ( event.button ) {
+
+				case 0: this.moveState.forward = 1; break;
+				case 2: this.moveState.back = 1; break;
+
+			}
+
+			this.updateMovementVector();
+
+		}
+
+	};
+
+	this.mousemove = function( event ) {
+
+		if ( !this.dragToLook || this.mouseStatus > 0 ) {
+
+			var container = this.getContainerDimensions();
+			var halfWidth  = container.size[ 0 ] / 2;
+			var halfHeight = container.size[ 1 ] / 2;
+
+			this.moveState.yawLeft   = - ( ( event.pageX - container.offset[ 0 ] ) - halfWidth  ) / halfWidth;
+			this.moveState.pitchDown =   ( ( event.pageY - container.offset[ 1 ] ) - halfHeight ) / halfHeight;
+
+			this.updateRotationVector();
+
+		}
+
+	};
+
+	this.mouseup = function( event ) {
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		if ( this.dragToLook ) {
+
+			this.mouseStatus --;
+
+			this.moveState.yawLeft = this.moveState.pitchDown = 0;
+
+		} else {
+
+			switch ( event.button ) {
+
+				case 0: this.moveState.forward = 0; break;
+				case 2: this.moveState.back = 0; break;
+
+			}
+
+			this.updateMovementVector();
+
+		}
+
+		this.updateRotationVector();
+
+	};
+
+	this.update = function( delta ) {
+
+		var moveMult = delta * this.movementSpeed;
+		var rotMult = delta * this.rollSpeed;
+
+		this.object.translateX( this.moveVector.x * moveMult );
+		this.object.translateY( this.moveVector.y * moveMult );
+		this.object.translateZ( this.moveVector.z * moveMult );
+
+		this.tmpQuaternion.set( this.rotationVector.x * rotMult, this.rotationVector.y * rotMult, this.rotationVector.z * rotMult, 1 ).normalize();
+		this.object.quaternion.multiply( this.tmpQuaternion );
+
+		// expose the rotation vector for convenience
+		this.object.rotation.setFromQuaternion( this.object.quaternion, this.object.rotation.order );
+
+
+	};
+
+	this.updateMovementVector = function() {
+
+		var forward = ( this.moveState.forward || ( this.autoForward && !this.moveState.back ) ) ? 1 : 0;
+
+		this.moveVector.x = ( -this.moveState.left    + this.moveState.right );
+		this.moveVector.y = ( -this.moveState.down    + this.moveState.up );
+		this.moveVector.z = ( -forward + this.moveState.back );
+
+		//console.log( 'move:', [ this.moveVector.x, this.moveVector.y, this.moveVector.z ] );
+
+	};
+
+	this.updateRotationVector = function() {
+
+		this.rotationVector.x = ( -this.moveState.pitchDown + this.moveState.pitchUp );
+		this.rotationVector.y = ( -this.moveState.yawRight  + this.moveState.yawLeft );
+		this.rotationVector.z = ( -this.moveState.rollRight + this.moveState.rollLeft );
+
+		//console.log( 'rotate:', [ this.rotationVector.x, this.rotationVector.y, this.rotationVector.z ] );
+
+	};
+
+	this.getContainerDimensions = function() {
+
+		if ( this.domElement != document ) {
+
+			return {
+				size	: [ this.domElement.offsetWidth, this.domElement.offsetHeight ],
+				offset	: [ this.domElement.offsetLeft,  this.domElement.offsetTop ]
+			};
+
+		} else {
+
+			return {
+				size	: [ window.innerWidth, window.innerHeight ],
+				offset	: [ 0, 0 ]
+			};
+
+		}
+
+	};
+
+	function bind( scope, fn ) {
+
+		return function () {
+
+			fn.apply( scope, arguments );
+
+		};
+
+	};
+
+	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+
+	this.domElement.addEventListener( 'mousemove', bind( this, this.mousemove ), false );
+	this.domElement.addEventListener( 'mousedown', bind( this, this.mousedown ), false );
+	this.domElement.addEventListener( 'mouseup',   bind( this, this.mouseup ), false );
+
+	this.domElement.addEventListener( 'keydown', bind( this, this.keydown ), false );
+	this.domElement.addEventListener( 'keyup',   bind( this, this.keyup ), false );
+
+	this.updateMovementVector();
+	this.updateRotationVector();
+
+};
+
+module.exports = THREE;
+
+},{"three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/lib/HalfEdgeStructure.js":[function(require,module,exports){
+/**
+ * @author dzhurley / http://shiftfoc.us/
+ *
+ * An implementation of a Half-Edge Data Structure for Three.js geometries.
+ *
+ * TODO: remove dependency on browserify
+ *
+ * For more information on this structure:
+ * http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml
+ */
+
+var THREE = require('three');
+
+var HalfEdgeStructure = function(geometry) {
+    if (geometry instanceof THREE.Geometry === false) {
+        console.error('geometry not an instance of THREE.Geometry.', geometry);
+        return;
+    }
+    this.geometry = geometry;
+
+    // must merge vertices to properly set `pair` and `next` references
+    this.geometry.mergeVertices();
+
+    // edges keyed on 'v1:v2'
+    this.edges = {};
+
+    var faceEdges = [];
+    var edgeKey = '';
+    var nextEdgeKey = '';
+    var pairEdgeKey = '';
+
+    var face, edge, faceIndex, edgeIndex;
+
+    for (faceIndex in this.geometry.faces) {
+        face = this.geometry.faces[faceIndex];
+
+        // always counter-clockwise
+        faceEdges = [this.rawEdgeFromVertices(face.a, face.b),
+                     this.rawEdgeFromVertices(face.b, face.c),
+                     this.rawEdgeFromVertices(face.c, face.a)];
+
+        for (edgeIndex in faceEdges) {
+            edge = faceEdges[edgeIndex];
+            edgeKey = this.keyForEdge(edge);
+            this.edges[edgeKey] = this.createHalfEdge(edge, face);
+            // save edge information on vertex
+            this.geometry.vertices[edge.v1].edge = this.edges[edgeKey];
+        }
+
+        for (edgeIndex in faceEdges) {
+            edge = faceEdges[edgeIndex];
+            edgeKey = this.keyForEdge(edge);
+
+            // set next edge in rotation on current edge
+            nextEdgeKey = this.getNextEdgeKey(faceEdges, edgeIndex);
+            this.edges[edgeKey].next = this.edges[nextEdgeKey];
+
+            // find pairs for half edges
+            pairEdgeKey = edge.v2 + ':' + edge.v1;
+            if (this.edges[pairEdgeKey]) {
+                this.edges[edgeKey].pair = this.edges[pairEdgeKey];
+                this.edges[pairEdgeKey].pair = this.edges[edgeKey];
+            }
+        }
+
+        // use last edge from iteration to inform face
+        face.edge = this.edges[edgeKey];
+    }
+};
+ 
+HalfEdgeStructure.prototype = {
+    constructor: THREE.HalfEdgeStructure,
+
+    keyForEdge: function(edge) {
+        return edge.v1 + ':' + edge.v2;
+    },
+
+    rawEdgeFromVertices: function(first, second) {
+        return {v1: first, v2: second};
+    },
+
+    createHalfEdge: function(edge, face) {
+        return {
+            pair: undefined,
+            next: undefined,
+            vertex: edge.v1,
+            face: face
+        };
+    },
+
+    getNextEdgeKey: function(faceEdges, index) {
+        // safe wrap on indexing edges
+        index = parseInt(index, 10);
+        if (faceEdges.length === index + 1) {
+            return this.keyForEdge(faceEdges[0]);
+        }
+        return this.keyForEdge(faceEdges[index + 1]);
+    },
+
+    edgeForVertices: function(first, second) {
+        return this.edges[this.keyForEdge()];
+    },
+
+    adjacentFaces: function(face) {
+        return [
+            face.edge.pair.face,
+            face.edge.next.pair.face,
+            face.edge.next.next.pair.face
+        ];
+    },
+
+    edgesForFace: function(face) {
+        return [face.edge,
+                face.edge.next,
+                face.edge.next.next];
+    },
+
+    facesForEdge: function(edge) {
+        var halfEdge = this.edges[this.keyForEdge(edge)];
+        return [halfEdge.face, halfEdge.pair.face];
+    },
+
+    facesForVertex: function(vertex) {
+        var faces = [];
+
+        function accumFaces(edge) {
+            if (_.contains(faces, edge.face)) { return; }
+            faces.push(edge.face);
+            return accumFaces(edge.next.pair);
+        }
+
+        faces.push(vertex.edge.face);
+        accumFaces(vertex.edge.pair);
+
+        return faces;
+    },
+
+    verticesForEdge: function(edge) {
+        return [this.geometry.vertices[edge.v1],
+                this.geometry.vertices[edge.v2]];
+    },
+
+    isSameEdge: function(first, second) {
+        // TODO: rework calling code to use HalfEdgeStructure methods
+        return first.v1 === second.v1 && first.v2 === second.v2 ||
+            first.v1 === second.v2 && first.v2 === second.v1;
+    }
+};
+
+THREE.HalfEdgeStructure = HalfEdgeStructure;
+
+module.exports = THREE;
+
+},{"three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/lib/OrbitControls.js":[function(require,module,exports){
+/**
+ * @author qiao / https://github.com/qiao
+ * @author mrdoob / http://mrdoob.com
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author erich666 / http://erichaines.com
+ */
+/*global THREE, console */
+
+// This set of controls performs orbiting, dollying (zooming), and panning. It maintains
+// the "up" direction as +Y, unlike the TrackballControls. Touch on tablet and phones is
+// supported.
+//
+//    Orbit - left mouse / touch: one finger move
+//    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
+//    Pan - right mouse, or arrow keys / touch: three finter swipe
+//
+// This is a drop-in replacement for (most) TrackballControls used in examples.
+// That is, include this js file and wherever you see:
+//    	controls = new THREE.TrackballControls( camera );
+//      controls.target.z = 150;
+// Simple substitute "OrbitControls" and the control should work as-is.
+
+var THREE = require('three');
+
+THREE.OrbitControls = function ( object, domElement ) {
+
+	this.object = object;
+	this.domElement = ( domElement !== undefined ) ? domElement : document;
+
+	// API
+
+	// Set to false to disable this control
+	this.enabled = true;
+
+	// "target" sets the location of focus, where the control orbits around
+	// and where it pans with respect to.
+	this.target = new THREE.Vector3();
+	// center is old, deprecated; use "target" instead
+	this.center = this.target;
+
+	// This option actually enables dollying in and out; left as "zoom" for
+	// backwards compatibility
+	this.noZoom = false;
+	this.zoomSpeed = 1.0;
+	// Limits to how far you can dolly in and out
+	this.minDistance = 0;
+	this.maxDistance = Infinity;
+
+	// Set to true to disable this control
+	this.noRotate = false;
+	this.rotateSpeed = 1.0;
+
+	// Set to true to disable this control
+	this.noPan = false;
+	this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+
+	// Set to true to automatically rotate around the target
+	this.autoRotate = false;
+	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+
+	// How far you can orbit vertically, upper and lower limits.
+	// Range is 0 to Math.PI radians.
+	this.minPolarAngle = 0; // radians
+	this.maxPolarAngle = Math.PI; // radians
+
+	// Set to true to disable use of the keys
+	this.noKeys = false;
+	// The four arrow keys
+	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+
+	////////////
+	// internals
+
+	var scope = this;
+
+	var EPS = 0.000001;
+
+	var rotateStart = new THREE.Vector2();
+	var rotateEnd = new THREE.Vector2();
+	var rotateDelta = new THREE.Vector2();
+
+	var panStart = new THREE.Vector2();
+	var panEnd = new THREE.Vector2();
+	var panDelta = new THREE.Vector2();
+
+	var dollyStart = new THREE.Vector2();
+	var dollyEnd = new THREE.Vector2();
+	var dollyDelta = new THREE.Vector2();
+
+	var phiDelta = 0;
+	var thetaDelta = 0;
+	var scale = 1;
+	var pan = new THREE.Vector3();
+
+	var lastPosition = new THREE.Vector3();
+
+	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5 };
+	var state = STATE.NONE;
+
+	// events
+
+	var changeEvent = { type: 'change' };
+
+
+	this.rotateLeft = function ( angle ) {
+
+		if ( angle === undefined ) {
+
+			angle = getAutoRotationAngle();
+
+		}
+
+		thetaDelta -= angle;
+
+	};
+
+	this.rotateUp = function ( angle ) {
+
+		if ( angle === undefined ) {
+
+			angle = getAutoRotationAngle();
+
+		}
+
+		phiDelta -= angle;
+
+	};
+
+	// pass in distance in world space to move left
+	this.panLeft = function ( distance ) {
+
+		var panOffset = new THREE.Vector3();
+		var te = this.object.matrix.elements;
+		// get X column of matrix
+		panOffset.set( te[0], te[1], te[2] );
+		panOffset.multiplyScalar(-distance);
+		
+		pan.add( panOffset );
+
+	};
+
+	// pass in distance in world space to move up
+	this.panUp = function ( distance ) {
+
+		var panOffset = new THREE.Vector3();
+		var te = this.object.matrix.elements;
+		// get Y column of matrix
+		panOffset.set( te[4], te[5], te[6] );
+		panOffset.multiplyScalar(distance);
+		
+		pan.add( panOffset );
+	};
+	
+	// main entry point; pass in Vector2 of change desired in pixel space,
+	// right and down are positive
+	this.pan = function ( delta ) {
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		if ( scope.object.fov !== undefined ) {
+
+			// perspective
+			var position = scope.object.position;
+			var offset = position.clone().sub( scope.target );
+			var targetDistance = offset.length();
+
+			// half of the fov is center to top of screen
+			targetDistance *= Math.tan( (scope.object.fov/2) * Math.PI / 180.0 );
+			// we actually don't use screenWidth, since perspective camera is fixed to screen height
+			scope.panLeft( 2 * delta.x * targetDistance / element.clientHeight );
+			scope.panUp( 2 * delta.y * targetDistance / element.clientHeight );
+
+		} else if ( scope.object.top !== undefined ) {
+
+			// orthographic
+			scope.panLeft( delta.x * (scope.object.right - scope.object.left) / element.clientWidth );
+			scope.panUp( delta.y * (scope.object.top - scope.object.bottom) / element.clientHeight );
+
+		} else {
+
+			// camera neither orthographic or perspective - warn user
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+
+		}
+
+	};
+
+	this.dollyIn = function ( dollyScale ) {
+
+		if ( dollyScale === undefined ) {
+
+			dollyScale = getZoomScale();
+
+		}
+
+		scale /= dollyScale;
+
+	};
+
+	this.dollyOut = function ( dollyScale ) {
+
+		if ( dollyScale === undefined ) {
+
+			dollyScale = getZoomScale();
+
+		}
+
+		scale *= dollyScale;
+
+	};
+
+	this.update = function () {
+
+		var position = this.object.position;
+		var offset = position.clone().sub( this.target );
+
+		// angle from z-axis around y-axis
+
+		var theta = Math.atan2( offset.x, offset.z );
+
+		// angle from y-axis
+
+		var phi = Math.atan2( Math.sqrt( offset.x * offset.x + offset.z * offset.z ), offset.y );
+
+		if ( this.autoRotate ) {
+
+			this.rotateLeft( getAutoRotationAngle() );
+
+		}
+
+		theta += thetaDelta;
+		phi += phiDelta;
+
+		// restrict phi to be between desired limits
+		phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, phi ) );
+
+		// restrict phi to be betwee EPS and PI-EPS
+		phi = Math.max( EPS, Math.min( Math.PI - EPS, phi ) );
+
+		var radius = offset.length() * scale;
+
+		// restrict radius to be between desired limits
+		radius = Math.max( this.minDistance, Math.min( this.maxDistance, radius ) );
+		
+		// move target to panned location
+		this.target.add( pan );
+
+		offset.x = radius * Math.sin( phi ) * Math.sin( theta );
+		offset.y = radius * Math.cos( phi );
+		offset.z = radius * Math.sin( phi ) * Math.cos( theta );
+
+		position.copy( this.target ).add( offset );
+
+		this.object.lookAt( this.target );
+
+		thetaDelta = 0;
+		phiDelta = 0;
+		scale = 1;
+		pan.set(0,0,0);
+
+		if ( lastPosition.distanceTo( this.object.position ) > 0 ) {
+
+			this.dispatchEvent( changeEvent );
+
+			lastPosition.copy( this.object.position );
+
+		}
+
+	};
+
+
+	function getAutoRotationAngle() {
+
+		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+
+	}
+
+	function getZoomScale() {
+
+		return Math.pow( 0.95, scope.zoomSpeed );
+
+	}
+
+	function onMouseDown( event ) {
+
+		if ( scope.enabled === false ) { return; }
+		event.preventDefault();
+
+		if ( event.button === 0 ) {
+			if ( scope.noRotate === true ) { return; }
+
+			state = STATE.ROTATE;
+
+			rotateStart.set( event.clientX, event.clientY );
+
+		} else if ( event.button === 1 ) {
+			if ( scope.noZoom === true ) { return; }
+
+			state = STATE.DOLLY;
+
+			dollyStart.set( event.clientX, event.clientY );
+
+		} else if ( event.button === 2 ) {
+			if ( scope.noPan === true ) { return; }
+
+			state = STATE.PAN;
+
+			panStart.set( event.clientX, event.clientY );
+
+		}
+
+		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
+		scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
+
+	}
+
+	function onMouseMove( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		event.preventDefault();
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		if ( state === STATE.ROTATE ) {
+
+			if ( scope.noRotate === true ) return;
+
+			rotateEnd.set( event.clientX, event.clientY );
+			rotateDelta.subVectors( rotateEnd, rotateStart );
+
+			// rotating across whole screen goes 360 degrees around
+			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+			// rotating up and down along whole screen attempts to go 360, but limited to 180
+			scope.rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+
+			rotateStart.copy( rotateEnd );
+
+		} else if ( state === STATE.DOLLY ) {
+
+			if ( scope.noZoom === true ) return;
+
+			dollyEnd.set( event.clientX, event.clientY );
+			dollyDelta.subVectors( dollyEnd, dollyStart );
+
+			if ( dollyDelta.y > 0 ) {
+
+				scope.dollyIn();
+
+			} else {
+
+				scope.dollyOut();
+
+			}
+
+			dollyStart.copy( dollyEnd );
+
+		} else if ( state === STATE.PAN ) {
+
+			if ( scope.noPan === true ) return;
+
+			panEnd.set( event.clientX, event.clientY );
+			panDelta.subVectors( panEnd, panStart );
+			
+			scope.pan( panDelta );
+
+			panStart.copy( panEnd );
+
+		}
+
+		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
+		scope.update();
+
+	}
+
+	function onMouseUp( /* event */ ) {
+
+		if ( scope.enabled === false ) return;
+
+		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
+		scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.removeEventListener( 'mouseup', onMouseUp, false );
+
+		state = STATE.NONE;
+
+	}
+
+	function onMouseWheel( event ) {
+
+		if ( scope.enabled === false || scope.noZoom === true ) return;
+
+		var delta = 0;
+
+		if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+
+			delta = event.wheelDelta;
+
+		} else if ( event.detail ) { // Firefox
+
+			delta = - event.detail;
+
+		}
+
+		if ( delta > 0 ) {
+
+			scope.dollyOut();
+
+		} else {
+
+			scope.dollyIn();
+
+		}
+
+	}
+
+	function onKeyDown( event ) {
+
+		if ( scope.enabled === false ) { return; }
+		if ( scope.noKeys === true ) { return; }
+		if ( scope.noPan === true ) { return; }
+
+		// pan a pixel - I guess for precise positioning?
+		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
+		var needUpdate = false;
+		
+		switch ( event.keyCode ) {
+
+			case scope.keys.UP:
+				scope.pan( new THREE.Vector2( 0, scope.keyPanSpeed ) );
+				needUpdate = true;
+				break;
+			case scope.keys.BOTTOM:
+				scope.pan( new THREE.Vector2( 0, -scope.keyPanSpeed ) );
+				needUpdate = true;
+				break;
+			case scope.keys.LEFT:
+				scope.pan( new THREE.Vector2( scope.keyPanSpeed, 0 ) );
+				needUpdate = true;
+				break;
+			case scope.keys.RIGHT:
+				scope.pan( new THREE.Vector2( -scope.keyPanSpeed, 0 ) );
+				needUpdate = true;
+				break;
+		}
+
+		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
+		if ( needUpdate ) {
+
+			scope.update();
+
+		}
+
+	}
+	
+	function touchstart( event ) {
+
+		if ( scope.enabled === false ) { return; }
+
+		switch ( event.touches.length ) {
+
+			case 1:	// one-fingered touch: rotate
+				if ( scope.noRotate === true ) { return; }
+
+				state = STATE.TOUCH_ROTATE;
+
+				rotateStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+				break;
+
+			case 2:	// two-fingered touch: dolly
+				if ( scope.noZoom === true ) { return; }
+
+				state = STATE.TOUCH_DOLLY;
+
+				var dx = event.touches[ 0 ].pageX - event.touches[ 1 ].pageX;
+				var dy = event.touches[ 0 ].pageY - event.touches[ 1 ].pageY;
+				var distance = Math.sqrt( dx * dx + dy * dy );
+				dollyStart.set( 0, distance );
+				break;
+
+			case 3: // three-fingered touch: pan
+				if ( scope.noPan === true ) { return; }
+
+				state = STATE.TOUCH_PAN;
+
+				panStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+				break;
+
+			default:
+				state = STATE.NONE;
+
+		}
+	}
+
+	function touchmove( event ) {
+
+		if ( scope.enabled === false ) { return; }
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		switch ( event.touches.length ) {
+
+			case 1: // one-fingered touch: rotate
+				if ( scope.noRotate === true ) { return; }
+				if ( state !== STATE.TOUCH_ROTATE ) { return; }
+
+				rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+				rotateDelta.subVectors( rotateEnd, rotateStart );
+
+				// rotating across whole screen goes 360 degrees around
+				scope.rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+				// rotating up and down along whole screen attempts to go 360, but limited to 180
+				scope.rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+
+				rotateStart.copy( rotateEnd );
+				break;
+
+			case 2: // two-fingered touch: dolly
+				if ( scope.noZoom === true ) { return; }
+				if ( state !== STATE.TOUCH_DOLLY ) { return; }
+
+				var dx = event.touches[ 0 ].pageX - event.touches[ 1 ].pageX;
+				var dy = event.touches[ 0 ].pageY - event.touches[ 1 ].pageY;
+				var distance = Math.sqrt( dx * dx + dy * dy );
+
+				dollyEnd.set( 0, distance );
+				dollyDelta.subVectors( dollyEnd, dollyStart );
+
+				if ( dollyDelta.y > 0 ) {
+
+					scope.dollyOut();
+
+				} else {
+
+					scope.dollyIn();
+
+				}
+
+				dollyStart.copy( dollyEnd );
+				break;
+
+			case 3: // three-fingered touch: pan
+				if ( scope.noPan === true ) { return; }
+				if ( state !== STATE.TOUCH_PAN ) { return; }
+
+				panEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+				panDelta.subVectors( panEnd, panStart );
+				
+				scope.pan( panDelta );
+
+				panStart.copy( panEnd );
+				break;
+
+			default:
+				state = STATE.NONE;
+
+		}
+
+	}
+
+	function touchend( /* event */ ) {
+
+		if ( scope.enabled === false ) { return; }
+
+		state = STATE.NONE;
+	}
+
+	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
+	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
+	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+
+	this.domElement.addEventListener( 'keydown', onKeyDown, false );
+
+	this.domElement.addEventListener( 'touchstart', touchstart, false );
+	this.domElement.addEventListener( 'touchend', touchend, false );
+	this.domElement.addEventListener( 'touchmove', touchmove, false );
+
+};
+
+THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+
+module.exports = THREE;
+
+},{"three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/main.js":[function(require,module,exports){
+(function (global){
+var app = require('./app');
+
+global.App = app;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./app":"/Users/derekhurley/soundscape/js/app.js"}],"/Users/derekhurley/soundscape/js/plotting/faces.js":[function(require,module,exports){
+var _ = require('underscore');
+var THREE = require('three');
+
+var h = require('../helpers');
+
+var facePlotter = function(mesh) {
+    this.mesh = mesh;
+    this.faces = this.mesh.geometry.faces;
+    this.vertices = this.mesh.geometry.vertices;
+};
+
+facePlotter.prototype = {
+    handleSwappers: function(startFace) {
+        var goal = this.mesh.utils.findClosestFreeFace(startFace);
+        var currentFace = startFace;
+        var candidates = [];
+        var path = [currentFace];
+
+        while (currentFace != goal) {
+            candidates = App.heds.adjacentFaces(currentFace);
+            currentFace = this.mesh.utils.findClosestFace(candidates, goal);
+            path.push(currentFace);
+        }
+
+        var prevFace;
+        _.each(path.reverse(), function(face, index) {
+            prevFace = path[index + 1];
+            if (prevFace) {
+                // TODO: account for edge info, see expandArtistEdges
+                face.data = _.clone(prevFace.data);
+                face.color.copy(prevFace.color);
+            }
+        });
+
+        this.mesh.geometry.colorsNeedUpdate = true;
+        return goal;
+    },
+
+    validFace: function(artist, edge) {
+        var swappers = [];
+
+        function intertains(first, second) {
+            return !_.isEmpty(_.intersection(first, second));
+        }
+
+        var face = _.filter(this.faces, function(f) {
+            var valid = false;
+
+            if (edge.v1 === f.a) {
+                valid = edge.v2 === f.b || edge.v2 === f.c;
+            } else if (edge.v1 === f.b) {
+                valid = edge.v2 === f.a || edge.v2 === f.c;
+            } else if (edge.v1 === f.c) {
+                valid = edge.v2 === f.a || edge.v2 === f.b;
+            }
+
+            if (valid && !_.isUndefined(f.data.artist)) {
+                // if it's adjacent but taken, remember it in case we
+                // don't find a free face so we can swap in place
+                swappers.push(f);
+                return false;
+            }
+            return valid;
+        }.bind(this));
+
+        if (face.length === 1) {
+            return face[0];
+        }
+
+        var swappersLeft = _.without(swappers, _.find(swappers, function(f) {
+            // make sure one of the candidates isn't for the same artist
+            return f.data.artist === artist.name;
+        }));
+
+        return swappersLeft;
+    },
+
+    findAdjacentFace: function(artist) {
+        // use random `artist.edges` to find an adjacent unpainted `face`
+        var edges = _.clone(artist.edges);
+        var edge;
+        var faceOrSwap;
+        var swappedArtist;
+
+        while (edges.length) {
+            edge = _.sample(edges);
+            faceOrSwap = this.validFace(artist, edge);
+
+            if (!_.isArray(faceOrSwap)) {
+                // found valid face, stop looking for more
+                App.artistManager.expandArtistEdges(faceOrSwap, artist, edge);
+                return {
+                    face: faceOrSwap,
+                    index: this.faces.indexOf(faceOrSwap)
+                };
+            }
+
+            if (edges.length) {
+                // we found a boundary with another artist, but there are more
+                // edges available to check, retry with another random edge
+                edges.splice(edges.indexOf(edge), 1);
+                if (edges.length) {
+                    continue;
+                }
+            }
+
+            // handle expanding out to the closest free face out of band
+            console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
+            this.handleSwappers(faceOrSwap[0]);
+            return {
+                // TODO: bad, do something better to return face states
+                face: true,
+                index: this.faces.indexOf(faceOrSwap)
+            };
+        }
+    },
+
+    nextFace: function(artist, rando) {
+        var face = this.faces[rando];
+        var paintedInfo = {artist: artist};
+
+        if (face.data.artist) {
+            return {face: false};
+        }
+
+        if (_.isEmpty(artist.edges)) {
+            artist.edges.push({v1: face.a, v2: face.b},
+                              {v1: face.b, v2: face.c},
+                              {v1: face.a, v2: face.c});
+                              return {face: face, index: this.faces.indexOf(face)};
+        }
+
+        // artist has been painted somewhere else
+        while (!_.has(paintedInfo, 'face')) {
+            paintedInfo = this.findAdjacentFace(paintedInfo.artist);
+        }
+        return paintedInfo;
+    }
+};
+
+module.exports = facePlotter;
+
+},{"../helpers":"/Users/derekhurley/soundscape/js/helpers.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/plotting/looper.js":[function(require,module,exports){
+var _ = require('underscore');
+var THREE = require('three');
+
+var h = require('../helpers');
+var FacePlotter = require('./faces');
+
+var looper = function(facePlotter, plotter) { 
+    this.facePlotter = facePlotter;
+    this.plotter = plotter;
+    this.remaining = [];
+};
+
+looper.prototype = {
+
+    setNewFace: function(face, artist) {
+        // TODO: doesn't belong here
+        // paint face with artist color and info
+        index = App.artistManager.artists.indexOf(artist);
+
+        face.color.set(artist.color);
+
+        face.data.artist = artist.name;
+        face.data.plays = artist.playCount;
+        face.data.pending = true;
+
+        artist.faces--;
+    },
+
+    runIteration: function(rando) {
+        var artist;
+        var faceInfo;
+        var remainingIndex;
+
+        // choose random face for each face to paint
+        artist = App.artistManager.nextArtist();
+        if (!artist) {
+            // no more faces left for any artist to paint
+            return true;
+        }
+        faceInfo = this.facePlotter.nextFace(artist, rando);
+
+        if (faceInfo.face) {
+            remainingIndex = this.remaining.indexOf(faceInfo.index);
+            if (remainingIndex > -1) {
+                this.remaining.splice(remainingIndex, 1);
+            }
+            if (faceInfo.face !== true) {
+                this.setNewFace(faceInfo.face, artist);
+            }
+        }
+        return false;
+    },
+
+    // TODO: merge with loopOnce, only used to seed
+    loop: function(randos) {
+        this.remaining = randos;
+        var currentPass;
+        var i = 0;
+
+        while (this.remaining.length) {
+            currentPass = _.clone(this.remaining);
+
+            for (i in currentPass) {
+                if (this.runIteration(currentPass[i])) {
+                    // we're done with all the faces
+                    return;
+                }
+            }
+            i = 0;
+
+            if (currentPass.length === this.remaining.length) {
+                // nothing got painted on this pass, so bail
+                return;
+            }
+        }
+    },
+
+    loopOnce: function(remaining) {
+        var startingLength = remaining.length;
+        this.remaining = remaining;
+        var iterationResult = this.runIteration(this.remaining[0]);
+        if (startingLength === this.remaining.length) {
+            // no paints on this pass, no use trying again
+            this.plotter.stop = true;
+        }
+        console.log('remaining', this.remaining.length);
+        return iterationResult;
+    }
+};
+
+module.exports = looper;
+
+},{"../helpers":"/Users/derekhurley/soundscape/js/helpers.js","./faces":"/Users/derekhurley/soundscape/js/plotting/faces.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/plotting/seeder.js":[function(require,module,exports){
+var _ = require('underscore');
+var THREE = require('three');
+
+var h = require('../helpers');
+var FacePlotter = require('./faces');
+var Looper = require('./looper');
+
+var seeder = function(mesh) {
+    this.meshUtils = mesh.utils;
+    this.facePlotter = new FacePlotter(mesh);
+    this.looper = new Looper(this.facePlotter, this);
+};
+
+seeder.prototype = {
+    seed: function(data) {
+        if (!data.length) {
+            // TODO: find a nicer way
+            alert('user has no plays');
+            return;
+        }
+        App.artistManager.setArtists({
+            artists: data,
+            totalFaces: this.facePlotter.faces.length
+        });
+
+        _.map(this.facePlotter.faces, function(face) {
+            face.data = {};
+        });
+
+        // seed the planet
+        var seeds = this.meshUtils.findEquidistantFaces(App.artistManager.artists.length);
+        var seedIndices = _.pluck(seeds, 'faceIndex');
+        this.looper.loop(seedIndices);
+
+        // set remaining faces to paint
+        var randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
+        return _.difference(randos, seedIndices);
+    }
+};
+
+module.exports = seeder;
+
+},{"../helpers":"/Users/derekhurley/soundscape/js/helpers.js","./faces":"/Users/derekhurley/soundscape/js/plotting/faces.js","./looper":"/Users/derekhurley/soundscape/js/plotting/looper.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/plotting/worker.js":[function(require,module,exports){
+var _ = require('underscore');
+
+var Dispatch = require('../dispatch');
+var Seeder = require('./seeder');
+
+var seeder = function(mesh) {
+    this.seeder = new Seeder(mesh);
+
+    Dispatch.on('plot.*', function(method, payload) {
+        this[method](payload);
+    }.bind(this));
+};
+
+var plotter = {
+    newFaces: function(faces) {
+        return _.compact(_.map(faces, function(face) {
+            var indexedFace = null;
+
+            if (face.data.pending) {
+                var index = faces.indexOf(face).toString();
+                indexedFace = {};
+                indexedFace[index] = {
+                    color: face.color,
+                    data: face.data
+                };
+                delete face.data.pending;
+            }
+
+            return indexedFace;
+        }));
+    },
+
+    seed: function(payload) {
+        // reset stopping flag
+        this.seeder.stop = false;
+        this.remaining = this.seeder.seed(JSON.parse(payload));
+        // TODO: send back progress
+        postMessage({
+            type: 'faces.seeded',
+            payload: {
+                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+            }
+        });
+    },
+
+    processOneArtist: function() {
+        return this.seeder.looper.loopOnce(this.remaining);
+    },
+
+    oneArtist: function() {
+        this.processOneArtist();
+
+        // TODO: send back progress
+        postMessage({
+            type: 'faces.looped',
+            payload: {
+                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+            }
+        });
+    },
+
+    batchOnce: function() {
+        for (var j = 0; j <= App.artistManager.artistsRemaining(); j++) {
+            if (this.processOneArtist()) {
+                break;
+            }
+        }
+
+        // TODO: send back progress
+        postMessage({
+            type: 'faces.batched',
+            payload: {
+                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+            }
+        });
+    },
+
+    batch: function() {
+        for (var i = 0; i < this.remaining.length; i++) {
+            this.batchOnce();
+
+            if (this.seeder.stop) {
+                break;
+            }
+        }
+    }
+};
+
+module.exports = plotter;
+
+},{"../dispatch":"/Users/derekhurley/soundscape/js/dispatch.js","./seeder":"/Users/derekhurley/soundscape/js/plotting/seeder.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/sources/last.js":[function(require,module,exports){
+var _ = require('underscore');
+var h = require('../helpers');
+
+var last = {
+    baseUrl: 'http://ws.audioscrobbler.com/2.0/',
+
+    // TODO: allow for better handling of paged responses
+    pageSize: 999,
+
+    defaultParams: {
+        api_key: 'bd366f79f01332a48ae8ce061dba05a9',
+        format: 'json',
+        method: 'library.getartists',
+        limit: this.pageSize
+    },
+
+    paramsForUser: function(username) {
+        return { user: username };
+    },
+
+    parseData: function(data) {
+        if (data.error && data.error == 6) {
+            // TODO: find a nicer way
+            alert('not a user');
+            return;
+        }
+        var baseData =  _.map(data.artists.artist, function(artist) {
+            return {
+                name: artist.name,
+                playCount: parseInt(artist.playcount, 10)
+            };
+        });
+        return h.normalize(baseData, 'playCount', 'normCount');
+    }
+};
+
+module.exports = last;
+
+},{"../helpers":"/Users/derekhurley/soundscape/js/helpers.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/sources/main.js":[function(require,module,exports){
+var h = require('../helpers');
+var Last = require('./last');
+
+var sourcer = {
+    sources: {
+        last: Last
+    },
+
+    sourceUrl: function(params) {
+        params = _.extend({}, this.activeSource.defaultParams, params || {});
+        return h.packUrlParams(this.activeSource.baseUrl, params);
+    },
+
+    checkSource: function(evt) {
+        evt.preventDefault();
+        var source = evt.target.querySelector('#source').value;
+        var username = evt.target.querySelector('#username').value;
+
+        if (!_.contains(_.keys(this.sources), source)) {
+            console.error('Invalid source: ' + source);
+            return false;
+        }
+        if (username.length === 0) {
+            console.error('No username given');
+            return false;
+        }
+
+        evt.target.querySelector('#username').value = '';
+        App.sourcesButton.click();
+        this.artists = null;
+        this.startSource(source, username);
+        return false;
+    },
+
+    startSource: function(source, username) {
+        var src = this.sources[source];
+        if (_.isFunction(src)) {
+            src = new src();
+        }
+        this.activeSource = src;
+        this.getArtistsForUser(username);
+    },
+
+    getArtistsForUser: function(username) {
+        App.bus.emit('submitted');
+
+        if (_.contains(_.keys(localStorage), username)) {
+            this.artists = JSON.parse(localStorage[username]);
+
+            if (this.artists) {
+                App.bus.emitOnWorker('plot.seed', JSON.stringify(this.artists));
+                return;
+            }
+        }
+
+        var url = this.sourceUrl(this.activeSource.paramsForUser(username));
+        request = new XMLHttpRequest();
+        request.open('GET', url, true);
+
+        request.onload = function() {
+            if (request.status >= 200 && request.status < 400){
+                // Success!
+                var data = JSON.parse(request.responseText);
+                this.artists = this.activeSource.parseData(data);
+                var stringified = JSON.stringify(_.shuffle(this.artists));
+                App.bus.emitOnWorker('plot.seed', stringified);
+                localStorage[username] = stringified;
+            }
+        }.bind(this);
+
+        request.send();
+    }
+};
+module.exports = sourcer;
+
+},{"../helpers":"/Users/derekhurley/soundscape/js/helpers.js","./last":"/Users/derekhurley/soundscape/js/sources/last.js"}],"/Users/derekhurley/soundscape/js/three/camera.js":[function(require,module,exports){
+var THREE = require('three');
+var renderer = require('./renderer');
+
+var camera = new THREE.PerspectiveCamera(
+    75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+window.addEventListener('resize', function() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
+
+camera.position.y = 100;
+camera.position.z = 100;
+module.exports = camera;
+
+},{"./renderer":"/Users/derekhurley/soundscape/js/three/renderer.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/three/controls.js":[function(require,module,exports){
+// TODO find a better way
+var THREE = require('../lib/FlyControls');
+THREE = require('../lib/OrbitControls');
+
+var App = require('../app');
+var Threes = require('./main');
+
+var controls = {
+    init: function() {
+        this.setupOrbital();
+    },
+
+    setButtonText: function() {
+        var newLabel = this.label === 'Orbital' ? 'Fly' : 'Orbital';
+        // TODO: put back on App
+        document.getElementById('toggleControls').textContent = newLabel;
+    },
+
+    setupFly: function() {
+        this.active = new THREE.FlyControls(Threes.camera, App.container);
+        this.active.autoForward = false;
+        this.active.domElement = App.container;
+        this.active.dragToLook = true;
+        this.active.movementSpeed = 1;
+        this.active.rollSpeed = 0.03;
+        this.label = 'Fly';
+        this.setButtonText();
+    },
+
+    setupOrbital: function() {
+        this.active = new THREE.OrbitControls(Threes.camera, App.container);
+        this.active.zoomSpeed = 0.2;
+        this.active.rotateSpeed = 0.5;
+        this.active.noKeys = true;
+        this.label = 'Orbital';
+        this.setButtonText();
+    },
+
+    toggleControls: function() {
+        var prevCamera = Threes.camera;
+        Threes.camera = new THREE.PerspectiveCamera(
+            75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            Threes.camera.position.copy(prevCamera.position);
+            Threes.camera.rotation.copy(prevCamera.rotation);
+
+            return this.label === 'Fly' ?
+                this.setupOrbital() :
+                this.setupFly();
+    },
+
+    update: function(interval) {
+        this.active.update(interval);
+    }
+};
+controls.init();
+module.exports = controls;
+
+},{"../app":"/Users/derekhurley/soundscape/js/app.js","../lib/FlyControls":"/Users/derekhurley/soundscape/js/lib/FlyControls.js","../lib/OrbitControls":"/Users/derekhurley/soundscape/js/lib/OrbitControls.js","./main":"/Users/derekhurley/soundscape/js/three/main.js"}],"/Users/derekhurley/soundscape/js/three/light.js":[function(require,module,exports){
+var THREE = require('three');
+var scene = require('./scene');
+
+var light = {
+    ambient: new THREE.AmbientLight(0xf0f0f0),
+
+    addToScene: function() {
+        scene.add(light.ambient);
+    }
+};
+
+module.exports = light;
+
+},{"./scene":"/Users/derekhurley/soundscape/js/three/scene.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/three/main.js":[function(require,module,exports){
+var _ = require('underscore');
+
+var renderer = require('./renderer');
+var camera = require('./camera');
+var scene = require('./scene');
+var light = require('./light');
+var Mesh = require('./mesh/main');
+
+var threes = {
+    renderer: renderer,
+    camera: camera,
+    scene: scene,
+    light: light,
+
+    init: function() {
+        this.mesh = Mesh;
+        this.mesh.addToScene();
+        this.light.addToScene();
+
+        this.camera.lookAt(scene.position);
+    },
+
+    moveCameraToFace: function(evt, face) {
+        App.three.camera.position = this.mesh.utils.faceCentroid(face);
+        App.three.camera.lookAt(scene.position.multiplyScalar(1.75));
+    },
+
+    animate: function() {
+        if (this.controls) {
+            this.controls.update(1);
+        }
+        this.renderer.render(this.scene, this.camera);
+    }
+};
+
+threes.init();
+
+module.exports = threes;
+
+},{"./camera":"/Users/derekhurley/soundscape/js/three/camera.js","./light":"/Users/derekhurley/soundscape/js/three/light.js","./mesh/main":"/Users/derekhurley/soundscape/js/three/mesh/main.js","./renderer":"/Users/derekhurley/soundscape/js/three/renderer.js","./scene":"/Users/derekhurley/soundscape/js/three/scene.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/three/mesh/main.js":[function(require,module,exports){
+var _ = require('underscore');
+var h = require('../../helpers');
+var Constants = require('../../constants');
+var THREE = require('../../lib/HalfEdgeStructure');
+
+var Dispatch = require('../../dispatch');
+var App = require('../../app');
+var scene = require('../scene');
+var Utils = require('./utils');
+
+var mesh = {
+    radius: Constants.globe.radius,
+    widthAndHeight: Constants.globe.widthAndHeight,
+
+    init: function() {
+        this.globe = this.createGlobe();
+        this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
+        this.wireframe = this.createWireframe();
+        this.stars = this.createStars();
+
+        this.utils = new Utils(this.globe);
+
+        Dispatch.on('debugging', this.toggleDebugging.bind(this));
+        Dispatch.on('faces.*', function(payload) {
+            this.updateFaces(JSON.parse(payload.faces));
+        }.bind(this));
+    },
+
+    resetGlobe: function() {
+        this.utils.resetFaces();
+    },
+
+    createGlobe: function() {
+        return new THREE.Mesh(
+            new THREE.SphereGeometry(this.radius,
+                                     this.widthAndHeight,
+                                     this.widthAndHeight),
+                                     new THREE.MeshLambertMaterial({
+                                         shading: THREE.FlatShading,
+                                         side: THREE.DoubleSide,
+                                         vertexColors: THREE.FaceColors
+                                     })
+        );
+    },
+
+    createWireframe: function() {
+        return new THREE.WireframeHelper(this.globe);
+    },
+
+    createStars: function() {
+        var stars = [];
+        var star;
+
+        for (var i = 0; i < Constants.stars.number; ++i) {
+            star = new THREE.Sprite(new THREE.SpriteMaterial());
+            star.position.x = Constants.stars.initialX();
+            star.position.y = Constants.stars.initialY();
+            star.position.z = Constants.stars.initialZ();
+
+            star.position.normalize();
+            star.position.multiplyScalar(Constants.stars.positionMultiplier());
+            star.scale.multiplyScalar(Constants.stars.scaleMultiplier());
+            stars.push(star);
+        }
+        return stars;
+    },
+
+    addToScene: function() {
+        scene.add(mesh.globe);
+        if (App.debugging) {
+            scene.add(mesh.wireframe);
+        }
+        _.map(mesh.stars, function(star) {
+            scene.add(star);
+        });
+    },
+
+    toggleDebugging: function(evt) {
+        return App.debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
+    },
+
+    updateFaces: function(newFaces) {
+        var oldFaces = this.globe.geometry.faces;
+
+        function getFaceIndex(face) {
+            return parseInt(_.keys(face)[0], 10);
+        }
+
+        console.log('painting new faces:', _.map(newFaces, function(face) {
+            return getFaceIndex(face);
+        }));
+
+        _.each(newFaces, function(face) {
+            index = getFaceIndex(face);
+            oldFaces[index].color.copy(face[index].color);
+            oldFaces[index].data = face[index].data;
+        }.bind(this));
+
+        this.globe.geometry.colorsNeedUpdate = true;
+    },
+
+    update: function() {
+        this.globe.geometry.colorsNeedUpdate = true;
+    }
+};
+
+mesh.init();
+module.exports = mesh;
+
+},{"../../app":"/Users/derekhurley/soundscape/js/app.js","../../constants":"/Users/derekhurley/soundscape/js/constants.js","../../dispatch":"/Users/derekhurley/soundscape/js/dispatch.js","../../helpers":"/Users/derekhurley/soundscape/js/helpers.js","../../lib/HalfEdgeStructure":"/Users/derekhurley/soundscape/js/lib/HalfEdgeStructure.js","../scene":"/Users/derekhurley/soundscape/js/three/scene.js","./utils":"/Users/derekhurley/soundscape/js/three/mesh/utils.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/three/mesh/utils.js":[function(require,module,exports){
+var _ = require('underscore');
+var h = require('../../helpers');
+var THREE = require('three');
+var scene = require('../scene');
+
+var Utils = function(mesh) {
+    this.geo = mesh.geometry;
+    this.mesh = mesh;
+};
+
+_.extend(Utils, {
+    faceCentroid: function(face) {
+        // save deprecated face.centroid
+        return new THREE.Vector3()
+        .add(this.geo.vertices[face.a])
+        .add(this.geo.vertices[face.b])
+        .add(this.geo.vertices[face.c])
+        .divideScalar(3);
+    },
+
+    uniqueVerticesForEdges: function(edges) {
+        return _.uniq(_.flatten(_.map(edges, function(edge) {
+            return [edge.v1, edge.v2];
+        })));
+    },
+
+    resetFaces: function() {
+        // zero face values for fresh paint
+        _.map(this.mesh.geometry.faces, function(f) {
+            f.data = {};
+            f.color.setHex(0xFFFFFF);
+        });
+        App.three.mesh.update();
+    },
+
+    addEquidistantMarks: function(num) {
+        if (this.markers && this.markers.length) {
+            return this.markers;
+        }
+        this.markers = [];
+        var mark;
+        var points = h.equidistantishPointsOnSphere(num);
+
+        for (var i in points) {
+            mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
+            mark.position.x = points[i][0];
+            mark.position.y = points[i][1];
+            mark.position.z = points[i][2];
+            mark.position.multiplyScalar(this.mesh.geometry.parameters.radius + 2);
+            this.markers.push(mark);
+            scene.add(mark);
+        }
+    },
+
+    findEquidistantFaces: function(numMarkers) {
+        // add transient helper marks
+        this.addEquidistantMarks(numMarkers);
+
+        var caster = new THREE.Raycaster();
+        var intersectingFaces = [];
+        var marker;
+        for (var i = 0; i < this.markers.length; i++) {
+            // use the mark's vector as a ray to find the closest face
+            // via its intersection
+            marker = this.markers[i].position.clone();
+            caster.set(this.mesh.position, marker.normalize());
+            intersectingFaces.push(caster.intersectObject(this.mesh));
+        }
+
+        // clean up transient markers
+        _.each(this.markers, function(mark) {
+            scene.remove(mark);
+        });
+        delete this.markers;
+
+        return _.map(intersectingFaces, function(hit) {
+            // return at most one face for each intersection
+            return hit[0];
+        });
+    },
+
+    findClosestFace: function(candidates, target) {
+        // compute the distance between each one of the candidates and
+        // the target to find the closest candidate
+        var closest, newDistance, lastDistance, targetCentroid;
+        for (var i = 0; i < candidates.length; i++) {
+            faceVector = this.faceCentroid(candidates[i]).normalize();
+            targetCentroid = this.faceCentroid(target).normalize();
+            newDistance = targetCentroid.distanceTo(faceVector);
+            if (!closest) {
+                closest = candidates[i];
+                lastDistance = newDistance;
+            } else if (newDistance < lastDistance) {
+                closest = candidates[i];
+                lastDistance = newDistance;
+            }
+        }
+        return closest;
+    },
+
+    findClosestFreeFace: function(startFace) {
+        var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
+            return !f.data.artist;
+        });
+        return this.findClosestFace(freeFaces, startFace);
+    }
+});
+
+module.exports = Utils;
+
+},{"../../helpers":"/Users/derekhurley/soundscape/js/helpers.js","../scene":"/Users/derekhurley/soundscape/js/three/scene.js","three":"/Users/derekhurley/soundscape/node_modules/three/three.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/js/three/renderer.js":[function(require,module,exports){
+var THREE = require('three');
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+module.exports = renderer;
+
+},{"three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/three/scene.js":[function(require,module,exports){
+var THREE = require('three');
+
+var scene = new THREE.Scene();
+
+module.exports = scene;
+
+},{"three":"/Users/derekhurley/soundscape/node_modules/three/three.js"}],"/Users/derekhurley/soundscape/js/worker.js":[function(require,module,exports){
+var _ = require('underscore');
+var EventEmitter = require('eventemitter2').EventEmitter2;
+
+var Constants = require('./constants');
+var ArtistManager = require('./artists');
+var THREE = require('./lib/HalfEdgeStructure');
+var Utils = require('./three/mesh/utils');
+var Plotter = require('./plotting/worker');
+
+function startWorker() {
+    self.App = {};
+    var geometry = new THREE.SphereGeometry(Constants.globe.radius,
+                                            Constants.globe.widthAndHeight,
+                                            Constants.globe.widthAndHeight);
+    var material = new THREE.MeshLambertMaterial({
+        shading: THREE.FlatShading,
+        side: THREE.DoubleSide,
+        vertexColors: THREE.FaceColors
+    });
+
+    self.App.mesh = new THREE.Mesh(geometry, material);
+    self.App.heds = new THREE.HalfEdgeStructure(self.App.mesh.geometry);
+    self.App.mesh.utils = new Utils(self.App.mesh);
+    self.App.bus = new EventEmitter({ wildcard: true });
+    self.App.artistManager = new ArtistManager();
+    self.App.plotter = new Plotter(self.App.mesh);
+}
+
+onmessage = function(event) {
+    if (!self.App) {
+        startWorker();
+    }
+
+    // expose namespaced method as first arg to callback
+    if (event.data.type.indexOf('.') > -1) {
+        self.App.bus.emit(event.data.type,
+                      event.data.type.split('.')[1],
+                      event.data.payload);
+    } else {
+        self.App.bus.emit(event.data.type, event.data.payload);
+    }
+
+    // TODO: explore transferrable objects for artists
+    self.App.bus.emit('getArtists');
+};
+
+},{"./artists":"/Users/derekhurley/soundscape/js/artists.js","./constants":"/Users/derekhurley/soundscape/js/constants.js","./lib/HalfEdgeStructure":"/Users/derekhurley/soundscape/js/lib/HalfEdgeStructure.js","./plotting/worker":"/Users/derekhurley/soundscape/js/plotting/worker.js","./three/mesh/utils":"/Users/derekhurley/soundscape/js/three/mesh/utils.js","eventemitter2":"/Users/derekhurley/soundscape/node_modules/eventemitter2/lib/eventemitter2.js","underscore":"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js"}],"/Users/derekhurley/soundscape/node_modules/eventemitter2/lib/eventemitter2.js":[function(require,module,exports){
+/*!
+ * EventEmitter2
+ * https://github.com/hij1nx/EventEmitter2
+ *
+ * Copyright (c) 2013 hij1nx
+ * Licensed under the MIT license.
+ */
+;!function(undefined) {
+
+  var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+  };
+  var defaultMaxListeners = 10;
+
+  function init() {
+    this._events = {};
+    if (this._conf) {
+      configure.call(this, this._conf);
+    }
+  }
+
+  function configure(conf) {
+    if (conf) {
+
+      this._conf = conf;
+
+      conf.delimiter && (this.delimiter = conf.delimiter);
+      conf.maxListeners && (this._events.maxListeners = conf.maxListeners);
+      conf.wildcard && (this.wildcard = conf.wildcard);
+      conf.newListener && (this.newListener = conf.newListener);
+
+      if (this.wildcard) {
+        this.listenerTree = {};
+      }
+    }
+  }
+
+  function EventEmitter(conf) {
+    this._events = {};
+    this.newListener = false;
+    configure.call(this, conf);
+  }
+
+  //
+  // Attention, function return type now is array, always !
+  // It has zero elements if no any matches found and one or more
+  // elements (leafs) if there are matches
+  //
+  function searchListenerTree(handlers, type, tree, i) {
+    if (!tree) {
+      return [];
+    }
+    var listeners=[], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached,
+        typeLength = type.length, currentType = type[i], nextType = type[i+1];
+    if (i === typeLength && tree._listeners) {
+      //
+      // If at the end of the event(s) list and the tree has listeners
+      // invoke those listeners.
+      //
+      if (typeof tree._listeners === 'function') {
+        handlers && handlers.push(tree._listeners);
+        return [tree];
+      } else {
+        for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
+          handlers && handlers.push(tree._listeners[leaf]);
+        }
+        return [tree];
+      }
+    }
+
+    if ((currentType === '*' || currentType === '**') || tree[currentType]) {
+      //
+      // If the event emitted is '*' at this part
+      // or there is a concrete match at this patch
+      //
+      if (currentType === '*') {
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+1));
+          }
+        }
+        return listeners;
+      } else if(currentType === '**') {
+        endReached = (i+1 === typeLength || (i+2 === typeLength && nextType === '*'));
+        if(endReached && tree._listeners) {
+          // The next element has a _listeners, add it to the handlers.
+          listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+        }
+
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            if(branch === '*' || branch === '**') {
+              if(tree[branch]._listeners && !endReached) {
+                listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+              }
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            } else if(branch === nextType) {
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+2));
+            } else {
+              // No match on this one, shift into the tree but not in the type array.
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            }
+          }
+        }
+        return listeners;
+      }
+
+      listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i+1));
+    }
+
+    xTree = tree['*'];
+    if (xTree) {
+      //
+      // If the listener tree will allow any match for this part,
+      // then recursively explore all branches of the tree
+      //
+      searchListenerTree(handlers, type, xTree, i+1);
+    }
+
+    xxTree = tree['**'];
+    if(xxTree) {
+      if(i < typeLength) {
+        if(xxTree._listeners) {
+          // If we have a listener on a '**', it will catch all, so add its handler.
+          searchListenerTree(handlers, type, xxTree, typeLength);
+        }
+
+        // Build arrays of matching next branches and others.
+        for(branch in xxTree) {
+          if(branch !== '_listeners' && xxTree.hasOwnProperty(branch)) {
+            if(branch === nextType) {
+              // We know the next element will match, so jump twice.
+              searchListenerTree(handlers, type, xxTree[branch], i+2);
+            } else if(branch === currentType) {
+              // Current node matches, move into the tree.
+              searchListenerTree(handlers, type, xxTree[branch], i+1);
+            } else {
+              isolatedBranch = {};
+              isolatedBranch[branch] = xxTree[branch];
+              searchListenerTree(handlers, type, { '**': isolatedBranch }, i+1);
+            }
+          }
+        }
+      } else if(xxTree._listeners) {
+        // We have reached the end and still on a '**'
+        searchListenerTree(handlers, type, xxTree, typeLength);
+      } else if(xxTree['*'] && xxTree['*']._listeners) {
+        searchListenerTree(handlers, type, xxTree['*'], typeLength);
+      }
+    }
+
+    return listeners;
+  }
+
+  function growListenerTree(type, listener) {
+
+    type = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+
+    //
+    // Looks for two consecutive '**', if so, don't add the event at all.
+    //
+    for(var i = 0, len = type.length; i+1 < len; i++) {
+      if(type[i] === '**' && type[i+1] === '**') {
+        return;
+      }
+    }
+
+    var tree = this.listenerTree;
+    var name = type.shift();
+
+    while (name) {
+
+      if (!tree[name]) {
+        tree[name] = {};
+      }
+
+      tree = tree[name];
+
+      if (type.length === 0) {
+
+        if (!tree._listeners) {
+          tree._listeners = listener;
+        }
+        else if(typeof tree._listeners === 'function') {
+          tree._listeners = [tree._listeners, listener];
+        }
+        else if (isArray(tree._listeners)) {
+
+          tree._listeners.push(listener);
+
+          if (!tree._listeners.warned) {
+
+            var m = defaultMaxListeners;
+
+            if (typeof this._events.maxListeners !== 'undefined') {
+              m = this._events.maxListeners;
+            }
+
+            if (m > 0 && tree._listeners.length > m) {
+
+              tree._listeners.warned = true;
+              console.error('(node) warning: possible EventEmitter memory ' +
+                            'leak detected. %d listeners added. ' +
+                            'Use emitter.setMaxListeners() to increase limit.',
+                            tree._listeners.length);
+              console.trace();
+            }
+          }
+        }
+        return true;
+      }
+      name = type.shift();
+    }
+    return true;
+  }
+
+  // By default EventEmitters will print a warning if more than
+  // 10 listeners are added to it. This is a useful default which
+  // helps finding memory leaks.
+  //
+  // Obviously not all Emitters should be limited to 10. This function allows
+  // that to be increased. Set to zero for unlimited.
+
+  EventEmitter.prototype.delimiter = '.';
+
+  EventEmitter.prototype.setMaxListeners = function(n) {
+    this._events || init.call(this);
+    this._events.maxListeners = n;
+    if (!this._conf) this._conf = {};
+    this._conf.maxListeners = n;
+  };
+
+  EventEmitter.prototype.event = '';
+
+  EventEmitter.prototype.once = function(event, fn) {
+    this.many(event, 1, fn);
+    return this;
+  };
+
+  EventEmitter.prototype.many = function(event, ttl, fn) {
+    var self = this;
+
+    if (typeof fn !== 'function') {
+      throw new Error('many only accepts instances of Function');
+    }
+
+    function listener() {
+      if (--ttl === 0) {
+        self.off(event, listener);
+      }
+      fn.apply(this, arguments);
+    }
+
+    listener._origin = fn;
+
+    this.on(event, listener);
+
+    return self;
+  };
+
+  EventEmitter.prototype.emit = function() {
+
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener' && !this.newListener) {
+      if (!this._events.newListener) { return false; }
+    }
+
+    // Loop through the *_all* functions and invoke them.
+    if (this._all) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+      for (i = 0, l = this._all.length; i < l; i++) {
+        this.event = type;
+        this._all[i].apply(this, args);
+      }
+    }
+
+    // If there is no 'error' event listener then throw.
+    if (type === 'error') {
+
+      if (!this._all &&
+        !this._events.error &&
+        !(this.wildcard && this.listenerTree.error)) {
+
+        if (arguments[1] instanceof Error) {
+          throw arguments[1]; // Unhandled 'error' event
+        } else {
+          throw new Error("Uncaught, unspecified 'error' event.");
+        }
+        return false;
+      }
+    }
+
+    var handler;
+
+    if(this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    }
+    else {
+      handler = this._events[type];
+    }
+
+    if (typeof handler === 'function') {
+      this.event = type;
+      if (arguments.length === 1) {
+        handler.call(this);
+      }
+      else if (arguments.length > 1)
+        switch (arguments.length) {
+          case 2:
+            handler.call(this, arguments[1]);
+            break;
+          case 3:
+            handler.call(this, arguments[1], arguments[2]);
+            break;
+          // slower
+          default:
+            var l = arguments.length;
+            var args = new Array(l - 1);
+            for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+            handler.apply(this, args);
+        }
+      return true;
+    }
+    else if (handler) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+
+      var listeners = handler.slice();
+      for (var i = 0, l = listeners.length; i < l; i++) {
+        this.event = type;
+        listeners[i].apply(this, args);
+      }
+      return (listeners.length > 0) || !!this._all;
+    }
+    else {
+      return !!this._all;
+    }
+
+  };
+
+  EventEmitter.prototype.on = function(type, listener) {
+
+    if (typeof type === 'function') {
+      this.onAny(type);
+      return this;
+    }
+
+    if (typeof listener !== 'function') {
+      throw new Error('on only accepts instances of Function');
+    }
+    this._events || init.call(this);
+
+    // To avoid recursion in the case that type == "newListeners"! Before
+    // adding it to the listeners, first emit "newListeners".
+    this.emit('newListener', type, listener);
+
+    if(this.wildcard) {
+      growListenerTree.call(this, type, listener);
+      return this;
+    }
+
+    if (!this._events[type]) {
+      // Optimize the case of one listener. Don't need the extra array object.
+      this._events[type] = listener;
+    }
+    else if(typeof this._events[type] === 'function') {
+      // Adding the second element, need to change to array.
+      this._events[type] = [this._events[type], listener];
+    }
+    else if (isArray(this._events[type])) {
+      // If we've already got an array, just append.
+      this._events[type].push(listener);
+
+      // Check for listener leak
+      if (!this._events[type].warned) {
+
+        var m = defaultMaxListeners;
+
+        if (typeof this._events.maxListeners !== 'undefined') {
+          m = this._events.maxListeners;
+        }
+
+        if (m > 0 && this._events[type].length > m) {
+
+          this._events[type].warned = true;
+          console.error('(node) warning: possible EventEmitter memory ' +
+                        'leak detected. %d listeners added. ' +
+                        'Use emitter.setMaxListeners() to increase limit.',
+                        this._events[type].length);
+          console.trace();
+        }
+      }
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.onAny = function(fn) {
+
+    if (typeof fn !== 'function') {
+      throw new Error('onAny only accepts instances of Function');
+    }
+
+    if(!this._all) {
+      this._all = [];
+    }
+
+    // Add the function to the event listener collection.
+    this._all.push(fn);
+    return this;
+  };
+
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+  EventEmitter.prototype.off = function(type, listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('removeListener only takes instances of Function');
+    }
+
+    var handlers,leafs=[];
+
+    if(this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+    }
+    else {
+      // does not use listeners(), so no side effect of creating _events[type]
+      if (!this._events[type]) return this;
+      handlers = this._events[type];
+      leafs.push({_listeners:handlers});
+    }
+
+    for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+      var leaf = leafs[iLeaf];
+      handlers = leaf._listeners;
+      if (isArray(handlers)) {
+
+        var position = -1;
+
+        for (var i = 0, length = handlers.length; i < length; i++) {
+          if (handlers[i] === listener ||
+            (handlers[i].listener && handlers[i].listener === listener) ||
+            (handlers[i]._origin && handlers[i]._origin === listener)) {
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0) {
+          continue;
+        }
+
+        if(this.wildcard) {
+          leaf._listeners.splice(position, 1);
+        }
+        else {
+          this._events[type].splice(position, 1);
+        }
+
+        if (handlers.length === 0) {
+          if(this.wildcard) {
+            delete leaf._listeners;
+          }
+          else {
+            delete this._events[type];
+          }
+        }
+        return this;
+      }
+      else if (handlers === listener ||
+        (handlers.listener && handlers.listener === listener) ||
+        (handlers._origin && handlers._origin === listener)) {
+        if(this.wildcard) {
+          delete leaf._listeners;
+        }
+        else {
+          delete this._events[type];
+        }
+      }
+    }
+
+    return this;
+  };
+
+  EventEmitter.prototype.offAny = function(fn) {
+    var i = 0, l = 0, fns;
+    if (fn && this._all && this._all.length > 0) {
+      fns = this._all;
+      for(i = 0, l = fns.length; i < l; i++) {
+        if(fn === fns[i]) {
+          fns.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._all = [];
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
+
+  EventEmitter.prototype.removeAllListeners = function(type) {
+    if (arguments.length === 0) {
+      !this._events || init.call(this);
+      return this;
+    }
+
+    if(this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+
+      for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+        var leaf = leafs[iLeaf];
+        leaf._listeners = null;
+      }
+    }
+    else {
+      if (!this._events[type]) return this;
+      this._events[type] = null;
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.listeners = function(type) {
+    if(this.wildcard) {
+      var handlers = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+      return handlers;
+    }
+
+    this._events || init.call(this);
+
+    if (!this._events[type]) this._events[type] = [];
+    if (!isArray(this._events[type])) {
+      this._events[type] = [this._events[type]];
+    }
+    return this._events[type];
+  };
+
+  EventEmitter.prototype.listenersAny = function() {
+
+    if(this._all) {
+      return this._all;
+    }
+    else {
+      return [];
+    }
+
+  };
+
+  if (typeof define === 'function' && define.amd) {
+     // AMD. Register as an anonymous module.
+    define(function() {
+      return EventEmitter;
+    });
+  } else if (typeof exports === 'object') {
+    // CommonJS
+    exports.EventEmitter2 = EventEmitter;
+  }
+  else {
+    // Browser global.
+    window.EventEmitter2 = EventEmitter;
+  }
+}();
+
+},{}],"/Users/derekhurley/soundscape/node_modules/three/three.js":[function(require,module,exports){
 // File:src/Three.js
 
 /**
@@ -34543,3 +37645,1542 @@ THREE.MorphBlendMesh.prototype.update = function ( delta ) {
 
 };
 
+},{}],"/Users/derekhurley/soundscape/node_modules/underscore/underscore.js":[function(require,module,exports){
+//     Underscore.js 1.8.2
+//     http://underscorejs.org
+//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     Underscore may be freely distributed under the MIT license.
+
+(function() {
+
+  // Baseline setup
+  // --------------
+
+  // Establish the root object, `window` in the browser, or `exports` on the server.
+  var root = this;
+
+  // Save the previous value of the `_` variable.
+  var previousUnderscore = root._;
+
+  // Save bytes in the minified (but not gzipped) version:
+  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+
+  // Create quick reference variables for speed access to core prototypes.
+  var
+    push             = ArrayProto.push,
+    slice            = ArrayProto.slice,
+    toString         = ObjProto.toString,
+    hasOwnProperty   = ObjProto.hasOwnProperty;
+
+  // All **ECMAScript 5** native function implementations that we hope to use
+  // are declared here.
+  var
+    nativeIsArray      = Array.isArray,
+    nativeKeys         = Object.keys,
+    nativeBind         = FuncProto.bind,
+    nativeCreate       = Object.create;
+
+  // Naked function reference for surrogate-prototype-swapping.
+  var Ctor = function(){};
+
+  // Create a safe reference to the Underscore object for use below.
+  var _ = function(obj) {
+    if (obj instanceof _) return obj;
+    if (!(this instanceof _)) return new _(obj);
+    this._wrapped = obj;
+  };
+
+  // Export the Underscore object for **Node.js**, with
+  // backwards-compatibility for the old `require()` API. If we're in
+  // the browser, add `_` as a global object.
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = _;
+    }
+    exports._ = _;
+  } else {
+    root._ = _;
+  }
+
+  // Current version.
+  _.VERSION = '1.8.2';
+
+  // Internal function that returns an efficient (for current engines) version
+  // of the passed-in callback, to be repeatedly applied in other Underscore
+  // functions.
+  var optimizeCb = function(func, context, argCount) {
+    if (context === void 0) return func;
+    switch (argCount == null ? 3 : argCount) {
+      case 1: return function(value) {
+        return func.call(context, value);
+      };
+      case 2: return function(value, other) {
+        return func.call(context, value, other);
+      };
+      case 3: return function(value, index, collection) {
+        return func.call(context, value, index, collection);
+      };
+      case 4: return function(accumulator, value, index, collection) {
+        return func.call(context, accumulator, value, index, collection);
+      };
+    }
+    return function() {
+      return func.apply(context, arguments);
+    };
+  };
+
+  // A mostly-internal function to generate callbacks that can be applied
+  // to each element in a collection, returning the desired result — either
+  // identity, an arbitrary callback, a property matcher, or a property accessor.
+  var cb = function(value, context, argCount) {
+    if (value == null) return _.identity;
+    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
+    if (_.isObject(value)) return _.matcher(value);
+    return _.property(value);
+  };
+  _.iteratee = function(value, context) {
+    return cb(value, context, Infinity);
+  };
+
+  // An internal function for creating assigner functions.
+  var createAssigner = function(keysFunc, undefinedOnly) {
+    return function(obj) {
+      var length = arguments.length;
+      if (length < 2 || obj == null) return obj;
+      for (var index = 1; index < length; index++) {
+        var source = arguments[index],
+            keys = keysFunc(source),
+            l = keys.length;
+        for (var i = 0; i < l; i++) {
+          var key = keys[i];
+          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
+        }
+      }
+      return obj;
+    };
+  };
+
+  // An internal function for creating a new object that inherits from another.
+  var baseCreate = function(prototype) {
+    if (!_.isObject(prototype)) return {};
+    if (nativeCreate) return nativeCreate(prototype);
+    Ctor.prototype = prototype;
+    var result = new Ctor;
+    Ctor.prototype = null;
+    return result;
+  };
+
+  // Helper for collection methods to determine whether a collection
+  // should be iterated as an array or as an object
+  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  var isArrayLike = function(collection) {
+    var length = collection && collection.length;
+    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
+  };
+
+  // Collection Functions
+  // --------------------
+
+  // The cornerstone, an `each` implementation, aka `forEach`.
+  // Handles raw objects in addition to array-likes. Treats all
+  // sparse array-likes as if they were dense.
+  _.each = _.forEach = function(obj, iteratee, context) {
+    iteratee = optimizeCb(iteratee, context);
+    var i, length;
+    if (isArrayLike(obj)) {
+      for (i = 0, length = obj.length; i < length; i++) {
+        iteratee(obj[i], i, obj);
+      }
+    } else {
+      var keys = _.keys(obj);
+      for (i = 0, length = keys.length; i < length; i++) {
+        iteratee(obj[keys[i]], keys[i], obj);
+      }
+    }
+    return obj;
+  };
+
+  // Return the results of applying the iteratee to each element.
+  _.map = _.collect = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length,
+        results = Array(length);
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      results[index] = iteratee(obj[currentKey], currentKey, obj);
+    }
+    return results;
+  };
+
+  // Create a reducing function iterating left or right.
+  function createReduce(dir) {
+    // Optimized iterator function as using arguments.length
+    // in the main function will deoptimize the, see #1991.
+    function iterator(obj, iteratee, memo, keys, index, length) {
+      for (; index >= 0 && index < length; index += dir) {
+        var currentKey = keys ? keys[index] : index;
+        memo = iteratee(memo, obj[currentKey], currentKey, obj);
+      }
+      return memo;
+    }
+
+    return function(obj, iteratee, memo, context) {
+      iteratee = optimizeCb(iteratee, context, 4);
+      var keys = !isArrayLike(obj) && _.keys(obj),
+          length = (keys || obj).length,
+          index = dir > 0 ? 0 : length - 1;
+      // Determine the initial value if none is provided.
+      if (arguments.length < 3) {
+        memo = obj[keys ? keys[index] : index];
+        index += dir;
+      }
+      return iterator(obj, iteratee, memo, keys, index, length);
+    };
+  }
+
+  // **Reduce** builds up a single result from a list of values, aka `inject`,
+  // or `foldl`.
+  _.reduce = _.foldl = _.inject = createReduce(1);
+
+  // The right-associative version of reduce, also known as `foldr`.
+  _.reduceRight = _.foldr = createReduce(-1);
+
+  // Return the first value which passes a truth test. Aliased as `detect`.
+  _.find = _.detect = function(obj, predicate, context) {
+    var key;
+    if (isArrayLike(obj)) {
+      key = _.findIndex(obj, predicate, context);
+    } else {
+      key = _.findKey(obj, predicate, context);
+    }
+    if (key !== void 0 && key !== -1) return obj[key];
+  };
+
+  // Return all the elements that pass a truth test.
+  // Aliased as `select`.
+  _.filter = _.select = function(obj, predicate, context) {
+    var results = [];
+    predicate = cb(predicate, context);
+    _.each(obj, function(value, index, list) {
+      if (predicate(value, index, list)) results.push(value);
+    });
+    return results;
+  };
+
+  // Return all the elements for which a truth test fails.
+  _.reject = function(obj, predicate, context) {
+    return _.filter(obj, _.negate(cb(predicate)), context);
+  };
+
+  // Determine whether all of the elements match a truth test.
+  // Aliased as `all`.
+  _.every = _.all = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      if (!predicate(obj[currentKey], currentKey, obj)) return false;
+    }
+    return true;
+  };
+
+  // Determine if at least one element in the object matches a truth test.
+  // Aliased as `any`.
+  _.some = _.any = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      if (predicate(obj[currentKey], currentKey, obj)) return true;
+    }
+    return false;
+  };
+
+  // Determine if the array or object contains a given value (using `===`).
+  // Aliased as `includes` and `include`.
+  _.contains = _.includes = _.include = function(obj, target, fromIndex) {
+    if (!isArrayLike(obj)) obj = _.values(obj);
+    return _.indexOf(obj, target, typeof fromIndex == 'number' && fromIndex) >= 0;
+  };
+
+  // Invoke a method (with arguments) on every item in a collection.
+  _.invoke = function(obj, method) {
+    var args = slice.call(arguments, 2);
+    var isFunc = _.isFunction(method);
+    return _.map(obj, function(value) {
+      var func = isFunc ? method : value[method];
+      return func == null ? func : func.apply(value, args);
+    });
+  };
+
+  // Convenience version of a common use case of `map`: fetching a property.
+  _.pluck = function(obj, key) {
+    return _.map(obj, _.property(key));
+  };
+
+  // Convenience version of a common use case of `filter`: selecting only objects
+  // containing specific `key:value` pairs.
+  _.where = function(obj, attrs) {
+    return _.filter(obj, _.matcher(attrs));
+  };
+
+  // Convenience version of a common use case of `find`: getting the first object
+  // containing specific `key:value` pairs.
+  _.findWhere = function(obj, attrs) {
+    return _.find(obj, _.matcher(attrs));
+  };
+
+  // Return the maximum element (or element-based computation).
+  _.max = function(obj, iteratee, context) {
+    var result = -Infinity, lastComputed = -Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = isArrayLike(obj) ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value > result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
+    }
+    return result;
+  };
+
+  // Return the minimum element (or element-based computation).
+  _.min = function(obj, iteratee, context) {
+    var result = Infinity, lastComputed = Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = isArrayLike(obj) ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value < result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed < lastComputed || computed === Infinity && result === Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
+    }
+    return result;
+  };
+
+  // Shuffle a collection, using the modern version of the
+  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+  _.shuffle = function(obj) {
+    var set = isArrayLike(obj) ? obj : _.values(obj);
+    var length = set.length;
+    var shuffled = Array(length);
+    for (var index = 0, rand; index < length; index++) {
+      rand = _.random(0, index);
+      if (rand !== index) shuffled[index] = shuffled[rand];
+      shuffled[rand] = set[index];
+    }
+    return shuffled;
+  };
+
+  // Sample **n** random values from a collection.
+  // If **n** is not specified, returns a single random element.
+  // The internal `guard` argument allows it to work with `map`.
+  _.sample = function(obj, n, guard) {
+    if (n == null || guard) {
+      if (!isArrayLike(obj)) obj = _.values(obj);
+      return obj[_.random(obj.length - 1)];
+    }
+    return _.shuffle(obj).slice(0, Math.max(0, n));
+  };
+
+  // Sort the object's values by a criterion produced by an iteratee.
+  _.sortBy = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    return _.pluck(_.map(obj, function(value, index, list) {
+      return {
+        value: value,
+        index: index,
+        criteria: iteratee(value, index, list)
+      };
+    }).sort(function(left, right) {
+      var a = left.criteria;
+      var b = right.criteria;
+      if (a !== b) {
+        if (a > b || a === void 0) return 1;
+        if (a < b || b === void 0) return -1;
+      }
+      return left.index - right.index;
+    }), 'value');
+  };
+
+  // An internal function used for aggregate "group by" operations.
+  var group = function(behavior) {
+    return function(obj, iteratee, context) {
+      var result = {};
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index) {
+        var key = iteratee(value, index, obj);
+        behavior(result, value, key);
+      });
+      return result;
+    };
+  };
+
+  // Groups the object's values by a criterion. Pass either a string attribute
+  // to group by, or a function that returns the criterion.
+  _.groupBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
+  });
+
+  // Indexes the object's values by a criterion, similar to `groupBy`, but for
+  // when you know that your index values will be unique.
+  _.indexBy = group(function(result, value, key) {
+    result[key] = value;
+  });
+
+  // Counts instances of an object that group by a certain criterion. Pass
+  // either a string attribute to count by, or a function that returns the
+  // criterion.
+  _.countBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key]++; else result[key] = 1;
+  });
+
+  // Safely create a real, live array from anything iterable.
+  _.toArray = function(obj) {
+    if (!obj) return [];
+    if (_.isArray(obj)) return slice.call(obj);
+    if (isArrayLike(obj)) return _.map(obj, _.identity);
+    return _.values(obj);
+  };
+
+  // Return the number of elements in an object.
+  _.size = function(obj) {
+    if (obj == null) return 0;
+    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
+  };
+
+  // Split a collection into two arrays: one whose elements all satisfy the given
+  // predicate, and one whose elements all do not satisfy the predicate.
+  _.partition = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var pass = [], fail = [];
+    _.each(obj, function(value, key, obj) {
+      (predicate(value, key, obj) ? pass : fail).push(value);
+    });
+    return [pass, fail];
+  };
+
+  // Array Functions
+  // ---------------
+
+  // Get the first element of an array. Passing **n** will return the first N
+  // values in the array. Aliased as `head` and `take`. The **guard** check
+  // allows it to work with `_.map`.
+  _.first = _.head = _.take = function(array, n, guard) {
+    if (array == null) return void 0;
+    if (n == null || guard) return array[0];
+    return _.initial(array, array.length - n);
+  };
+
+  // Returns everything but the last entry of the array. Especially useful on
+  // the arguments object. Passing **n** will return all the values in
+  // the array, excluding the last N.
+  _.initial = function(array, n, guard) {
+    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
+  };
+
+  // Get the last element of an array. Passing **n** will return the last N
+  // values in the array.
+  _.last = function(array, n, guard) {
+    if (array == null) return void 0;
+    if (n == null || guard) return array[array.length - 1];
+    return _.rest(array, Math.max(0, array.length - n));
+  };
+
+  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+  // Especially useful on the arguments object. Passing an **n** will return
+  // the rest N values in the array.
+  _.rest = _.tail = _.drop = function(array, n, guard) {
+    return slice.call(array, n == null || guard ? 1 : n);
+  };
+
+  // Trim out all falsy values from an array.
+  _.compact = function(array) {
+    return _.filter(array, _.identity);
+  };
+
+  // Internal implementation of a recursive `flatten` function.
+  var flatten = function(input, shallow, strict, startIndex) {
+    var output = [], idx = 0;
+    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
+      var value = input[i];
+      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+        //flatten current level of array or arguments object
+        if (!shallow) value = flatten(value, shallow, strict);
+        var j = 0, len = value.length;
+        output.length += len;
+        while (j < len) {
+          output[idx++] = value[j++];
+        }
+      } else if (!strict) {
+        output[idx++] = value;
+      }
+    }
+    return output;
+  };
+
+  // Flatten out an array, either recursively (by default), or just one level.
+  _.flatten = function(array, shallow) {
+    return flatten(array, shallow, false);
+  };
+
+  // Return a version of the array that does not contain the specified value(s).
+  _.without = function(array) {
+    return _.difference(array, slice.call(arguments, 1));
+  };
+
+  // Produce a duplicate-free version of the array. If the array has already
+  // been sorted, you have the option of using a faster algorithm.
+  // Aliased as `unique`.
+  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+    if (array == null) return [];
+    if (!_.isBoolean(isSorted)) {
+      context = iteratee;
+      iteratee = isSorted;
+      isSorted = false;
+    }
+    if (iteratee != null) iteratee = cb(iteratee, context);
+    var result = [];
+    var seen = [];
+    for (var i = 0, length = array.length; i < length; i++) {
+      var value = array[i],
+          computed = iteratee ? iteratee(value, i, array) : value;
+      if (isSorted) {
+        if (!i || seen !== computed) result.push(value);
+        seen = computed;
+      } else if (iteratee) {
+        if (!_.contains(seen, computed)) {
+          seen.push(computed);
+          result.push(value);
+        }
+      } else if (!_.contains(result, value)) {
+        result.push(value);
+      }
+    }
+    return result;
+  };
+
+  // Produce an array that contains the union: each distinct element from all of
+  // the passed-in arrays.
+  _.union = function() {
+    return _.uniq(flatten(arguments, true, true));
+  };
+
+  // Produce an array that contains every item shared between all the
+  // passed-in arrays.
+  _.intersection = function(array) {
+    if (array == null) return [];
+    var result = [];
+    var argsLength = arguments.length;
+    for (var i = 0, length = array.length; i < length; i++) {
+      var item = array[i];
+      if (_.contains(result, item)) continue;
+      for (var j = 1; j < argsLength; j++) {
+        if (!_.contains(arguments[j], item)) break;
+      }
+      if (j === argsLength) result.push(item);
+    }
+    return result;
+  };
+
+  // Take the difference between one array and a number of other arrays.
+  // Only the elements present in just the first array will remain.
+  _.difference = function(array) {
+    var rest = flatten(arguments, true, true, 1);
+    return _.filter(array, function(value){
+      return !_.contains(rest, value);
+    });
+  };
+
+  // Zip together multiple lists into a single array -- elements that share
+  // an index go together.
+  _.zip = function() {
+    return _.unzip(arguments);
+  };
+
+  // Complement of _.zip. Unzip accepts an array of arrays and groups
+  // each array's elements on shared indices
+  _.unzip = function(array) {
+    var length = array && _.max(array, 'length').length || 0;
+    var result = Array(length);
+
+    for (var index = 0; index < length; index++) {
+      result[index] = _.pluck(array, index);
+    }
+    return result;
+  };
+
+  // Converts lists into objects. Pass either a single array of `[key, value]`
+  // pairs, or two parallel arrays of the same length -- one of keys, and one of
+  // the corresponding values.
+  _.object = function(list, values) {
+    var result = {};
+    for (var i = 0, length = list && list.length; i < length; i++) {
+      if (values) {
+        result[list[i]] = values[i];
+      } else {
+        result[list[i][0]] = list[i][1];
+      }
+    }
+    return result;
+  };
+
+  // Return the position of the first occurrence of an item in an array,
+  // or -1 if the item is not included in the array.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    var i = 0, length = array && array.length;
+    if (typeof isSorted == 'number') {
+      i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
+    } else if (isSorted && length) {
+      i = _.sortedIndex(array, item);
+      return array[i] === item ? i : -1;
+    }
+    if (item !== item) {
+      return _.findIndex(slice.call(array, i), _.isNaN);
+    }
+    for (; i < length; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  _.lastIndexOf = function(array, item, from) {
+    var idx = array ? array.length : 0;
+    if (typeof from == 'number') {
+      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
+    }
+    if (item !== item) {
+      return _.findLastIndex(slice.call(array, 0, idx), _.isNaN);
+    }
+    while (--idx >= 0) if (array[idx] === item) return idx;
+    return -1;
+  };
+
+  // Generator function to create the findIndex and findLastIndex functions
+  function createIndexFinder(dir) {
+    return function(array, predicate, context) {
+      predicate = cb(predicate, context);
+      var length = array != null && array.length;
+      var index = dir > 0 ? 0 : length - 1;
+      for (; index >= 0 && index < length; index += dir) {
+        if (predicate(array[index], index, array)) return index;
+      }
+      return -1;
+    };
+  }
+
+  // Returns the first index on an array-like that passes a predicate test
+  _.findIndex = createIndexFinder(1);
+
+  _.findLastIndex = createIndexFinder(-1);
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iteratee, context) {
+    iteratee = cb(iteratee, context, 1);
+    var value = iteratee(obj);
+    var low = 0, high = array.length;
+    while (low < high) {
+      var mid = Math.floor((low + high) / 2);
+      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
+    }
+    return low;
+  };
+
+  // Generate an integer Array containing an arithmetic progression. A port of
+  // the native Python `range()` function. See
+  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+  _.range = function(start, stop, step) {
+    if (arguments.length <= 1) {
+      stop = start || 0;
+      start = 0;
+    }
+    step = step || 1;
+
+    var length = Math.max(Math.ceil((stop - start) / step), 0);
+    var range = Array(length);
+
+    for (var idx = 0; idx < length; idx++, start += step) {
+      range[idx] = start;
+    }
+
+    return range;
+  };
+
+  // Function (ahem) Functions
+  // ------------------
+
+  // Determines whether to execute a function as a constructor
+  // or a normal function with the provided arguments
+  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
+    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
+    var self = baseCreate(sourceFunc.prototype);
+    var result = sourceFunc.apply(self, args);
+    if (_.isObject(result)) return result;
+    return self;
+  };
+
+  // Create a function bound to a given object (assigning `this`, and arguments,
+  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+  // available.
+  _.bind = function(func, context) {
+    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
+    var args = slice.call(arguments, 2);
+    var bound = function() {
+      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
+    };
+    return bound;
+  };
+
+  // Partially apply a function by creating a version that has had some of its
+  // arguments pre-filled, without changing its dynamic `this` context. _ acts
+  // as a placeholder, allowing any combination of arguments to be pre-filled.
+  _.partial = function(func) {
+    var boundArgs = slice.call(arguments, 1);
+    var bound = function() {
+      var position = 0, length = boundArgs.length;
+      var args = Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
+      }
+      while (position < arguments.length) args.push(arguments[position++]);
+      return executeBound(func, bound, this, this, args);
+    };
+    return bound;
+  };
+
+  // Bind a number of an object's methods to that object. Remaining arguments
+  // are the method names to be bound. Useful for ensuring that all callbacks
+  // defined on an object belong to it.
+  _.bindAll = function(obj) {
+    var i, length = arguments.length, key;
+    if (length <= 1) throw new Error('bindAll must be passed function names');
+    for (i = 1; i < length; i++) {
+      key = arguments[i];
+      obj[key] = _.bind(obj[key], obj);
+    }
+    return obj;
+  };
+
+  // Memoize an expensive function by storing its results.
+  _.memoize = function(func, hasher) {
+    var memoize = function(key) {
+      var cache = memoize.cache;
+      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
+      return cache[address];
+    };
+    memoize.cache = {};
+    return memoize;
+  };
+
+  // Delays a function for the given number of milliseconds, and then calls
+  // it with the arguments supplied.
+  _.delay = function(func, wait) {
+    var args = slice.call(arguments, 2);
+    return setTimeout(function(){
+      return func.apply(null, args);
+    }, wait);
+  };
+
+  // Defers a function, scheduling it to run after the current call stack has
+  // cleared.
+  _.defer = _.partial(_.delay, _, 1);
+
+  // Returns a function, that, when invoked, will only be triggered at most once
+  // during a given window of time. Normally, the throttled function will run
+  // as much as it can, without ever going more than once per `wait` duration;
+  // but if you'd like to disable the execution on the leading edge, pass
+  // `{leading: false}`. To disable execution on the trailing edge, ditto.
+  _.throttle = function(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    if (!options) options = {};
+    var later = function() {
+      previous = options.leading === false ? 0 : _.now();
+      timeout = null;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    };
+    return function() {
+      var now = _.now();
+      if (!previous && options.leading === false) previous = now;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+  };
+
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  _.debounce = function(func, wait, immediate) {
+    var timeout, args, context, timestamp, result;
+
+    var later = function() {
+      var last = _.now() - timestamp;
+
+      if (last < wait && last >= 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) context = args = null;
+        }
+      }
+    };
+
+    return function() {
+      context = this;
+      args = arguments;
+      timestamp = _.now();
+      var callNow = immediate && !timeout;
+      if (!timeout) timeout = setTimeout(later, wait);
+      if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
+    };
+  };
+
+  // Returns the first function passed as an argument to the second,
+  // allowing you to adjust arguments, run code before and after, and
+  // conditionally execute the original function.
+  _.wrap = function(func, wrapper) {
+    return _.partial(wrapper, func);
+  };
+
+  // Returns a negated version of the passed-in predicate.
+  _.negate = function(predicate) {
+    return function() {
+      return !predicate.apply(this, arguments);
+    };
+  };
+
+  // Returns a function that is the composition of a list of functions, each
+  // consuming the return value of the function that follows.
+  _.compose = function() {
+    var args = arguments;
+    var start = args.length - 1;
+    return function() {
+      var i = start;
+      var result = args[start].apply(this, arguments);
+      while (i--) result = args[i].call(this, result);
+      return result;
+    };
+  };
+
+  // Returns a function that will only be executed on and after the Nth call.
+  _.after = function(times, func) {
+    return function() {
+      if (--times < 1) {
+        return func.apply(this, arguments);
+      }
+    };
+  };
+
+  // Returns a function that will only be executed up to (but not including) the Nth call.
+  _.before = function(times, func) {
+    var memo;
+    return function() {
+      if (--times > 0) {
+        memo = func.apply(this, arguments);
+      }
+      if (times <= 1) func = null;
+      return memo;
+    };
+  };
+
+  // Returns a function that will be executed at most one time, no matter how
+  // often you call it. Useful for lazy initialization.
+  _.once = _.partial(_.before, 2);
+
+  // Object Functions
+  // ----------------
+
+  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
+  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
+                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+
+  function collectNonEnumProps(obj, keys) {
+    var nonEnumIdx = nonEnumerableProps.length;
+    var constructor = obj.constructor;
+    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+
+    // Constructor is a special case.
+    var prop = 'constructor';
+    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+
+    while (nonEnumIdx--) {
+      prop = nonEnumerableProps[nonEnumIdx];
+      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+        keys.push(prop);
+      }
+    }
+  }
+
+  // Retrieve the names of an object's own properties.
+  // Delegates to **ECMAScript 5**'s native `Object.keys`
+  _.keys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    if (nativeKeys) return nativeKeys(obj);
+    var keys = [];
+    for (var key in obj) if (_.has(obj, key)) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
+    return keys;
+  };
+
+  // Retrieve all the property names of an object.
+  _.allKeys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
+    return keys;
+  };
+
+  // Retrieve the values of an object's properties.
+  _.values = function(obj) {
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var values = Array(length);
+    for (var i = 0; i < length; i++) {
+      values[i] = obj[keys[i]];
+    }
+    return values;
+  };
+
+  // Returns the results of applying the iteratee to each element of the object
+  // In contrast to _.map it returns an object
+  _.mapObject = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys =  _.keys(obj),
+          length = keys.length,
+          results = {},
+          currentKey;
+      for (var index = 0; index < length; index++) {
+        currentKey = keys[index];
+        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+      }
+      return results;
+  };
+
+  // Convert an object into a list of `[key, value]` pairs.
+  _.pairs = function(obj) {
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var pairs = Array(length);
+    for (var i = 0; i < length; i++) {
+      pairs[i] = [keys[i], obj[keys[i]]];
+    }
+    return pairs;
+  };
+
+  // Invert the keys and values of an object. The values must be serializable.
+  _.invert = function(obj) {
+    var result = {};
+    var keys = _.keys(obj);
+    for (var i = 0, length = keys.length; i < length; i++) {
+      result[obj[keys[i]]] = keys[i];
+    }
+    return result;
+  };
+
+  // Return a sorted list of the function names available on the object.
+  // Aliased as `methods`
+  _.functions = _.methods = function(obj) {
+    var names = [];
+    for (var key in obj) {
+      if (_.isFunction(obj[key])) names.push(key);
+    }
+    return names.sort();
+  };
+
+  // Extend a given object with all the properties in passed-in object(s).
+  _.extend = createAssigner(_.allKeys);
+
+  // Assigns a given object with all the own properties in the passed-in object(s)
+  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+  _.extendOwn = _.assign = createAssigner(_.keys);
+
+  // Returns the first key on an object that passes a predicate test
+  _.findKey = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = _.keys(obj), key;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      key = keys[i];
+      if (predicate(obj[key], key, obj)) return key;
+    }
+  };
+
+  // Return a copy of the object only containing the whitelisted properties.
+  _.pick = function(object, oiteratee, context) {
+    var result = {}, obj = object, iteratee, keys;
+    if (obj == null) return result;
+    if (_.isFunction(oiteratee)) {
+      keys = _.allKeys(obj);
+      iteratee = optimizeCb(oiteratee, context);
+    } else {
+      keys = flatten(arguments, false, false, 1);
+      iteratee = function(value, key, obj) { return key in obj; };
+      obj = Object(obj);
+    }
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var key = keys[i];
+      var value = obj[key];
+      if (iteratee(value, key, obj)) result[key] = value;
+    }
+    return result;
+  };
+
+   // Return a copy of the object without the blacklisted properties.
+  _.omit = function(obj, iteratee, context) {
+    if (_.isFunction(iteratee)) {
+      iteratee = _.negate(iteratee);
+    } else {
+      var keys = _.map(flatten(arguments, false, false, 1), String);
+      iteratee = function(value, key) {
+        return !_.contains(keys, key);
+      };
+    }
+    return _.pick(obj, iteratee, context);
+  };
+
+  // Fill in a given object with default properties.
+  _.defaults = createAssigner(_.allKeys, true);
+
+  // Create a (shallow-cloned) duplicate of an object.
+  _.clone = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+  };
+
+  // Invokes interceptor with the obj, and then returns obj.
+  // The primary purpose of this method is to "tap into" a method chain, in
+  // order to perform operations on intermediate results within the chain.
+  _.tap = function(obj, interceptor) {
+    interceptor(obj);
+    return obj;
+  };
+
+  // Returns whether an object has a given set of `key:value` pairs.
+  _.isMatch = function(object, attrs) {
+    var keys = _.keys(attrs), length = keys.length;
+    if (object == null) return !length;
+    var obj = Object(object);
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (attrs[key] !== obj[key] || !(key in obj)) return false;
+    }
+    return true;
+  };
+
+
+  // Internal recursive comparison function for `isEqual`.
+  var eq = function(a, b, aStack, bStack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+    if (a === b) return a !== 0 || 1 / a === 1 / b;
+    // A strict comparison is necessary because `null == undefined`.
+    if (a == null || b == null) return a === b;
+    // Unwrap any wrapped objects.
+    if (a instanceof _) a = a._wrapped;
+    if (b instanceof _) b = b._wrapped;
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className !== toString.call(b)) return false;
+    switch (className) {
+      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+      case '[object RegExp]':
+      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+      case '[object String]':
+        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+        // equivalent to `new String("5")`.
+        return '' + a === '' + b;
+      case '[object Number]':
+        // `NaN`s are equivalent, but non-reflexive.
+        // Object(NaN) is equivalent to NaN
+        if (+a !== +a) return +b !== +b;
+        // An `egal` comparison is performed for other numeric values.
+        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+      case '[object Date]':
+      case '[object Boolean]':
+        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+        // millisecond representations. Note that invalid dates with millisecond representations
+        // of `NaN` are not equivalent.
+        return +a === +b;
+    }
+
+    var areArrays = className === '[object Array]';
+    if (!areArrays) {
+      if (typeof a != 'object' || typeof b != 'object') return false;
+
+      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
+                               _.isFunction(bCtor) && bCtor instanceof bCtor)
+                          && ('constructor' in a && 'constructor' in b)) {
+        return false;
+      }
+    }
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    
+    // Initializing stack of traversed objects.
+    // It's done here since we only need them for objects and arrays comparison.
+    aStack = aStack || [];
+    bStack = bStack || [];
+    var length = aStack.length;
+    while (length--) {
+      // Linear search. Performance is inversely proportional to the number of
+      // unique nested structures.
+      if (aStack[length] === a) return bStack[length] === b;
+    }
+
+    // Add the first object to the stack of traversed objects.
+    aStack.push(a);
+    bStack.push(b);
+
+    // Recursively compare objects and arrays.
+    if (areArrays) {
+      // Compare array lengths to determine if a deep comparison is necessary.
+      length = a.length;
+      if (length !== b.length) return false;
+      // Deep compare the contents, ignoring non-numeric properties.
+      while (length--) {
+        if (!eq(a[length], b[length], aStack, bStack)) return false;
+      }
+    } else {
+      // Deep compare objects.
+      var keys = _.keys(a), key;
+      length = keys.length;
+      // Ensure that both objects contain the same number of properties before comparing deep equality.
+      if (_.keys(b).length !== length) return false;
+      while (length--) {
+        // Deep compare each member
+        key = keys[length];
+        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
+      }
+    }
+    // Remove the first object from the stack of traversed objects.
+    aStack.pop();
+    bStack.pop();
+    return true;
+  };
+
+  // Perform a deep comparison to check if two objects are equal.
+  _.isEqual = function(a, b) {
+    return eq(a, b);
+  };
+
+  // Is a given array, string, or object empty?
+  // An "empty" object has no enumerable own-properties.
+  _.isEmpty = function(obj) {
+    if (obj == null) return true;
+    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
+    return _.keys(obj).length === 0;
+  };
+
+  // Is a given value a DOM element?
+  _.isElement = function(obj) {
+    return !!(obj && obj.nodeType === 1);
+  };
+
+  // Is a given value an array?
+  // Delegates to ECMA5's native Array.isArray
+  _.isArray = nativeIsArray || function(obj) {
+    return toString.call(obj) === '[object Array]';
+  };
+
+  // Is a given variable an object?
+  _.isObject = function(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
+  };
+
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
+  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
+    _['is' + name] = function(obj) {
+      return toString.call(obj) === '[object ' + name + ']';
+    };
+  });
+
+  // Define a fallback version of the method in browsers (ahem, IE < 9), where
+  // there isn't any inspectable "Arguments" type.
+  if (!_.isArguments(arguments)) {
+    _.isArguments = function(obj) {
+      return _.has(obj, 'callee');
+    };
+  }
+
+  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
+  // IE 11 (#1621), and in Safari 8 (#1929).
+  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
+    _.isFunction = function(obj) {
+      return typeof obj == 'function' || false;
+    };
+  }
+
+  // Is a given object a finite number?
+  _.isFinite = function(obj) {
+    return isFinite(obj) && !isNaN(parseFloat(obj));
+  };
+
+  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+  _.isNaN = function(obj) {
+    return _.isNumber(obj) && obj !== +obj;
+  };
+
+  // Is a given value a boolean?
+  _.isBoolean = function(obj) {
+    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
+  };
+
+  // Is a given value equal to null?
+  _.isNull = function(obj) {
+    return obj === null;
+  };
+
+  // Is a given variable undefined?
+  _.isUndefined = function(obj) {
+    return obj === void 0;
+  };
+
+  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  _.has = function(obj, key) {
+    return obj != null && hasOwnProperty.call(obj, key);
+  };
+
+  // Utility Functions
+  // -----------------
+
+  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+  // previous owner. Returns a reference to the Underscore object.
+  _.noConflict = function() {
+    root._ = previousUnderscore;
+    return this;
+  };
+
+  // Keep the identity function around for default iteratees.
+  _.identity = function(value) {
+    return value;
+  };
+
+  // Predicate-generating functions. Often useful outside of Underscore.
+  _.constant = function(value) {
+    return function() {
+      return value;
+    };
+  };
+
+  _.noop = function(){};
+
+  _.property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
+
+  // Generates a function for a given object that returns a given property.
+  _.propertyOf = function(obj) {
+    return obj == null ? function(){} : function(key) {
+      return obj[key];
+    };
+  };
+
+  // Returns a predicate for checking whether an object has a given set of 
+  // `key:value` pairs.
+  _.matcher = _.matches = function(attrs) {
+    attrs = _.extendOwn({}, attrs);
+    return function(obj) {
+      return _.isMatch(obj, attrs);
+    };
+  };
+
+  // Run a function **n** times.
+  _.times = function(n, iteratee, context) {
+    var accum = Array(Math.max(0, n));
+    iteratee = optimizeCb(iteratee, context, 1);
+    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
+    return accum;
+  };
+
+  // Return a random integer between min and max (inclusive).
+  _.random = function(min, max) {
+    if (max == null) {
+      max = min;
+      min = 0;
+    }
+    return min + Math.floor(Math.random() * (max - min + 1));
+  };
+
+  // A (possibly faster) way to get the current timestamp as an integer.
+  _.now = Date.now || function() {
+    return new Date().getTime();
+  };
+
+   // List of HTML entities for escaping.
+  var escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '`': '&#x60;'
+  };
+  var unescapeMap = _.invert(escapeMap);
+
+  // Functions for escaping and unescaping strings to/from HTML interpolation.
+  var createEscaper = function(map) {
+    var escaper = function(match) {
+      return map[match];
+    };
+    // Regexes for identifying a key that needs to be escaped
+    var source = '(?:' + _.keys(map).join('|') + ')';
+    var testRegexp = RegExp(source);
+    var replaceRegexp = RegExp(source, 'g');
+    return function(string) {
+      string = string == null ? '' : '' + string;
+      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+    };
+  };
+  _.escape = createEscaper(escapeMap);
+  _.unescape = createEscaper(unescapeMap);
+
+  // If the value of the named `property` is a function then invoke it with the
+  // `object` as context; otherwise, return it.
+  _.result = function(object, property, fallback) {
+    var value = object == null ? void 0 : object[property];
+    if (value === void 0) {
+      value = fallback;
+    }
+    return _.isFunction(value) ? value.call(object) : value;
+  };
+
+  // Generate a unique integer id (unique within the entire client session).
+  // Useful for temporary DOM ids.
+  var idCounter = 0;
+  _.uniqueId = function(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  };
+
+  // By default, Underscore uses ERB-style template delimiters, change the
+  // following template settings to use alternative delimiters.
+  _.templateSettings = {
+    evaluate    : /<%([\s\S]+?)%>/g,
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
+  };
+
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  var noMatch = /(.)^/;
+
+  // Certain characters need to be escaped so that they can be put into a
+  // string literal.
+  var escapes = {
+    "'":      "'",
+    '\\':     '\\',
+    '\r':     'r',
+    '\n':     'n',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
+
+  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
+
+  var escapeChar = function(match) {
+    return '\\' + escapes[match];
+  };
+
+  // JavaScript micro-templating, similar to John Resig's implementation.
+  // Underscore templating handles arbitrary delimiters, preserves whitespace,
+  // and correctly escapes quotes within interpolated code.
+  // NB: `oldSettings` only exists for backwards compatibility.
+  _.template = function(text, settings, oldSettings) {
+    if (!settings && oldSettings) settings = oldSettings;
+    settings = _.defaults({}, settings, _.templateSettings);
+
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
+
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset).replace(escaper, escapeChar);
+      index = offset + match.length;
+
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      } else if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      } else if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+
+      // Adobe VMs need the match returned to produce the correct offest.
+      return match;
+    });
+    source += "';\n";
+
+    // If a variable is not specified, place data values in local scope.
+    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + 'return __p;\n';
+
+    try {
+      var render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      e.source = source;
+      throw e;
+    }
+
+    var template = function(data) {
+      return render.call(this, data, _);
+    };
+
+    // Provide the compiled source as a convenience for precompilation.
+    var argument = settings.variable || 'obj';
+    template.source = 'function(' + argument + '){\n' + source + '}';
+
+    return template;
+  };
+
+  // Add a "chain" function. Start chaining a wrapped Underscore object.
+  _.chain = function(obj) {
+    var instance = _(obj);
+    instance._chain = true;
+    return instance;
+  };
+
+  // OOP
+  // ---------------
+  // If Underscore is called as a function, it returns a wrapped object that
+  // can be used OO-style. This wrapper holds altered versions of all the
+  // underscore functions. Wrapped objects may be chained.
+
+  // Helper function to continue chaining intermediate results.
+  var result = function(instance, obj) {
+    return instance._chain ? _(obj).chain() : obj;
+  };
+
+  // Add your own custom functions to the Underscore object.
+  _.mixin = function(obj) {
+    _.each(_.functions(obj), function(name) {
+      var func = _[name] = obj[name];
+      _.prototype[name] = function() {
+        var args = [this._wrapped];
+        push.apply(args, arguments);
+        return result(this, func.apply(_, args));
+      };
+    });
+  };
+
+  // Add all of the Underscore functions to the wrapper object.
+  _.mixin(_);
+
+  // Add all mutator Array functions to the wrapper.
+  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      var obj = this._wrapped;
+      method.apply(obj, arguments);
+      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
+      return result(this, obj);
+    };
+  });
+
+  // Add all accessor Array functions to the wrapper.
+  _.each(['concat', 'join', 'slice'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      return result(this, method.apply(this._wrapped, arguments));
+    };
+  });
+
+  // Extracts the result from a wrapped and chained object.
+  _.prototype.value = function() {
+    return this._wrapped;
+  };
+
+  // Provide unwrapping proxy for some methods used in engine operations
+  // such as arithmetic and JSON stringification.
+  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
+  
+  _.prototype.toString = function() {
+    return '' + this._wrapped;
+  };
+
+  // AMD registration happens at the end for compatibility with AMD loaders
+  // that may not enforce next-turn semantics on modules. Even though general
+  // practice for AMD registration is to be anonymous, underscore registers
+  // as a named module because, like jQuery, it is a base library that is
+  // popular enough to be bundled in a third party lib, but not be part of
+  // an AMD load request. Those cases could generate an error when an
+  // anonymous define() is called outside of a loader request.
+  if (typeof define === 'function' && define.amd) {
+    define('underscore', [], function() {
+      return _;
+    });
+  }
+}.call(this));
+
+},{}]},{},["/Users/derekhurley/soundscape/js/app.js","/Users/derekhurley/soundscape/js/artists.js","/Users/derekhurley/soundscape/js/constants.js","/Users/derekhurley/soundscape/js/dispatch.js","/Users/derekhurley/soundscape/js/helpers.js","/Users/derekhurley/soundscape/js/hud.js","/Users/derekhurley/soundscape/js/lib/FlyControls.js","/Users/derekhurley/soundscape/js/lib/HalfEdgeStructure.js","/Users/derekhurley/soundscape/js/lib/OrbitControls.js","/Users/derekhurley/soundscape/js/main.js","/Users/derekhurley/soundscape/js/plotting/faces.js","/Users/derekhurley/soundscape/js/plotting/looper.js","/Users/derekhurley/soundscape/js/plotting/seeder.js","/Users/derekhurley/soundscape/js/plotting/worker.js","/Users/derekhurley/soundscape/js/sources/last.js","/Users/derekhurley/soundscape/js/sources/main.js","/Users/derekhurley/soundscape/js/three/camera.js","/Users/derekhurley/soundscape/js/three/controls.js","/Users/derekhurley/soundscape/js/three/light.js","/Users/derekhurley/soundscape/js/three/main.js","/Users/derekhurley/soundscape/js/three/mesh/main.js","/Users/derekhurley/soundscape/js/three/mesh/utils.js","/Users/derekhurley/soundscape/js/three/renderer.js","/Users/derekhurley/soundscape/js/three/scene.js","/Users/derekhurley/soundscape/js/worker.js"]);

@@ -21,6 +21,8 @@
 //      controls.target.z = 150;
 // Simple substitute "OrbitControls" and the control should work as-is.
 
+var THREE = require('three');
+
 THREE.OrbitControls = function ( object, domElement ) {
 
 	this.object = object;
@@ -581,3 +583,5 @@ THREE.OrbitControls = function ( object, domElement ) {
 };
 
 THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+
+module.exports = THREE;

@@ -1,5 +1,5 @@
 // used on both app and worker side to create some sense of coherence
-define({
+var constants = {
     globe: {
         radius: 50,
         widthAndHeight: 50
@@ -32,4 +32,6 @@ define({
             return Math.random() * 0.5;
         }
     }
-});
+};
+
+module.exports = constants;

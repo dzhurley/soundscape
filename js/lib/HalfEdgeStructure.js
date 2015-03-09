@@ -3,11 +3,15 @@
  *
  * An implementation of a Half-Edge Data Structure for Three.js geometries.
  *
+ * TODO: remove dependency on browserify
+ *
  * For more information on this structure:
  * http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml
  */
 
-THREE.HalfEdgeStructure = function(geometry) {
+var THREE = require('three');
+
+var HalfEdgeStructure = function(geometry) {
     if (geometry instanceof THREE.Geometry === false) {
         console.error('geometry not an instance of THREE.Geometry.', geometry);
         return;
@@ -64,7 +68,7 @@ THREE.HalfEdgeStructure = function(geometry) {
     }
 };
  
-THREE.HalfEdgeStructure.prototype = {
+HalfEdgeStructure.prototype = {
     constructor: THREE.HalfEdgeStructure,
 
     keyForEdge: function(edge) {
@@ -143,3 +147,6 @@ THREE.HalfEdgeStructure.prototype = {
     }
 };
 
+THREE.HalfEdgeStructure = HalfEdgeStructure;
+
+module.exports = THREE;
