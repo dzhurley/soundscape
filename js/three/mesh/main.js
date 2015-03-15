@@ -97,10 +97,6 @@ var mesh = {
         }.bind(this));
 
         this.globe.geometry.colorsNeedUpdate = true;
-    },
-
-    update: function() {
-        this.globe.geometry.colorsNeedUpdate = true;
     }
 };
 

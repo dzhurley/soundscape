@@ -52,5 +52,6 @@ var controls = {
         this.active.update(interval);
     }
 };
+
 controls.init();
 module.exports = controls;

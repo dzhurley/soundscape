@@ -1,4 +1,6 @@
+var _ = require('underscore');
 var h = require('../helpers');
+var Dispatch = require('../dispatch');
 var Last = require('./last');
 
 var sourcer = {
@@ -42,13 +44,13 @@ var sourcer = {
     },
 
     getArtistsForUser: function(username) {
-        App.bus.emit('submitted');
+        Dispatch.emit('submitted');
 
         if (_.contains(_.keys(localStorage), username)) {
             this.artists = JSON.parse(localStorage[username]);
 
             if (this.artists) {
-                App.bus.emitOnWorker('plot.seed', JSON.stringify(this.artists));
+                Dispatch.emitOnWorker('plot.seed', JSON.stringify(this.artists));
                 return;
             }
         }
@@ -63,7 +65,7 @@ var sourcer = {
                 var data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
                 var stringified = JSON.stringify(_.shuffle(this.artists));
-                App.bus.emitOnWorker('plot.seed', stringified);
+                Dispatch.emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }
         }.bind(this);
@@ -71,4 +73,5 @@ var sourcer = {
         request.send();
     }
 };
+
 module.exports = sourcer;

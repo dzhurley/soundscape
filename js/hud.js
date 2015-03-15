@@ -1,8 +1,11 @@
 var _ = require('underscore');
 var THREE = require('three');
+var Threes = require('./three/main');
 
 var Dispatch = require('./dispatch');
 var scene = require('./three/scene');
+var ArtistManager = require('./artists');
+var Constants = require('./constants');
 
 var hud = {
     template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
@@ -53,10 +56,10 @@ var hud = {
 
     findIntersects: function() {
         var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
-        vector.unproject(App.three.camera);
-        var position = App.three.camera.position;
+        vector.unproject(Threes.camera);
+        var position = Threes.camera.position;
         var ray = new THREE.Raycaster(position, vector.sub(position).normalize());
-        return ray.intersectObject(App.three.mesh.globe);
+        return ray.intersectObject(Threes.mesh.globe);
     },
 
     updateActive: function() {
@@ -79,7 +82,7 @@ var hud = {
                 if (isPainted) {
                     this.setVerticesFromArtistEdges(this.active.data.artist);
 
-                    faces = _.filter(App.three.mesh.globe.geometry.faces, function(face) {
+                    faces = _.filter(Threes.mesh.globe.geometry.faces, function(face) {
                         return face.data.artist === this.active.data.artist;
                     }.bind(this));
                     for (var i in faces) {
@@ -112,13 +115,13 @@ var hud = {
     },
 
     setVerticesFromArtistEdges: function(artist) {
-        var edges = App.artistManager.edgesForArtist(artist);
-        vertices = App.three.mesh.utils.uniqueVerticesForEdges(edges);
+        var edges = ArtistManager.edgesForArtist(artist);
+        vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
         this.addVertexMarkers(vertices);
     },
 
     addVertexMarkers: function(vertices) {
-        var mesh = App.three.mesh;
+        var mesh = Threes.mesh;
         var mark, vertex;
         _.each(vertices, function(index) {
             mark = this.makeMark(JSON.stringify(index));
@@ -130,14 +133,14 @@ var hud = {
     },
 
     addFaceMarkers: function(face) {
-        var mark = this.makeMark(App.three.mesh.globe.geometry.faces.indexOf(face));
-        mark.position.copy(App.three.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
+        var mark = this.makeMark(Threes.mesh.globe.geometry.faces.indexOf(face));
+        mark.position.copy(Threes.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
         this.activeMarkers.push(mark);
         scene.add(mark);
     },
 
     getMarkProp: function(key) {
-        var value = App.constants.labels[key];
+        var value = Constants.labels[key];
         // if the value is a string, return it, otherwise return
         // the number as an integer
         return isNaN(value) ? value : +value;

@@ -4,8 +4,10 @@ var EventEmitter = require('eventemitter2').EventEmitter2;
 var dispatch = {
     init: function() {
         this.bus = new EventEmitter({ wildcard: true });
+    },
 
-        this.worker = new Worker('js/worker.js');
+    bindToWorker: function(worker) {
+        this.worker = worker;
         this.worker.onmessage = this.onWorkerMessage.bind(this);
         this.worker.onerror = this.onWorkerError.bind(this);
     },
@@ -25,8 +27,8 @@ var dispatch = {
         console.error('Worker Error:', arguments);
     },
 
-    emit: function(event, data) {
-        this.bus.emit(event, data);
+    emit: function() {
+        this.bus.emit.apply(this.bus, arguments);
     },
 
     on: function(event, callback) {

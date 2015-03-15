@@ -8,14 +8,14 @@ var Utils = function(mesh) {
     this.mesh = mesh;
 };
 
-_.extend(Utils, {
+_.extend(Utils.prototype, {
     faceCentroid: function(face) {
         // save deprecated face.centroid
         return new THREE.Vector3()
-        .add(this.geo.vertices[face.a])
-        .add(this.geo.vertices[face.b])
-        .add(this.geo.vertices[face.c])
-        .divideScalar(3);
+            .add(this.geo.vertices[face.a])
+            .add(this.geo.vertices[face.b])
+            .add(this.geo.vertices[face.c])
+            .divideScalar(3);
     },
 
     uniqueVerticesForEdges: function(edges) {
@@ -30,7 +30,7 @@ _.extend(Utils, {
             f.data = {};
             f.color.setHex(0xFFFFFF);
         });
-        App.three.mesh.update();
+        this.geo.colorsNeedUpdate = true;
     },
 
     addEquidistantMarks: function(num) {

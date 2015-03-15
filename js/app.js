@@ -1,9 +1,11 @@
 var _ = require('underscore');
+var work = require('webworkify');
+var worker = work(require('./worker'));
 
 var Dispatch = require('./dispatch');
 var Threes = require('./three/main');
+var Controls = require('./three/controls');
 var Sourcer = require('./sources/main');
-var ArtistManager = require('./artists');
 var Hud = require('./hud');
 
 var App = {
@@ -36,7 +38,7 @@ var App = {
 
     toggleDebugging: function(evt) {
         App.debugging = !App.debugging;
-        App.bus.emit('debugging');
+        Dispatch.emit('debugging');
     },
 
     toggleOverlay: function(evt) {
@@ -51,7 +53,7 @@ var App = {
         _.each(document.querySelectorAll('.worker button'), function(button) {
             button.addEventListener('click', function() {
                 // TODO too specific
-                return App.bus.emitOnWorker.call(App.bus, 'plot.' + button.id);
+                return Dispatch.emitOnWorker.call(Dispatch, 'plot.' + button.id);
             });
         }.bind(this));
 
@@ -61,14 +63,16 @@ var App = {
         }.bind(this));
 
         this.sourcesPrompt.addEventListener(
-            'submit', Sourcer.checkSource.bind(this.sourcer));
+            'submit', Sourcer.checkSource.bind(Sourcer));
 
-            Dispatch.on('submitted', function() {
-                App.three.mesh.resetGlobe();
-                if (_.isUndefined(App.three.controls)) {
-                    App.three.controls = new Controls();
-                }
-            });
+        Dispatch.on('submitted', function() {
+            Threes.mesh.resetGlobe();
+            if (_.isUndefined(Threes.controls)) {
+                Threes.controls = Controls;
+            }
+        });
+
+        Dispatch.bindToWorker(worker);
     },
 
     animate: function() {
@@ -77,5 +81,4 @@ var App = {
     }
 };
 
-App.init();
 module.exports = App;

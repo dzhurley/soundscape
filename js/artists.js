@@ -55,7 +55,7 @@ var artistManager = {
         postMessage({
             type: 'updateArtists',
             payload: {
-                artists: JSON.stringify(this.artists),
+                artists: JSON.stringify(this.artists || []),
                 artistIndex: this.artistIndex
             }
         });

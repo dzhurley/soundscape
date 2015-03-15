@@ -3,7 +3,7 @@ var _ = require('underscore');
 var Dispatch = require('../dispatch');
 var Seeder = require('./seeder');
 
-var seeder = function(mesh) {
+var plotter = function(mesh) {
     this.seeder = new Seeder(mesh);
 
     Dispatch.on('plot.*', function(method, payload) {
@@ -11,7 +11,7 @@ var seeder = function(mesh) {
     }.bind(this));
 };
 
-var plotter = {
+_.extend(plotter.prototype, {
     newFaces: function(faces) {
         return _.compact(_.map(faces, function(face) {
             var indexedFace = null;
@@ -84,6 +84,6 @@ var plotter = {
             }
         }
     }
-};
+});
 
 module.exports = plotter;
