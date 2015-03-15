@@ -82,11 +82,11 @@ var mesh = {
             return getFaceIndex(face);
         }));
 
-        _.each(newFaces, function(face) {
-            index = getFaceIndex(face);
+        _.each(newFaces, (face) => {
+            var index = getFaceIndex(face);
             oldFaces[index].color.copy(face[index].color);
             oldFaces[index].data = face[index].data;
-        }.bind(this));
+        });
 
         this.globe.geometry.colorsNeedUpdate = true;
     }

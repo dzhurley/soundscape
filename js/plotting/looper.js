@@ -15,7 +15,7 @@ looper.prototype = {
     setNewFace: function(face, artist) {
         // TODO: doesn't belong here
         // paint face with artist color and info
-        index = App.artistManager.artists.indexOf(artist);
+        var index = App.artistManager.artists.indexOf(artist);
 
         face.color.set(artist.color);
 

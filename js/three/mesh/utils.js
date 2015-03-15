@@ -26,7 +26,7 @@ _.extend(Utils.prototype, {
 
     resetFaces: function() {
         // zero face values for fresh paint
-        _.map(this.mesh.geometry.faces, function(f) {
+        _.map(this.mesh.geometry.faces, (f) => {
             f.data = {};
             f.color.setHex(0xFFFFFF);
         });
@@ -84,7 +84,7 @@ _.extend(Utils.prototype, {
         // the target to find the closest candidate
         var closest, newDistance, lastDistance, targetCentroid;
         for (var i = 0; i < candidates.length; i++) {
-            faceVector = this.faceCentroid(candidates[i]).normalize();
+            var faceVector = this.faceCentroid(candidates[i]).normalize();
             targetCentroid = this.faceCentroid(target).normalize();
             newDistance = targetCentroid.distanceTo(faceVector);
             if (!closest) {

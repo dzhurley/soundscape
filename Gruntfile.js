@@ -6,7 +6,11 @@ module.exports = function(grunt) {
             options: {
                 browserifyOptions: {
                     debug: true
-                }
+                },
+
+                transform: [
+                    [ 'babelify', { experimental: true } ]
+                ]
             },
 
             app: {

@@ -19,7 +19,7 @@ var sourcer = {
         var username = evt.target.querySelector('#username').value;
 
         if (!_.contains(_.keys(this.sources), source)) {
-            console.error('Invalid source: ' + source);
+            console.error(`Invalid source: ${source}`);
             return false;
         }
         if (username.length === 0) {
@@ -56,7 +56,7 @@ var sourcer = {
         }
 
         var url = this.sourceUrl(this.activeSource.paramsForUser(username));
-        request = new XMLHttpRequest();
+        var request = new XMLHttpRequest();
         request.open('GET', url, true);
 
         request.onload = function() {

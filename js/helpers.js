@@ -15,7 +15,7 @@ var boundedArray = function(min, max) {
     return bounded;
 };
 
-equidistantishPointsOnSphere = function(numPoints) {
+var equidistantishPointsOnSphere = function(numPoints) {
     // Find points in terms of x, y, z that are roughly equidistant from
     // each other on a sphere. This applies Vogel's method, adapted from
     // http://blog.marmakoide.org/?p=1

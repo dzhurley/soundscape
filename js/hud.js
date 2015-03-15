@@ -108,7 +108,7 @@ var hud = {
 
     setVerticesFromArtistEdges: function(artist) {
         var edges = ArtistManager.edgesForArtist(artist);
-        vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
+        var vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
         this.addVertexMarkers(vertices);
     },
 
