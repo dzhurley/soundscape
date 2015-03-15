@@ -4,7 +4,6 @@ var Constants = require('../../constants');
 var THREE = require('../../lib/HalfEdgeStructure');
 
 var Dispatch = require('../../dispatch');
-var App = require('../../app');
 var scene = require('../scene');
 var Utils = require('./utils');
 
@@ -20,7 +19,6 @@ var mesh = {
 
         this.utils = new Utils(this.globe);
 
-        Dispatch.on('debugging', this.toggleDebugging.bind(this));
         Dispatch.on('faces.*', function(payload) {
             this.updateFaces(JSON.parse(payload.faces));
         }.bind(this));
@@ -67,16 +65,10 @@ var mesh = {
 
     addToScene: function() {
         scene.add(mesh.globe);
-        if (App.debugging) {
-            scene.add(mesh.wireframe);
-        }
+        scene.add(mesh.wireframe);
         _.map(mesh.stars, function(star) {
             scene.add(star);
         });
-    },
-
-    toggleDebugging: function(evt) {
-        return App.debugging ? scene.add(this.wireframe) : scene.remove(this.wireframe);
     },
 
     updateFaces: function(newFaces) {

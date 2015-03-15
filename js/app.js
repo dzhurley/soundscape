@@ -3,6 +3,7 @@ var work = require('webworkify');
 var worker = work(require('./worker'));
 
 var Dispatch = require('./dispatch');
+var Constants = require('./constants');
 var Threes = require('./three/main');
 var Controls = require('./three/controls');
 var Sourcer = require('./sources/main');
@@ -15,8 +16,6 @@ var App = {
     sourcesButton: document.getElementById('toggleOverlay'),
     controlsButton: document.getElementById('toggleControls'),
     sourcesPrompt: document.getElementById('sources'),
-
-    debugging: true,
 
     init: function(constants) {
         this.hud = Hud.bind(this.container);
@@ -34,11 +33,6 @@ var App = {
 
     toggleControls: function() {
         this.three.controls.toggleControls();
-    },
-
-    toggleDebugging: function(evt) {
-        App.debugging = !App.debugging;
-        Dispatch.emit('debugging');
     },
 
     toggleOverlay: function(evt) {

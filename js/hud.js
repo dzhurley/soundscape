@@ -22,12 +22,6 @@ var hud = {
         this.active = null;
         this.showing = false;
         this.activeMarkers = [];
-
-        Dispatch.on('debugging', function(evt, debugging) {
-            if (!debugging) {
-                return this.removeMarkers();
-            }
-        }.bind(this));
     },
 
     bind: function(element) {
@@ -76,22 +70,20 @@ var hud = {
         if (face != this.active) {
             this.active = face;
 
-            if (App.debugging) {
-                this.removeMarkers();
+            this.removeMarkers();
 
-                if (isPainted) {
-                    this.setVerticesFromArtistEdges(this.active.data.artist);
+            if (isPainted) {
+                this.setVerticesFromArtistEdges(this.active.data.artist);
 
-                    faces = _.filter(Threes.mesh.globe.geometry.faces, function(face) {
-                        return face.data.artist === this.active.data.artist;
-                    }.bind(this));
-                    for (var i in faces) {
-                        this.addFaceMarkers(faces[i]);
-                    }
-                } else {
-                    this.addVertexMarkers([face.a, face.b, face.c]);
-                    this.addFaceMarkers(face);
+                faces = _.filter(Threes.mesh.globe.geometry.faces, function(face) {
+                    return face.data.artist === this.active.data.artist;
+                }.bind(this));
+                for (var i in faces) {
+                    this.addFaceMarkers(faces[i]);
                 }
+            } else {
+                this.addVertexMarkers([face.a, face.b, face.c]);
+                this.addFaceMarkers(face);
             }
         }
 
