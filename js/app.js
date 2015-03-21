@@ -7,65 +7,28 @@ var Constants = require('./constants');
 var Threes = require('./three/main');
 var Controls = require('./three/controls');
 var Sourcer = require('./sources/main');
+
 var Hud = require('./hud');
+var DOM = require('./dom');
 
 var App = {
-    container: document.getElementById('scape'),
-    hudContainer: document.getElementById('hud'),
-    sourcesOverlay: document.getElementById('sources-overlay'),
-    sourcesButton: document.getElementById('toggleOverlay'),
-    controlsButton: document.getElementById('toggleControls'),
-    sourcesPrompt: document.getElementById('sources'),
-
     init: function(constants) {
-        this.hud = Hud.bind(this.container);
-
         this.bindHandlers();
-        this.container.appendChild(Threes.renderer.domElement);
-        this.focusUsername();
-
+        this.hud = Hud.bind(DOM.container);
+        DOM.container.appendChild(Threes.renderer.domElement);
         this.animate();
     },
 
-    focusUsername: function() {
-        this.sourcesPrompt.querySelector('#username').focus();
-    },
-
-    toggleControls: function() {
-        this.three.controls.toggleControls();
-    },
-
-    toggleOverlay: function(evt) {
-        var classes = this.sourcesOverlay.classList;
-        classes.toggle('closed');
-        if (!_.contains(classes, 'closed')) {
-            this.focusUsername();
-        }
-    },
-
     bindHandlers: function() {
-        _.each(document.querySelectorAll('.worker button'), function(button) {
-            button.addEventListener('click', function() {
-                // TODO too specific
-                return Dispatch.emitOnWorker.call(Dispatch, 'plot.' + button.id);
-            });
-        }.bind(this));
+        DOM.bind();
 
-        _.each(document.querySelectorAll('.main button'), function(button) {
-            button.addEventListener(
-                'click', this[button.id].bind(this));
-        }.bind(this));
-
-        this.sourcesPrompt.addEventListener(
-            'submit', Sourcer.checkSource.bind(Sourcer));
-
-        Dispatch.on('submitted', function() {
+        Dispatch.on('submitting', Sourcer.checkSource.bind(Sourcer));
+        Dispatch.on('submitted', () => {
             Threes.mesh.resetGlobe();
             if (_.isUndefined(Threes.controls)) {
-                Threes.controls = Controls;
+                Threes.controls = new Controls();
             }
         });
-
         Dispatch.bindToWorker(worker);
     },
 

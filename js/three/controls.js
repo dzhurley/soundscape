@@ -2,56 +2,55 @@
 var THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
 
-var App = require('../app');
 var Threes = require('./main');
+var DOM = require('../dom');
 
-var controls = {
-    init: function() {
-        this.setupOrbital();
-    },
+class Controls {
+    constructor(label='Orbital') {
+        this.label = label;
+        this[`setup${label}`]();
+    }
 
-    setButtonText: function() {
-        var newLabel = this.label === 'Orbital' ? 'Fly' : 'Orbital';
-        // TODO: put back on App
-        document.getElementById('toggleControls').textContent = newLabel;
-    },
+    setButtonText(text) {
+        document.getElementById('toggleControls').textContent = text;
+    }
 
-    setupFly: function() {
-        this.active = new THREE.FlyControls(Threes.camera, App.container);
-        this.active.autoForward = false;
-        this.active.domElement = App.container;
-        this.active.dragToLook = true;
-        this.active.movementSpeed = 1;
-        this.active.rollSpeed = 0.03;
-        this.label = 'Fly';
-        this.setButtonText();
-    },
+    setupFly() {
+        this.active = new THREE.FlyControls(Threes.camera, DOM.container);
+        Object.assign(this.active, {
+            autoForward: false,
+            domElement: DOM.container,
+            dragToLook: true,
+            movementSpeed: 1,
+            rollSpeed: 0.03
+        });
+    }
 
-    setupOrbital: function() {
-        this.active = new THREE.OrbitControls(Threes.camera, App.container);
-        this.active.zoomSpeed = 0.2;
-        this.active.rotateSpeed = 0.5;
-        this.active.noKeys = true;
-        this.label = 'Orbital';
-        this.setButtonText();
-    },
+    setupOrbital() {
+        this.active = new THREE.OrbitControls(Threes.camera, DOM.container);
+        Object.assign(this.active, {
+            zoomSpeed: 0.2,
+            rotateSpeed: 0.5,
+            noKeys: true
+        });
+    }
 
-    toggleControls: function() {
-        var prevCamera = Threes.camera;
+    toggleControls() {
+        let prevCamera = Threes.camera;
+
         Threes.camera = new THREE.PerspectiveCamera(
             75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            Threes.camera.position.copy(prevCamera.position);
-            Threes.camera.rotation.copy(prevCamera.rotation);
+        Threes.camera.position.copy(prevCamera.position);
+        Threes.camera.rotation.copy(prevCamera.rotation);
 
-            return this.label === 'Fly' ?
-                this.setupOrbital() :
-                this.setupFly();
-    },
+        this.label = this.label === 'Orbital' ? 'Fly' : 'Orbital';
+        this.setButtonText(this.label);
+        return this[`setup${this.label}`]()
+    }
 
-    update: function(interval) {
+    update(interval) {
         this.active.update(interval);
     }
 };
 
-controls.init();
-module.exports = controls;
+module.exports = Controls;

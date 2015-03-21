@@ -1,11 +1,12 @@
 var _ = require('underscore');
 var THREE = require('three');
+var Constants = require('./constants');
 var Threes = require('./three/main');
 
 var Dispatch = require('./dispatch');
+var DOM = require('./dom');
 var scene = require('./three/scene');
 var ArtistManager = require('./artists');
-var Constants = require('./constants');
 
 var hud = {
     template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
@@ -93,16 +94,16 @@ var hud = {
                 b: this.active.b,
                 c: this.active.c,
             });
-            App.hudContainer.innerHTML = this.template(data);
-            App.hudContainer.style.display = 'block';
+            DOM.hudContainer.innerHTML = this.template(data);
+            DOM.hudContainer.style.display = 'block';
         } else {
             data = _.extend({}, this.active.data, {
                 a: this.active.a,
                 b: this.active.b,
                 c: this.active.c,
             });
-            App.hudContainer.innerHTML = this.blankTemplate(data);
-            App.hudContainer.style.display = 'block';
+            DOM.hudContainer.innerHTML = this.blankTemplate(data);
+            DOM.hudContainer.style.display = 'block';
         }
     },
 

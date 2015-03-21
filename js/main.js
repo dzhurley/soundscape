@@ -1,5 +1,5 @@
-var app = require('./app');
+require('es6-shim');
 
-app.init();
+var App = require('./app').init();
 
-global.App = app;
+global.App = App;

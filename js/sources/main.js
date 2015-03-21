@@ -27,9 +27,6 @@ var sourcer = {
             return false;
         }
 
-        evt.target.querySelector('#username').value = '';
-        App.sourcesButton.click();
-        this.artists = null;
         this.startSource(source, username);
         return false;
     },
@@ -39,13 +36,15 @@ var sourcer = {
         if (_.isFunction(src)) {
             src = new src();
         }
+
         this.activeSource = src;
         this.getArtistsForUser(username);
+
+        Dispatch.emit('submitted');
+        this.artists = null;
     },
 
     getArtistsForUser: function(username) {
-        Dispatch.emit('submitted');
-
         if (_.contains(_.keys(localStorage), username)) {
             this.artists = JSON.parse(localStorage[username]);
 
