@@ -1,16 +1,16 @@
 require('es6-shim');
 
-var _ = require('underscore');
-var work = require('webworkify');
-var worker = work(require('./worker'));
+let _ = require('underscore');
+let work = require('webworkify');
+let worker = work(require('./worker'));
 
-var Dispatch = require('./dispatch');
-var Threes = require('./three/main');
-var Controls = require('./three/controls');
-var Sourcer = require('./sources/main');
+let Dispatch = require('./dispatch');
+let Threes = require('./three/main');
+let Controls = require('./three/controls');
+let Sourcer = require('./sources/main');
 
-var Hud = require('./hud');
-var DOM = require('./dom');
+let Hud = require('./hud');
+let DOM = require('./dom');
 
 class App {
     constructor() {

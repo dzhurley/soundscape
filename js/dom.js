@@ -1,8 +1,8 @@
-var _ = require('underscore');
-var Dispatch = require('./dispatch');
-var Threes = require('./three/main');
+let _ = require('underscore');
+let Dispatch = require('./dispatch');
+let Threes = require('./three/main');
 
-var DOM = {
+let DOM = {
     container: document.getElementById('scape'),
     hudContainer: document.getElementById('hud'),
     sourcesOverlay: document.getElementById('sources-overlay'),
