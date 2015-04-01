@@ -1,24 +1,28 @@
-var _ = require('underscore');
-var h = require('../helpers');
-var Dispatch = require('../dispatch');
-var Last = require('./last');
+let _ = require('underscore');
+let h = require('../helpers');
+let Dispatch = require('../dispatch');
+let Last = require('./last');
 
-var sourcer = {
-    sources: {
-        last: Last
-    },
+class Sourcer {
+    constructor(...sources) {
+        this.sources = {}
+        sources.forEach((source) => {
+            this.sources[source.name.toLowerCase()] = source;
+        });
+    }
 
-    sourceUrl: function(params) {
-        params = _.extend({}, this.activeSource.defaultParams, params || {});
+    sourceUrl(params = {}) {
+        let params = Object.assign({}, this.activeSource.defaultParams, params);
         return h.packUrlParams(this.activeSource.baseUrl, params);
-    },
+    }
 
-    checkSource: function(evt) {
+    checkSource(evt) {
         evt.preventDefault();
-        var source = evt.target.querySelector('#source').value;
-        var username = evt.target.querySelector('#username').value;
+        let source = evt.target.querySelector('#source').value;
+        let username = evt.target.querySelector('#username').value;
 
-        if (!_.contains(_.keys(this.sources), source)) {
+        // TODO be nicer
+        if (!Object.keys(this.sources).indexOf(source) < 0) {
             console.error(`Invalid source: ${source}`);
             return false;
         }
@@ -29,23 +33,22 @@ var sourcer = {
 
         this.startSource(source, username);
         return false;
-    },
+    }
 
-    startSource: function(source, username) {
-        var src = this.sources[source];
-        if (_.isFunction(src)) {
-            src = new src();
-        }
+    startSource(source, username) {
+        let src = this.sources[source];
+
+        if (_.isFunction(src)) src = new src(); 
 
         this.activeSource = src;
         this.getArtistsForUser(username);
 
         Dispatch.emit('submitted');
         this.artists = null;
-    },
+    }
 
-    getArtistsForUser: function(username) {
-        if (_.contains(_.keys(localStorage), username)) {
+    getArtistsForUser(username) {
+        if (Object.keys(localStorage).indexOf(username) > -1) {
             this.artists = JSON.parse(localStorage[username]);
 
             if (this.artists) {
@@ -54,23 +57,22 @@ var sourcer = {
             }
         }
 
-        var url = this.sourceUrl(this.activeSource.paramsForUser(username));
-        var request = new XMLHttpRequest();
+        let url = this.sourceUrl(this.activeSource.paramsForUser(username));
+        let request = new XMLHttpRequest();
         request.open('GET', url, true);
 
-        request.onload = function() {
+        request.onload = () => {
             if (request.status >= 200 && request.status < 400){
-                // Success!
-                var data = JSON.parse(request.responseText);
+                let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
-                var stringified = JSON.stringify(_.shuffle(this.artists));
+                let stringified = JSON.stringify(_.shuffle(this.artists));
                 Dispatch.emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }
-        }.bind(this);
+        };
 
         request.send();
     }
 };
 
-module.exports = sourcer;
+module.exports = new Sourcer(Last);
