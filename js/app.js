@@ -1,6 +1,5 @@
 require('es6-shim');
 
-let _ = require('underscore');
 let work = require('webworkify');
 let worker = work(require('./worker'));
 
@@ -27,7 +26,7 @@ class App {
         Dispatch.on('submitting', Sourcer.checkSource.bind(Sourcer));
         Dispatch.on('submitted', () => {
             Threes.mesh.resetGlobe();
-            if (_.isUndefined(Threes.controls)) {
+            if (!Threes.controls) {
                 Threes.controls = new Controls();
             }
         });

@@ -1,7 +1,6 @@
-var _ = require('underscore');
-var h = require('../helpers');
+let h = require('../helpers');
 
-var last = {
+let last = {
     baseUrl: 'http://ws.audioscrobbler.com/2.0/',
 
     defaultParams: {
@@ -12,23 +11,20 @@ var last = {
         limit: 999
     },
 
-    paramsForUser: function(username) {
+    paramsForUser(username) {
         return { user: username };
     },
 
-    parseData: function(data) {
-        if (data.error && data.error == 6) {
+    parseData(data = {}) {
+        if (data.error === 6) {
             // TODO: find a nicer way
             alert('not a user');
             return;
         }
-        var baseData =  _.map(data.artists.artist, function(artist) {
-            return {
-                name: artist.name,
-                playCount: parseInt(artist.playcount, 10)
-            };
-        });
-        return h.normalize(baseData, 'playCount', 'normCount');
+        return h.normalize(data.artists.artist.map((artist) => ({
+            name: artist.name,
+            playCount: Number.parseInt(artist.playcount, 10)
+        })), 'playCount', 'normCount');
     }
 };
 

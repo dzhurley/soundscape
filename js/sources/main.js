@@ -4,11 +4,8 @@ let Dispatch = require('../dispatch');
 let Last = require('./last');
 
 class Sourcer {
-    constructor(...sources) {
-        this.sources = {}
-        sources.forEach((source) => {
-            this.sources[source.name.toLowerCase()] = source;
-        });
+    constructor(sources = {}) {
+        this.sources = sources;
     }
 
     sourceUrl(params = {}) {
@@ -75,4 +72,4 @@ class Sourcer {
     }
 };
 
-module.exports = new Sourcer(Last);
+module.exports = new Sourcer({last: Last});

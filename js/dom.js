@@ -1,4 +1,3 @@
-let _ = require('underscore');
 let Dispatch = require('./dispatch');
 let Threes = require('./three/main');
 
@@ -28,12 +27,12 @@ let DOM = {
     },
 
     bind() {
-        let mainButtons = document.querySelectorAll('.main button');
-        let workerButtons = document.querySelectorAll('.worker button');
+        let mainButtons = Array.from(document.querySelectorAll('.main button'));
+        let workerButtons = Array.from(document.querySelectorAll('.worker button'));
 
-        _.each(mainButtons, (button) =>
-               button.addEventListener('click', () => this[button.id]()));
-        _.each(workerButtons, (button) => this.workerBindings(button));
+        mainButtons.forEach((button) =>
+            button.addEventListener('click', () => this[button.id]()));
+        workerButtons.forEach((button) => this.workerBindings(button));
 
         this.sourcesPrompt.addEventListener('submit', (evt) => Dispatch.emit('submitting', evt));
 
