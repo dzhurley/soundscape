@@ -1,12 +1,10 @@
-var _ = require('underscore');
+let renderer = require('./renderer');
+let camera = require('./camera');
+let scene = require('./scene');
+let light = require('./light');
+let mesh = require('./mesh/main');
 
-var renderer = require('./renderer');
-var camera = require('./camera');
-var scene = require('./scene');
-var light = require('./light');
-var mesh = require('./mesh/main');
-
-var threes = {
+let threes = {
     camera,
     light,
     mesh,

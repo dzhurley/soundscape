@@ -1,17 +1,16 @@
-var _ = require('underscore');
-var h = require('../../helpers');
-var Constants = require('../../constants');
-var THREE = require('../../lib/HalfEdgeStructure');
+let h = require('../../helpers');
+let Constants = require('../../constants');
+let THREE = require('../../lib/HalfEdgeStructure');
 
-var Dispatch = require('../../dispatch');
-var scene = require('../scene');
-var Utils = require('./utils');
+let Dispatch = require('../../dispatch');
+let scene = require('../scene');
+let Utils = require('./utils');
 
-var mesh = {
-    radius: Constants.globe.radius,
-    widthAndHeight: Constants.globe.widthAndHeight,
+class Mesh {
+    constructor() {
+        this.radius = Constants.globe.radius;
+        this.widthAndHeight = Constants.globe.widthAndHeight;
 
-    init: function() {
         this.globe = this.createGlobe();
         this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
         this.wireframe = this.createWireframe();
@@ -19,37 +18,37 @@ var mesh = {
 
         this.utils = new Utils(this.globe);
 
-        Dispatch.on('faces.*', function(payload) {
+        Dispatch.on('faces.*', (payload) => {
             this.updateFaces(JSON.parse(payload.faces));
-        }.bind(this));
-    },
+        });
+    }
 
-    resetGlobe: function() {
+    resetGlobe() {
         this.utils.resetFaces();
-    },
+    }
 
-    createGlobe: function() {
+    createGlobe() {
         return new THREE.Mesh(
             new THREE.SphereGeometry(this.radius,
                                      this.widthAndHeight,
                                      this.widthAndHeight),
-                                     new THREE.MeshLambertMaterial({
-                                         shading: THREE.FlatShading,
-                                         side: THREE.DoubleSide,
-                                         vertexColors: THREE.FaceColors
-                                     })
+            new THREE.MeshLambertMaterial({
+                shading: THREE.FlatShading,
+                side: THREE.DoubleSide,
+                vertexColors: THREE.FaceColors
+            })
         );
-    },
+    }
 
-    createWireframe: function() {
+    createWireframe() {
         return new THREE.WireframeHelper(this.globe);
-    },
+    }
 
-    createStars: function() {
-        var stars = [];
-        var star;
+    createStars() {
+        let stars = [];
+        let star;
 
-        for (var i = 0; i < Constants.stars.number; ++i) {
+        for (let i = 0; i < Constants.stars.number; ++i) {
             star = new THREE.Sprite(new THREE.SpriteMaterial());
             star.position.x = Constants.stars.initialX();
             star.position.y = Constants.stars.initialY();
@@ -61,36 +60,32 @@ var mesh = {
             stars.push(star);
         }
         return stars;
-    },
+    }
 
-    addToScene: function() {
-        scene.add(mesh.globe);
-        scene.add(mesh.wireframe);
-        _.map(mesh.stars, function(star) {
-            scene.add(star);
-        });
-    },
+    addToScene() {
+        scene.add(this.globe);
+        scene.add(this.wireframe);
+        this.stars.map((star) => scene.add(star));
+    }
 
-    updateFaces: function(newFaces) {
-        var oldFaces = this.globe.geometry.faces;
+    getFaceIndex(face) {
+        return parseInt(Object.keys(face)[0]);
+    }
 
-        function getFaceIndex(face) {
-            return parseInt(_.keys(face)[0], 10);
-        }
+    updateFaces(newFaces) {
+        let oldFaces = this.globe.geometry.faces;
 
-        console.log('painting new faces:', _.map(newFaces, function(face) {
-            return getFaceIndex(face);
-        }));
+        console.log('painting new faces:',
+                    newFaces.map((face) => this.getFaceIndex(face)));
 
-        _.each(newFaces, (face) => {
-            var index = getFaceIndex(face);
+        newFaces.forEach((face) => {
+            let index = this.getFaceIndex(face);
             oldFaces[index].color.copy(face[index].color);
             oldFaces[index].data = face[index].data;
         });
 
         this.globe.geometry.colorsNeedUpdate = true;
     }
-};
+}
 
-mesh.init();
-module.exports = mesh;
+module.exports = new Mesh();

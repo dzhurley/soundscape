@@ -1,5 +1,5 @@
-var THREE = require('three');
+let THREE = require('three');
 
-var scene = new THREE.Scene();
+class Scene extends THREE.Scene { }
 
-module.exports = scene;
+module.exports = new Scene();

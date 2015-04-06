@@ -1,6 +1,10 @@
-var THREE = require('three');
+let THREE = require('three');
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+class Renderer extends THREE.WebGLRenderer {
+    constructor() {
+        super();
+        this.setSize(window.innerWidth, window.innerHeight);
+    }
+}
 
-module.exports = renderer;
+module.exports = new Renderer();

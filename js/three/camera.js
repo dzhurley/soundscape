@@ -1,15 +1,23 @@
-var THREE = require('three');
-var renderer = require('./renderer');
+let THREE = require('three');
+let renderer = require('./renderer');
 
-var camera = new THREE.PerspectiveCamera(
-    75, window.innerWidth / window.innerHeight, 0.1, 1000);
+class Camera extends THREE.PerspectiveCamera {
+    constructor(fov, aspect, near, far) {
+        super(fov, aspect, near, far);
 
-window.addEventListener('resize', function() {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
+        // TODO: constants
+        this.position.y = 100;
+        this.position.z = 100;
 
-camera.position.y = 100;
-camera.position.z = 100;
-module.exports = camera;
+        window.addEventListener('resize', this.onResize);
+    }
+
+    onResize() {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    }
+}
+
+// TODO: constants
+module.exports = new Camera(75, window.innerWidth / window.innerHeight, 0.1, 1000);

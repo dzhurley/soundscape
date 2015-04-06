@@ -89,7 +89,7 @@ class ArtistManager {
     nextArtist() {
         let artist;
 
-        function findArtist(index, artists, call = 0) {
+        function findArtist(index, artists, call=0) {
             // rollover to beginning of artists
             if (index === artists.length) {
                 index = 0;

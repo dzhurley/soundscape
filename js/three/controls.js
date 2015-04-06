@@ -1,9 +1,9 @@
 // TODO find a better way
-var THREE = require('../lib/FlyControls');
+let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
 
-var Threes = require('./main');
-var DOM = require('../dom');
+let Threes = require('./main');
+let DOM = require('../dom');
 
 class Controls {
     constructor(label='Orbital') {
@@ -51,6 +51,6 @@ class Controls {
     update(interval) {
         this.active.update(interval);
     }
-};
+}
 
 module.exports = Controls;

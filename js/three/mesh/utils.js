@@ -1,47 +1,47 @@
-var _ = require('underscore');
-var h = require('../../helpers');
-var THREE = require('three');
-var scene = require('../scene');
+let h = require('../../helpers');
+let THREE = require('three');
+let scene = require('../scene');
 
-var Utils = function(mesh) {
-    this.geo = mesh.geometry;
-    this.mesh = mesh;
-};
+class Utils {
+    constructor(mesh) {
+        this.geo = mesh.geometry;
+        this.mesh = mesh;
+    }
 
-_.extend(Utils.prototype, {
-    faceCentroid: function(face) {
+    faceCentroid(face) {
         // save deprecated face.centroid
         return new THREE.Vector3()
             .add(this.geo.vertices[face.a])
             .add(this.geo.vertices[face.b])
             .add(this.geo.vertices[face.c])
             .divideScalar(3);
-    },
+    }
 
-    uniqueVerticesForEdges: function(edges) {
-        return _.uniq(_.flatten(_.map(edges, function(edge) {
-            return [edge.v1, edge.v2];
-        })));
-    },
+    uniqueVerticesForEdges(edges) {
+        return edges
+            .map((e) => [e.v1, e.v2])
+            .reduce((a, b) => a.concat(b))
+            .filter((e, i, es) => es.indexOf(e) === i);
+    }
 
-    resetFaces: function() {
+    resetFaces() {
         // zero face values for fresh paint
-        _.map(this.mesh.geometry.faces, (f) => {
+        this.mesh.geometry.faces.map((f) => {
             f.data = {};
             f.color.setHex(0xFFFFFF);
         });
         this.geo.colorsNeedUpdate = true;
-    },
+    }
 
-    addEquidistantMarks: function(num) {
+    addEquidistantMarks(num) {
         if (this.markers && this.markers.length) {
             return this.markers;
         }
         this.markers = [];
-        var mark;
-        var points = h.equidistantishPointsOnSphere(num);
+        let mark;
+        let points = h.equidistantishPointsOnSphere(num);
 
-        for (var i in points) {
+        for (let i in points) {
             mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
             mark.position.x = points[i][0];
             mark.position.y = points[i][1];
@@ -50,16 +50,16 @@ _.extend(Utils.prototype, {
             this.markers.push(mark);
             scene.add(mark);
         }
-    },
+    }
 
-    findEquidistantFaces: function(numMarkers) {
+    findEquidistantFaces(numMarkers) {
         // add transient helper marks
         this.addEquidistantMarks(numMarkers);
 
-        var caster = new THREE.Raycaster();
-        var intersectingFaces = [];
-        var marker;
-        for (var i = 0; i < this.markers.length; i++) {
+        let caster = new THREE.Raycaster();
+        let intersectingFaces = [];
+        let marker;
+        for (let i = 0; i < this.markers.length; i++) {
             // use the mark's vector as a ray to find the closest face
             // via its intersection
             marker = this.markers[i].position.clone();
@@ -68,23 +68,19 @@ _.extend(Utils.prototype, {
         }
 
         // clean up transient markers
-        _.each(this.markers, function(mark) {
-            scene.remove(mark);
-        });
+        this.markers.map((mark) => scene.remove(mark));
         delete this.markers;
 
-        return _.map(intersectingFaces, function(hit) {
-            // return at most one face for each intersection
-            return hit[0];
-        });
-    },
+        // return at most one face for each intersection
+        return intersectingFaces.map((hit) => hit[0]);
+    }
 
-    findClosestFace: function(candidates, target) {
+    findClosestFace(candidates, target) {
         // compute the distance between each one of the candidates and
         // the target to find the closest candidate
-        var closest, newDistance, lastDistance, targetCentroid;
-        for (var i = 0; i < candidates.length; i++) {
-            var faceVector = this.faceCentroid(candidates[i]).normalize();
+        let closest, newDistance, lastDistance, targetCentroid;
+        for (let i = 0; i < candidates.length; i++) {
+            let faceVector = this.faceCentroid(candidates[i]).normalize();
             targetCentroid = this.faceCentroid(target).normalize();
             newDistance = targetCentroid.distanceTo(faceVector);
             if (!closest) {
@@ -96,14 +92,12 @@ _.extend(Utils.prototype, {
             }
         }
         return closest;
-    },
+    }
 
-    findClosestFreeFace: function(startFace) {
-        var freeFaces = _.filter(this.mesh.geometry.faces, function(f) {
-            return !f.data.artist;
-        });
+    findClosestFreeFace(startFace) {
+        let freeFaces = this.mesh.geometry.faces.filter((f) => !f.data.artist);
         return this.findClosestFace(freeFaces, startFace);
     }
-});
+}
 
 module.exports = Utils;

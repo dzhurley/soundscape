@@ -1,12 +1,14 @@
-var THREE = require('three');
-var scene = require('./scene');
+let THREE = require('three');
+let scene = require('./scene');
 
-var light = {
-    ambient: new THREE.AmbientLight(0xf0f0f0),
-
-    addToScene: function() {
-        scene.add(light.ambient);
+class Light extends THREE.AmbientLight {
+    constructor(color) {
+        super(color);
     }
-};
 
-module.exports = light;
+    addToScene() {
+        scene.add(this);
+    }
+}
+
+module.exports = new Light(0xf0f0f0);

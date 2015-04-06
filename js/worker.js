@@ -1,19 +1,18 @@
 module.exports = function() {
-    var _ = require('underscore');
-    var Dispatch = require('./dispatch');
+    let Dispatch = require('./dispatch');
 
-    var Constants = require('./constants');
-    var ArtistManager = require('./artists');
-    var THREE = require('./lib/HalfEdgeStructure');
-    var Utils = require('./three/mesh/utils');
-    var Plotter = require('./plotting/worker');
+    let Constants = require('./constants');
+    let ArtistManager = require('./artists');
+    let THREE = require('./lib/HalfEdgeStructure');
+    let Utils = require('./three/mesh/utils');
+    let Plotter = require('./plotting/worker');
 
     function startWorker() {
         self.App = {};
-        var geometry = new THREE.SphereGeometry(Constants.globe.radius,
+        let geometry = new THREE.SphereGeometry(Constants.globe.radius,
                                                 Constants.globe.widthAndHeight,
                                                 Constants.globe.widthAndHeight);
-        var material = new THREE.MeshLambertMaterial({
+        let material = new THREE.MeshLambertMaterial({
             shading: THREE.FlatShading,
             side: THREE.DoubleSide,
             vertexColors: THREE.FaceColors
@@ -23,21 +22,22 @@ module.exports = function() {
         self.App.heds = new THREE.HalfEdgeStructure(self.App.mesh.geometry);
         self.App.mesh.utils = new Utils(self.App.mesh);
         self.App.artistManager = ArtistManager;
-        self.App.plotter = new Plotter(self.App.mesh);
+        self.plotter = new Plotter(self.App.mesh);
+        self.started = true;
     }
 
-    onmessage = function(event) {
-        if (!self.App) {
+    onmessage = function(evt) {
+        if (!self.started) {
             startWorker();
         }
 
         // expose namespaced method as first arg to callback
-        if (event.data.type.indexOf('.') > -1) {
-            Dispatch.emit(event.data.type,
-                          event.data.type.split('.')[1],
-                          event.data.payload);
+        if (evt.data.type.includes('.')) {
+            Dispatch.emit(evt.data.type,
+                          evt.data.type.split('.')[1],
+                          evt.data.payload);
         } else {
-            Dispatch.emit(event.data.type, event.data.payload);
+            Dispatch.emit(evt.data.type, evt.data.payload);
         }
 
         // TODO: explore transferrable objects for artists
