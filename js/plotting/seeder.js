@@ -3,6 +3,7 @@ var THREE = require('three');
 var h = require('../helpers');
 var FacePlotter = require('./faces');
 var Looper = require('./looper');
+let ArtistManager = require('../artists');
 
 class Seeder {
     constructor(mesh) {
@@ -18,7 +19,7 @@ class Seeder {
             return;
         }
 
-        App.artistManager.setArtists({
+        ArtistManager.setArtists({
             artists: data,
             totalFaces: this.facePlotter.faces.length
         });
@@ -26,7 +27,7 @@ class Seeder {
         this.facePlotter.faces.map((face) => { face.data = {}; });
 
         // seed the planet
-        var seeds = this.meshUtils.findEquidistantFaces(App.artistManager.artists.length);
+        var seeds = this.meshUtils.findEquidistantFaces(ArtistManager.artists.length);
         var seedIndices = seeds.map((seed) => seed.faceIndex);
         this.looper.loop(seedIndices);
 

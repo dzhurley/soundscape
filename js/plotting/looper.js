@@ -2,6 +2,7 @@ let THREE = require('three');
 
 let h = require('../helpers');
 let FacePlotter = require('./faces');
+let ArtistManager = require('../artists');
 
 class Looper {
     constructor(facePlotter, plotter) { 
@@ -25,7 +26,7 @@ class Looper {
         let remainingIndex;
 
         // choose random face for each face to paint
-        artist = App.artistManager.nextArtist();
+        artist = ArtistManager.nextArtist();
         if (!artist) {
             // no more faces left for any artist to paint
             return true;

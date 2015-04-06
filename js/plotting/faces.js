@@ -1,6 +1,7 @@
-let THREE = require('three');
-
 let h = require('../helpers');
+
+let THREE = require('../lib/HalfEdgeStructure');
+let ArtistManager = require('../artists');
 
 class FacePlotter {
     constructor(mesh) {
@@ -16,7 +17,7 @@ class FacePlotter {
         let path = [currentFace];
 
         while (currentFace != goal) {
-            candidates = App.heds.adjacentFaces(currentFace);
+            candidates = HEDS.adjacentFaces(currentFace);
             currentFace = this.mesh.utils.findClosestFace(candidates, goal);
             path.push(currentFace);
         }
@@ -80,7 +81,7 @@ class FacePlotter {
 
             if (!Array.isArray(faceOrSwap)) {
                 // found valid face, stop looking for more
-                App.artistManager.expandArtistEdges(faceOrSwap, artist, edge);
+                ArtistManager.expandArtistEdges(faceOrSwap, artist, edge);
                 return {
                     face: faceOrSwap,
                     index: this.faces.indexOf(faceOrSwap)

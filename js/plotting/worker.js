@@ -1,8 +1,10 @@
 let Dispatch = require('../dispatch');
+let ArtistManager = require('../artists');
 let Seeder = require('./seeder');
 
 class Plotter {
     constructor(mesh) {
+        this.mesh = mesh;
         this.seeder = new Seeder(mesh);
 
         Dispatch.on('plot.*', (method, payload) => this[method](payload));
@@ -34,7 +36,7 @@ class Plotter {
         postMessage({
             type: 'faces.seeded',
             payload: {
-                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
             }
         });
     }
@@ -50,13 +52,13 @@ class Plotter {
         postMessage({
             type: 'faces.looped',
             payload: {
-                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
             }
         });
     }
 
     batchOnce() {
-        for (let j = 0; j <= App.artistManager.artistsRemaining(); j++) {
+        for (let j = 0; j <= ArtistManager.artistsRemaining(); j++) {
             if (this.processOneArtist()) {
                 break;
             }
@@ -66,7 +68,7 @@ class Plotter {
         postMessage({
             type: 'faces.batched',
             payload: {
-                faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
+                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
             }
         });
     }
