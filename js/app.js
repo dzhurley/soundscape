@@ -4,34 +4,15 @@ let work = require('webworkify');
 let worker = work(require('./worker'));
 
 let Dispatch = require('./dispatch');
-let Threes = require('./three/main');
-let Controls = require('./three/controls');
 let Sourcer = require('./sources/main');
-
-let HUD = require('./hud');
+let Threes = require('./three/main');
 let DOM = require('./dom');
+let HUD = require('./hud');
 
-class App {
-    constructor() {
-        this.bindHandlers();
+Dispatch.bindToWorker(worker);
 
-        Threes.setupScene();
-        DOM.container.appendChild(Threes.renderer.domElement);
-    }
+Threes.setScene();
 
-    bindHandlers() {
-        DOM.bind();
+DOM.attachTo(Threes.renderer.domElement);
 
-        Dispatch.on('submitting', Sourcer.checkSource.bind(Sourcer));
-        Dispatch.on('submitted', () => {
-            Threes.mesh.resetGlobe();
-            if (!Threes.controls) {
-                Threes.controls = new Controls();
-            }
-        });
-
-        Dispatch.bindToWorker(worker);
-    }
-};
-
-new App();
+HUD.attachTo(DOM.container);

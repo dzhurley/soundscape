@@ -122,6 +122,7 @@ module.exports = {
     equidistantishPointsOnSphere,
     normalize,
     packUrlParams,
+    randomArray,
     randomBoundedArray,
     spacedColor
 };

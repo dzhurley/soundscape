@@ -6,7 +6,7 @@ let Threes = require('./main');
 let DOM = require('../dom');
 
 class Controls {
-    constructor(label='Orbital') {
+    constructor(label = 'Orbital') {
         this.label = label;
         this[`setup${label}`]();
     }
@@ -17,6 +17,7 @@ class Controls {
 
     setupFly() {
         this.active = new THREE.FlyControls(Threes.camera, DOM.container);
+        // TODO: constants
         Object.assign(this.active, {
             autoForward: false,
             domElement: DOM.container,
@@ -28,6 +29,7 @@ class Controls {
 
     setupOrbital() {
         this.active = new THREE.OrbitControls(Threes.camera, DOM.container);
+        // TODO: constants
         Object.assign(this.active, {
             zoomSpeed: 0.2,
             rotateSpeed: 0.5,
@@ -53,4 +55,4 @@ class Controls {
     }
 }
 
-module.exports = Controls;
+module.exports = new Controls();

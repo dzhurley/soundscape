@@ -1,3 +1,5 @@
+let Dispatch = require('../dispatch');
+
 let renderer = require('./renderer');
 let camera = require('./camera');
 let scene = require('./scene');
@@ -11,12 +13,19 @@ let threes = {
     renderer,
     scene,
 
-    setupScene() {
+    setScene() {
         this.light.addToScene();
         this.mesh.addToScene();
 
         this.camera.lookAt(scene.position);
         this.animate();
+
+        Dispatch.on('submitted', () => {
+            this.mesh.resetGlobe();
+            if (!this.controls) {
+                this.controls = require('./controls');
+            }
+        });
     },
 
     animate() {

@@ -5,6 +5,8 @@ let Last = require('./last');
 class Sourcer {
     constructor(sources = {}) {
         this.sources = sources;
+
+        Dispatch.on('submitting', this.checkSource.bind(this));
     }
 
     sourceUrl(params = {}) {

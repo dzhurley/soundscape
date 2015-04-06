@@ -4,7 +4,6 @@ let Threes = require('./three/main');
 
 let Dispatch = require('./dispatch');
 let DOM = require('./dom');
-let scene = require('./three/scene');
 let ArtistManager = require('./artists');
 
 class HUD {
@@ -21,12 +20,14 @@ class HUD {
                 <span>face.c = ${c}</span>`;
     }
 
-    constructor(element) {
+    constructor() {
         this.active = null;
         this.showing = false;
         this.activeMarkers = [];
         this.mouse = { x: 0, y: 0 };
+    }
 
+    attachTo(element) {
         element.addEventListener('click', (evt) => {
             if (evt.target.nodeName === 'BUTTON') {
                 return false;
@@ -102,7 +103,7 @@ class HUD {
             vertex = Threes.mesh.globe.geometry.vertices[index];
             mark.position.copy(vertex.clone().multiplyScalar(1.005));
             this.activeMarkers.push(mark);
-            scene.add(mark);
+            Threes.scene.add(mark);
         });
     }
 
@@ -110,7 +111,7 @@ class HUD {
         let mark = this.makeMark(Threes.mesh.globe.geometry.faces.indexOf(face));
         mark.position.copy(Threes.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
         this.activeMarkers.push(mark);
-        scene.add(mark);
+        Threes.scene.add(mark);
     }
 
     getMarkProp(key) {
@@ -157,9 +158,9 @@ class HUD {
     }
 
     removeMarkers() {
-        this.activeMarkers.forEach((mark) => scene.remove(mark));
+        this.activeMarkers.forEach((mark) => Threes.scene.remove(mark));
         this.activeMarkers = [];
     }
 };
 
-module.exports = new HUD(DOM.container);
+module.exports = new HUD();

@@ -46,7 +46,7 @@ class Looper {
 
     // TODO: merge with loopOnce, only used to seed
     loop(randos) {
-        this.remaining = randos;
+        this.remaining = Array.from(randos);
         let currentPass;
 
         while (this.remaining.length) {

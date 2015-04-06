@@ -1,32 +1,23 @@
 let Dispatch = require('./dispatch');
 let Threes = require('./three/main');
 
-let DOM = {
-    container: document.getElementById('scape'),
-    hudContainer: document.getElementById('hud'),
-    sourcesOverlay: document.getElementById('sources-overlay'),
-    sourcesButton: document.getElementById('toggleOverlay'),
-    controlsButton: document.getElementById('toggleControls'),
-    sourcesPrompt: document.getElementById('sources'),
+class DOM {
+    attachTo(element) {
+        this.findElements();
+        this.container.appendChild(element);
+        this.bindHandlers();
+    }
 
-    workerBindings(button) {
-        button.addEventListener(
-            'click', () => Dispatch.emitOnWorker.call(Dispatch, `plot.${button.id}`));
-    },
+    findElements() {
+        this.container = document.getElementById('scape');
+        this.hudContainer = document.getElementById('hud');
+        this.sourcesOverlay = document.getElementById('sources-overlay');
+        this.sourcesButton = document.getElementById('toggleOverlay');
+        this.controlsButton = document.getElementById('toggleControls');
+        this.sourcesPrompt = document.getElementById('sources');
+    }
 
-    toggleControls() {
-        Threes.controls.toggleControls();
-    },
-
-    toggleOverlay() {
-        let classes = this.sourcesOverlay.classList;
-        classes.toggle('closed');
-        if (!classes.contains('closed')) {
-            this.sourcesPrompt.querySelector('#username').focus();
-        }
-    },
-
-    bind() {
+    bindHandlers() {
         let mainButtons = Array.from(document.querySelectorAll('.main button'));
         let workerButtons = Array.from(document.querySelectorAll('.worker button'));
 
@@ -41,6 +32,23 @@ let DOM = {
             this.sourcesButton.click();
         });
     }
+
+    workerBindings(button) {
+        button.addEventListener(
+            'click', () => Dispatch.emitOnWorker.call(Dispatch, `plot.${button.id}`));
+    }
+
+    toggleControls() {
+        Threes.controls.toggleControls();
+    }
+
+    toggleOverlay() {
+        let classes = this.sourcesOverlay.classList;
+        classes.toggle('closed');
+        if (!classes.contains('closed')) {
+            this.sourcesPrompt.querySelector('#username').focus();
+        }
+    }
 }
 
-module.exports = DOM;
+module.exports = new DOM();
