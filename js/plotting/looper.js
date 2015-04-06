@@ -20,7 +20,8 @@ class Looper {
         artist.faces--;
     }
 
-    runIteration(rando) {
+    runIteration(remaining) {
+        let rando = remaining[0];
         let artist;
         let faceInfo;
         let remainingIndex;
@@ -34,9 +35,9 @@ class Looper {
         faceInfo = this.facePlotter.nextFace(artist, rando);
 
         if (faceInfo.face) {
-            remainingIndex = this.remaining.indexOf(faceInfo.index);
+            remainingIndex = remaining.indexOf(faceInfo.index);
             if (remainingIndex > -1) {
-                this.remaining.splice(remainingIndex, 1);
+                remaining.splice(remainingIndex, 1);
             }
             if (faceInfo.face !== true) {
                 this.setNewFace(faceInfo.face, artist);
@@ -45,37 +46,14 @@ class Looper {
         return false;
     }
 
-    // TODO: merge with loopOnce, only used to seed
-    loop(randos) {
-        this.remaining = Array.from(randos);
-        let currentPass;
-
-        while (this.remaining.length) {
-            currentPass = Array.from(this.remaining);
-
-            for (let i in currentPass) {
-                if (this.runIteration(currentPass[i])) {
-                    // we're done with all the faces
-                    return;
-                }
-            }
-
-            if (currentPass.length === this.remaining.length) {
-                // nothing got painted on this pass, so bail
-                return;
-            }
-        }
-    }
-
     loopOnce(remaining) {
         let startingLength = remaining.length;
-        this.remaining = remaining;
-        let iterationResult = this.runIteration(this.remaining[0]);
-        if (startingLength === this.remaining.length) {
+        let iterationResult = this.runIteration(remaining);
+        if (startingLength === remaining.length) {
             // no paints on this pass, no use trying again
             this.plotter.stop = true;
         }
-        console.log('remaining', this.remaining.length);
+        console.log('remaining', remaining.length);
         return iterationResult;
     }
 }

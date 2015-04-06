@@ -51,12 +51,44 @@ class Plotter {
         // seed the planet
         let seeds = this.mesh.utils.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
-        this.looper.loop(seedIndices);
+        this.processIndexedBatch(seedIndices);
 
         // set remaining faces to paint
         let randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
         return randos.filter((r) => seedIndices.indexOf(r) < 0);
     }
+
+    processOneArtist(remaining = this.remaining) {
+        return this.looper.loopOnce(remaining);
+    }
+
+    processSizedBatch(batchSize = ArtistManager.artistsRemaining()) {
+        for (let i = 0; i <= batchSize; i++) {
+            if (this.processOneArtist()) {
+                break;
+            }
+        }
+    }
+
+    processIndexedBatch(faceIndices = []) {
+        for (let i in faceIndices) {
+            if (this.processOneArtist([faceIndices[i]])) {
+                break;
+            }
+        }
+    }
+
+    respondWithPainted() {
+        // TODO: send back progress
+        postMessage({
+            type: 'faces.painted',
+            payload: {
+                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
+            }
+        });
+    }
+
+    // from events
 
     seed(payload) {
         // reset stopping flag
@@ -71,36 +103,14 @@ class Plotter {
         });
     }
 
-    processOneArtist() {
-        return this.looper.loopOnce(this.remaining);
-    }
-
     oneArtist() {
         this.processOneArtist();
-
-        // TODO: send back progress
-        postMessage({
-            type: 'faces.looped',
-            payload: {
-                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
-            }
-        });
+        this.respondWithPainted();
     }
 
     batchOnce() {
-        for (let j = 0; j <= ArtistManager.artistsRemaining(); j++) {
-            if (this.processOneArtist()) {
-                break;
-            }
-        }
-
-        // TODO: send back progress
-        postMessage({
-            type: 'faces.batched',
-            payload: {
-                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
-            }
-        });
+        this.processSizedBatch();
+        this.respondWithPainted();
     }
 
     batch() {
