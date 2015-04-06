@@ -1,4 +1,6 @@
 module.exports = function() {
+    require('es6-shim');
+
     let Dispatch = require('./dispatch');
 
     let Constants = require('./constants');

@@ -1,35 +1,28 @@
-var _ = require('underscore');
-var THREE = require('three');
+let THREE = require('three');
 
-var h = require('../helpers');
-var FacePlotter = require('./faces');
+let h = require('../helpers');
+let FacePlotter = require('./faces');
 
-var looper = function(facePlotter, plotter) { 
-    this.facePlotter = facePlotter;
-    this.plotter = plotter;
-    this.remaining = [];
-};
+class Looper {
+    constructor(facePlotter, plotter) { 
+        this.facePlotter = facePlotter;
+        this.plotter = plotter;
+        this.remaining = [];
+    }
 
-looper.prototype = {
-
-    setNewFace: function(face, artist) {
+    setNewFace(face, artist) {
         // TODO: doesn't belong here
-        // paint face with artist color and info
-        var index = App.artistManager.artists.indexOf(artist);
-
         face.color.set(artist.color);
-
         face.data.artist = artist.name;
         face.data.plays = artist.playCount;
         face.data.pending = true;
-
         artist.faces--;
-    },
+    }
 
-    runIteration: function(rando) {
-        var artist;
-        var faceInfo;
-        var remainingIndex;
+    runIteration(rando) {
+        let artist;
+        let faceInfo;
+        let remainingIndex;
 
         // choose random face for each face to paint
         artist = App.artistManager.nextArtist();
@@ -49,36 +42,34 @@ looper.prototype = {
             }
         }
         return false;
-    },
+    }
 
     // TODO: merge with loopOnce, only used to seed
-    loop: function(randos) {
+    loop(randos) {
         this.remaining = randos;
-        var currentPass;
-        var i = 0;
+        let currentPass;
 
         while (this.remaining.length) {
-            currentPass = _.clone(this.remaining);
+            currentPass = Array.from(this.remaining);
 
-            for (i in currentPass) {
+            for (let i in currentPass) {
                 if (this.runIteration(currentPass[i])) {
                     // we're done with all the faces
                     return;
                 }
             }
-            i = 0;
 
             if (currentPass.length === this.remaining.length) {
                 // nothing got painted on this pass, so bail
                 return;
             }
         }
-    },
+    }
 
-    loopOnce: function(remaining) {
-        var startingLength = remaining.length;
+    loopOnce(remaining) {
+        let startingLength = remaining.length;
         this.remaining = remaining;
-        var iterationResult = this.runIteration(this.remaining[0]);
+        let iterationResult = this.runIteration(this.remaining[0]);
         if (startingLength === this.remaining.length) {
             // no paints on this pass, no use trying again
             this.plotter.stop = true;
@@ -86,6 +77,6 @@ looper.prototype = {
         console.log('remaining', this.remaining.length);
         return iterationResult;
     }
-};
+}
 
-module.exports = looper;
+module.exports = Looper;

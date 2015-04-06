@@ -1,20 +1,19 @@
-var _ = require('underscore');
-var THREE = require('three');
+let THREE = require('three');
 
-var h = require('../helpers');
+let h = require('../helpers');
 
-var facePlotter = function(mesh) {
-    this.mesh = mesh;
-    this.faces = this.mesh.geometry.faces;
-    this.vertices = this.mesh.geometry.vertices;
-};
+class FacePlotter {
+    constructor(mesh) {
+        this.mesh = mesh;
+        this.faces = this.mesh.geometry.faces;
+        this.vertices = this.mesh.geometry.vertices;
+    }
 
-facePlotter.prototype = {
-    handleSwappers: function(startFace) {
-        var goal = this.mesh.utils.findClosestFreeFace(startFace);
-        var currentFace = startFace;
-        var candidates = [];
-        var path = [currentFace];
+    handleSwappers(startFace) {
+        let goal = this.mesh.utils.findClosestFreeFace(startFace);
+        let currentFace = startFace;
+        let candidates = [];
+        let path = [currentFace];
 
         while (currentFace != goal) {
             candidates = App.heds.adjacentFaces(currentFace);
@@ -22,29 +21,25 @@ facePlotter.prototype = {
             path.push(currentFace);
         }
 
-        var prevFace;
-        _.each(path.reverse(), function(face, index) {
+        let prevFace;
+        path.reverse().forEach((face, index) => {
             prevFace = path[index + 1];
             if (prevFace) {
                 // TODO: account for edge info, see expandArtistEdges
-                face.data = _.clone(prevFace.data);
+                face.data = Object.assign({}, prevFace.data);
                 face.color.copy(prevFace.color);
             }
         });
 
         this.mesh.geometry.colorsNeedUpdate = true;
         return goal;
-    },
+    }
 
-    validFace: function(artist, edge) {
-        var swappers = [];
+    validFace(artist, edge) {
+        let swappers = [];
 
-        function intertains(first, second) {
-            return !_.isEmpty(_.intersection(first, second));
-        }
-
-        var face = _.filter(this.faces, function(f) {
-            var valid = false;
+        let face = this.faces.filter((f) => {
+            let valid = false;
 
             if (edge.v1 === f.a) {
                 valid = edge.v2 === f.b || edge.v2 === f.c;
@@ -54,39 +49,37 @@ facePlotter.prototype = {
                 valid = edge.v2 === f.a || edge.v2 === f.b;
             }
 
-            if (valid && !_.isUndefined(f.data.artist)) {
+            if (valid && f.data.artist) {
                 // if it's adjacent but taken, remember it in case we
                 // don't find a free face so we can swap in place
                 swappers.push(f);
                 return false;
             }
             return valid;
-        }.bind(this));
+        });
 
         if (face.length === 1) {
             return face[0];
         }
 
-        var swappersLeft = _.without(swappers, _.find(swappers, function(f) {
-            // make sure one of the candidates isn't for the same artist
-            return f.data.artist === artist.name;
-        }));
-
+        // make sure one of the candidates isn't for the same artist
+        let swappersLeft = swappers.filter((f) => f.data.artist !== artist.name)
+        console.log('swappers left', swappersLeft);
         return swappersLeft;
-    },
+    }
 
-    findAdjacentFace: function(artist) {
+    findAdjacentFace(artist) {
         // use random `artist.edges` to find an adjacent unpainted `face`
-        var edges = _.clone(artist.edges);
-        var edge;
-        var faceOrSwap;
-        var swappedArtist;
+        let edges = Array.from(artist.edges);
+        let edge;
+        let faceOrSwap;
+        let swappedArtist;
 
         while (edges.length) {
-            edge = _.sample(edges);
+            edge = edges[Math.floor(Math.random() * edges.length)];
             faceOrSwap = this.validFace(artist, edge);
 
-            if (!_.isArray(faceOrSwap)) {
+            if (!Array.isArray(faceOrSwap)) {
                 // found valid face, stop looking for more
                 App.artistManager.expandArtistEdges(faceOrSwap, artist, edge);
                 return {
@@ -113,29 +106,29 @@ facePlotter.prototype = {
                 index: this.faces.indexOf(faceOrSwap)
             };
         }
-    },
+    }
 
-    nextFace: function(artist, rando) {
-        var face = this.faces[rando];
-        var paintedInfo = {artist: artist};
+    nextFace(artist, rando) {
+        let face = this.faces[rando];
+        let paintedInfo = {artist: artist};
 
         if (face.data.artist) {
             return {face: false};
         }
 
-        if (_.isEmpty(artist.edges)) {
+        if (!artist.edges.length) {
             artist.edges.push({v1: face.a, v2: face.b},
                               {v1: face.b, v2: face.c},
                               {v1: face.a, v2: face.c});
-                              return {face: face, index: this.faces.indexOf(face)};
+            return {face: face, index: this.faces.indexOf(face)};
         }
 
         // artist has been painted somewhere else
-        while (!_.has(paintedInfo, 'face')) {
+        while (!paintedInfo.face) {
             paintedInfo = this.findAdjacentFace(paintedInfo.artist);
         }
         return paintedInfo;
     }
-};
+}
 
-module.exports = facePlotter;
+module.exports = FacePlotter;

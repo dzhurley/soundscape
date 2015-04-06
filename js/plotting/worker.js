@@ -1,23 +1,19 @@
-var _ = require('underscore');
+let Dispatch = require('../dispatch');
+let Seeder = require('./seeder');
 
-var Dispatch = require('../dispatch');
-var Seeder = require('./seeder');
+class Plotter {
+    constructor(mesh) {
+        this.seeder = new Seeder(mesh);
 
-var plotter = function(mesh) {
-    this.seeder = new Seeder(mesh);
+        Dispatch.on('plot.*', (method, payload) => this[method](payload));
+    }
 
-    Dispatch.on('plot.*', function(method, payload) {
-        this[method](payload);
-    }.bind(this));
-};
-
-_.extend(plotter.prototype, {
-    newFaces: function(faces) {
-        return _.compact(_.map(faces, function(face) {
-            var indexedFace = null;
+    newFaces(faces) {
+        return faces.map((face) => {
+            let indexedFace = null;
 
             if (face.data.pending) {
-                var index = faces.indexOf(face).toString();
+                let index = faces.indexOf(face).toString();
                 indexedFace = {};
                 indexedFace[index] = {
                     color: face.color,
@@ -27,10 +23,10 @@ _.extend(plotter.prototype, {
             }
 
             return indexedFace;
-        }));
-    },
+        }).filter((face) => !!face);
+    }
 
-    seed: function(payload) {
+    seed(payload) {
         // reset stopping flag
         this.seeder.stop = false;
         this.remaining = this.seeder.seed(JSON.parse(payload));
@@ -41,13 +37,13 @@ _.extend(plotter.prototype, {
                 faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
             }
         });
-    },
+    }
 
-    processOneArtist: function() {
+    processOneArtist() {
         return this.seeder.looper.loopOnce(this.remaining);
-    },
+    }
 
-    oneArtist: function() {
+    oneArtist() {
         this.processOneArtist();
 
         // TODO: send back progress
@@ -57,10 +53,10 @@ _.extend(plotter.prototype, {
                 faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
             }
         });
-    },
+    }
 
-    batchOnce: function() {
-        for (var j = 0; j <= App.artistManager.artistsRemaining(); j++) {
+    batchOnce() {
+        for (let j = 0; j <= App.artistManager.artistsRemaining(); j++) {
             if (this.processOneArtist()) {
                 break;
             }
@@ -73,10 +69,10 @@ _.extend(plotter.prototype, {
                 faces: JSON.stringify(this.newFaces(App.mesh.geometry.faces))
             }
         });
-    },
+    }
 
-    batch: function() {
-        for (var i = 0; i < this.remaining.length; i++) {
+    batch() {
+        for (let i = 0; i < this.remaining.length; i++) {
             this.batchOnce();
 
             if (this.seeder.stop) {
@@ -84,6 +80,6 @@ _.extend(plotter.prototype, {
             }
         }
     }
-});
+}
 
-module.exports = plotter;
+module.exports = Plotter;
