@@ -1,8 +1,8 @@
-var THREE = require('three');
+let THREE = require('three');
 
-var h = require('../helpers');
-var FacePlotter = require('./faces');
-var Looper = require('./looper');
+let h = require('../helpers');
+let FacePlotter = require('./faces');
+let Looper = require('./looper');
 let ArtistManager = require('../artists');
 
 class Seeder {
@@ -27,12 +27,12 @@ class Seeder {
         this.facePlotter.faces.map((face) => { face.data = {}; });
 
         // seed the planet
-        var seeds = this.meshUtils.findEquidistantFaces(ArtistManager.artists.length);
-        var seedIndices = seeds.map((seed) => seed.faceIndex);
+        let seeds = this.meshUtils.findEquidistantFaces(ArtistManager.artists.length);
+        let seedIndices = seeds.map((seed) => seed.faceIndex);
         this.looper.loop(seedIndices);
 
         // set remaining faces to paint
-        var randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
+        let randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
         return randos.filter((r) => seedIndices.indexOf(r) < 0);
     }
 }
