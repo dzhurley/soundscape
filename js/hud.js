@@ -1,73 +1,65 @@
-var _ = require('underscore');
-var THREE = require('three');
-var Constants = require('./constants');
-var Threes = require('./three/main');
+let THREE = require('three');
+let Constants = require('./constants');
+let Threes = require('./three/main');
 
-var Dispatch = require('./dispatch');
-var DOM = require('./dom');
-var scene = require('./three/scene');
-var ArtistManager = require('./artists');
+let Dispatch = require('./dispatch');
+let DOM = require('./dom');
+let scene = require('./three/scene');
+let ArtistManager = require('./artists');
 
-var hud = {
-    template: _.template("<span><%= artist %>, played <%= plays %> time(s)</span>" +
-                         "<span>face.a = <%= a %></span>" +
-                         "<span>face.b = <%= b %></span>" +
-                         "<span>face.c = <%= c %></span>"),
+class HUD {
+    template({artist, plays, a, b, c}) {
+        return `<span>${artist}, played ${plays} time(s)</span>
+                <span>face.a = ${a}</span>
+                <span>face.b = ${b}</span>
+                <span>face.c = ${c}</span>`;
+    }
 
-    blankTemplate: _.template("<span>face.a = <%= a %></span>" +
-                              "<span>face.b = <%= b %></span>" +
-                              "<span>face.c = <%= c %></span>"),
-    mouse: { x: 0, y: 0 },
+    blankTemplate({a, b, c}) {
+        return `<span>face.a = ${a}</span>
+                <span>face.b = ${b}</span>
+                <span>face.c = ${c}</span>`;
+    }
 
-    init: function() {
+    constructor(element) {
         this.active = null;
         this.showing = false;
         this.activeMarkers = [];
-    },
+        this.mouse = { x: 0, y: 0 };
 
-    bind: function(element) {
-        element.addEventListener('click', function(evt) {
+        element.addEventListener('click', (evt) => {
             if (evt.target.nodeName === 'BUTTON') {
                 return false;
             }
             this.updateMouse(evt);
             this.updateActive();
-        }.bind(this));
-
-        return this;
-    },
-
-    removeMarkers: function() {
-        _.each(this.activeMarkers, function(mark) {
-            scene.remove(mark);
         });
-        this.activeMarkers = [];
-    },
+    }
 
-    updateMouse: function(evt) {
+    updateMouse(evt) {
         this.mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
-    },
+    }
 
-    findIntersects: function() {
-        var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
+    getIntersects() {
+        let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
         vector.unproject(Threes.camera);
-        var position = Threes.camera.position;
-        var ray = new THREE.Raycaster(position, vector.sub(position).normalize());
+        let position = Threes.camera.position;
+        let ray = new THREE.Raycaster(position, vector.sub(position).normalize());
         return ray.intersectObject(Threes.mesh.globe);
-    },
+    }
 
-    updateActive: function() {
-        var intersects = this.findIntersects();
-        var data, faces, vertices;
-
+    updateActive() {
+        let intersects = this.getIntersects();
         if (intersects.length === 0) {
             this.active = null;
             return;
         }
 
-        var face = intersects[0].face;
-        var isPainted = face.data && face.data.artist;
+        let faces, vertices;
+        let face = intersects[0].face;
+        let isPainted = face.data && face.data.artist;
+
         if (face != this.active) {
             this.active = face;
 
@@ -76,86 +68,75 @@ var hud = {
             if (isPainted) {
                 this.setVerticesFromArtistEdges(this.active.data.artist);
 
-                faces = _.filter(Threes.mesh.globe.geometry.faces, function(face) {
-                    return face.data.artist === this.active.data.artist;
-                }.bind(this));
-                for (var i in faces) {
-                    this.addFaceMarkers(faces[i]);
-                }
+                Threes.mesh.globe.geometry.faces.filter(
+                    (face) => face.data.artist === this.active.data.artist
+                ).map((face) => this.addFaceMarkers(face));
             } else {
                 this.addVertexMarkers([face.a, face.b, face.c]);
                 this.addFaceMarkers(face);
             }
         }
 
-        if (isPainted) {
-            data = _.extend({}, this.active.data, {
-                a: this.active.a,
-                b: this.active.b,
-                c: this.active.c,
-            });
-            DOM.hudContainer.innerHTML = this.template(data);
-            DOM.hudContainer.style.display = 'block';
-        } else {
-            data = _.extend({}, this.active.data, {
-                a: this.active.a,
-                b: this.active.b,
-                c: this.active.c,
-            });
-            DOM.hudContainer.innerHTML = this.blankTemplate(data);
-            DOM.hudContainer.style.display = 'block';
-        }
-    },
+        let data = Object.assign({}, this.active.data, {
+            a: this.active.a,
+            b: this.active.b,
+            c: this.active.c
+        });
+        DOM.hudContainer.innerHTML = isPainted ?
+            this.template(data) :
+            this.blankTemplate(data);
+        DOM.hudContainer.style.display = 'block';
+    }
 
-    setVerticesFromArtistEdges: function(artist) {
-        var edges = ArtistManager.edgesForArtist(artist);
-        var vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
+    setVerticesFromArtistEdges(artist) {
+        let edges = ArtistManager.edgesForArtist(artist);
+        let vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
         this.addVertexMarkers(vertices);
-    },
+    }
 
-    addVertexMarkers: function(vertices) {
-        var mesh = Threes.mesh;
-        var mark, vertex;
-        _.each(vertices, function(index) {
+    addVertexMarkers(vertices) {
+        let mesh = Threes.mesh;
+        let mark, vertex;
+        vertices.forEach((index) => {
             mark = this.makeMark(JSON.stringify(index));
-            vertex = mesh.globe.geometry.vertices[index];
+            vertex = Threes.mesh.globe.geometry.vertices[index];
             mark.position.copy(vertex.clone().multiplyScalar(1.005));
             this.activeMarkers.push(mark);
             scene.add(mark);
-        }.bind(this));
-    },
+        });
+    }
 
-    addFaceMarkers: function(face) {
-        var mark = this.makeMark(Threes.mesh.globe.geometry.faces.indexOf(face));
+    addFaceMarkers(face) {
+        let mark = this.makeMark(Threes.mesh.globe.geometry.faces.indexOf(face));
         mark.position.copy(Threes.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
         this.activeMarkers.push(mark);
         scene.add(mark);
-    },
+    }
 
-    getMarkProp: function(key) {
-        var value = Constants.labels[key];
+    getMarkProp(key) {
+        let value = Constants.labels[key];
         // if the value is a string, return it, otherwise return
         // the number as an integer
         return isNaN(value) ? value : +value;
-    },
+    }
 
-    makeMark: function(message) {
-        var canvas = document.createElement('canvas');
+    makeMark(message) {
+        let canvas = document.createElement('canvas');
         canvas.width = canvas.height = 1600;
-        var context = canvas.getContext('2d');
+        let context = canvas.getContext('2d');
 
-        var backgroundColor = this.getMarkProp('backgroundColor');
-        var color = this.getMarkProp('color');
-        var fontface = this.getMarkProp('fontface');
-        var fontsize = this.getMarkProp('fontsize');
+        let backgroundColor = this.getMarkProp('backgroundColor');
+        let color = this.getMarkProp('color');
+        let fontface = this.getMarkProp('fontface');
+        let fontsize = this.getMarkProp('fontsize');
 
-        context.font = fontsize + 'px ' + fontface;
+        context.font = `${fontsize}px ${fontface}`;
 
-        var textWidth = context.measureText(message).width;
+        let textWidth = context.measureText(message).width;
         if (textWidth > canvas.width) {
             canvas.width = canvas.height = textWidth;
             context = canvas.getContext('2d');
-            context.font = fontsize + 'px ' + fontface;
+            context.font = `${fontsize}px ${fontface}`;
         }
 
         context.fillStyle = backgroundColor;
@@ -170,11 +151,15 @@ var hud = {
         context.textAlign = 'center';
         context.fillText(message, canvas.width / 2, canvas.height / 2);
 
-        var texture = new THREE.Texture(canvas);
+        let texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
         return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
     }
+
+    removeMarkers() {
+        this.activeMarkers.forEach((mark) => scene.remove(mark));
+        this.activeMarkers = [];
+    }
 };
 
-hud.init();
-module.exports = hud;
+module.exports = new HUD(DOM.container);

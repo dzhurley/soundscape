@@ -8,13 +8,12 @@ let Threes = require('./three/main');
 let Controls = require('./three/controls');
 let Sourcer = require('./sources/main');
 
-let Hud = require('./hud');
+let HUD = require('./hud');
 let DOM = require('./dom');
 
 class App {
     constructor() {
         this.bindHandlers();
-        this.hud = Hud.bind(DOM.container);
 
         Threes.setupScene();
         DOM.container.appendChild(Threes.renderer.domElement);
