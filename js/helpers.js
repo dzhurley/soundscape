@@ -1,5 +1,3 @@
-let _ = require('underscore');
-
 // internal
 
 let boundedArray = (min = 0, max = 0) => {
@@ -83,7 +81,19 @@ let packUrlParams = (base, params) => {
     return `${base}?${encodedPairs.join('&')}`;
 };
 
-let randomBoundedArray = (min, max) => _.shuffle(boundedArray(min, max));
+let randomArray = (array) => {
+    // pulled from underscore.js
+    let length = array.length;
+    let shuffled = Array(length);
+    for (let i = 0, rand; i < length; i++) {
+        rand = Math.floor(Math.random() * i);
+        if (rand !== i) shuffled[i] = shuffled[rand];
+        shuffled[rand] = array[i];
+    }
+    return shuffled;
+};
+
+let randomBoundedArray = (min, max) => randomArray(boundedArray(min, max));
 
 let spacedColor = (numOfSteps, step) => {
     // http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html

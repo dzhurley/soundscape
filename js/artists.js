@@ -1,4 +1,3 @@
-let _ = require('underscore');
 let h = require('./helpers');
 let THREE = require('three');
 

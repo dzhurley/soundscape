@@ -64,7 +64,6 @@ class FacePlotter {
 
         // make sure one of the candidates isn't for the same artist
         let swappersLeft = swappers.filter((f) => f.data.artist !== artist.name)
-        console.log('swappers left', swappersLeft);
         return swappersLeft;
     }
 

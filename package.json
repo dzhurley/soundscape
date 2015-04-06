@@ -21,7 +21,6 @@
   "dependencies": {
     "es6-shim": "^0.27.1",
     "eventemitter2": "^0.4.14",
-    "three": "^0.70.0",
-    "underscore": "^1.8.2"
+    "three": "^0.70.0"
   }
 }

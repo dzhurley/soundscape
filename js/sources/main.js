@@ -1,4 +1,3 @@
-let _ = require('underscore');
 let h = require('../helpers');
 let Dispatch = require('../dispatch');
 let Last = require('./last');
@@ -35,8 +34,6 @@ class Sourcer {
     startSource(source, username) {
         let src = this.sources[source];
 
-        if (_.isFunction(src)) src = new src(); 
-
         this.activeSource = src;
         this.getArtistsForUser(username);
 
@@ -62,7 +59,7 @@ class Sourcer {
             if (request.status >= 200 && request.status < 400){
                 let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
-                let stringified = JSON.stringify(_.shuffle(this.artists));
+                let stringified = JSON.stringify(h.randomArray(this.artists));
                 Dispatch.emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }

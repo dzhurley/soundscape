@@ -124,7 +124,7 @@ HalfEdgeStructure.prototype = {
         var faces = [];
 
         function accumFaces(edge) {
-            if (_.contains(faces, edge.face)) { return; }
+            if (faces.indexOf(edge.face) > -1) { return; }
             faces.push(edge.face);
             return accumFaces(edge.next.pair);
         }
