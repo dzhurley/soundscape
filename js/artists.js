@@ -1,38 +1,31 @@
-var _ = require('underscore');
-var h = require('./helpers');
-var THREE = require('three');
+let _ = require('underscore');
+let h = require('./helpers');
+let THREE = require('three');
 
-var Dispatch = require('./dispatch');
+let Dispatch = require('./dispatch');
 
 // { color, faces, name, outerBoundaryEdges, plays }
 
-var nextArtistCallCount = 0;
-
-var artistManager = {
-    artistIndex: 0,
-
-    init: function() {
+class ArtistManager {
+    constructor() {
+        this.artistIndex = 0;
         Dispatch.on('getArtists', this.getArtists.bind(this));
         Dispatch.on('updateArtists', this.updateArtists.bind(this));
-    },
+    }
 
-    artistsRemaining: function() {
-        return _.reduce(this.artists, function(memo, artist) {
-            return memo + (artist.faces ? 1 : 0);
-        }, 0);
-    },
+    artistsRemaining() {
+        return this.artists.reduce((memo, artist) => memo + (artist.faces ? 1 : 0), 0);
+    }
 
-    edgesForArtist: function(artistName) {
-        var artist = _.findWhere(this.artists, { name: artistName });
-        return artist && artist.edges;
-    },
+    edgesForArtist(artistName) {
+        let artist = this.artists.filter((artist) => artist.name === artistName);
+        return artist.length && artist[0].edges;
+    }
 
-    processArtists: function(artists) {
-        var totalPlays = _.reduce(artists, function(memo, artist) {
-            return memo + artist.playCount;
-        }, 0);
+    processArtists(artists) {
+        let totalPlays = artists.reduce((memo, artist) => memo + artist.playCount, 0);
 
-        _.map(artists, function(artist, i) {
+        artists.map((artist, i) => {
             artist.edges = [];
 
             // faces available for a given artist to paint
@@ -43,15 +36,13 @@ var artistManager = {
             artist.color.multiplyScalar(artist.normCount);
 
             return artist;
-        }.bind(this));
+        });
 
         // don't bother with artists that don't merit faces
-        return _.filter(artists, function(artist) {
-            return artist.faces > 0;
-        });
-    },
+        return artists.filter((artist) => artist.faces > 0);
+    }
 
-    getArtists: function() {
+    getArtists() {
         postMessage({
             type: 'updateArtists',
             payload: {
@@ -59,24 +50,24 @@ var artistManager = {
                 artistIndex: this.artistIndex
             }
         });
-    },
+    }
 
-    updateArtists: function(payload) {
+    updateArtists(payload) {
         payload.artists = JSON.parse(payload.artists);
         this.artists = payload.artists;
         this.artistIndex = payload.artistIndex;
-    },
+    }
 
-    setArtists: function(payload) {
+    setArtists(payload) {
         this.totalFaces = payload.totalFaces;
         this.artists = this.processArtists(payload.artists);
         this.artistIndex = 0;
-    },
+    }
 
     // TODO: rework in entirety, and most likely move
-    expandArtistEdges: function(face, artist, edge) {
-        var second;
-        var third;
+    expandArtistEdges(face, artist, edge) {
+        let second;
+        let third;
 
         // find the other sides of the face that we'll overtake
         artist.edges.splice(artist.edges.indexOf(edge), 1);
@@ -93,35 +84,36 @@ var artistManager = {
         artist.edges.push(second, third);
 
         // TODO: handle swapping
-    },
+    }
 
-    nextArtist: function() {
-        var artist;
+    nextArtist() {
+        let artist;
 
-        // rollover to beginning of artists
-        if (this.artistIndex === this.artists.length) {
-            this.artistIndex = 0;
-        }
-        artist = this.artists[this.artistIndex];
-        if (artist.faces === 0) {
-            if (nextArtistCallCount === this.artists.length) {
-                // when we've recursed to confirm every `artist.faces` is 0,
-                // we are done painting and return
-                return false;
+        function findArtist(index, artists, call = 0) {
+            // rollover to beginning of artists
+            if (index === artists.length) {
+                index = 0;
             }
-            // if there aren't any faces left to paint for this artist,
-            // look towards the next artist and record how far we've recursed
-            nextArtistCallCount++;
-            this.artistIndex++;
-            return artistManager.nextArtist();
+            artist = artists[index];
+            if (artist.faces === 0) {
+                if (call === artists.length) {
+                    // when we've recursed to confirm every `artist.faces` is 0,
+                    // we are done painting and return
+                    return [false, index];
+                }
+                // if there aren't any faces left to paint for this artist,
+                // look towards the next artist and record how far we've recursed
+                index++;
+                call++;
+                return findArtist(index, artists, call);
+            }
+
+            return [artist, index + 1];
         }
-        // set up next call for next artist
-        this.artistIndex++;
-        // reset recursive logging
-        nextArtistCallCount = 0;
+
+        [artist, this.artistIndex] = findArtist(this.artistIndex, this.artists);
         return artist;
     }
 };
 
-artistManager.init();
-module.exports = artistManager;
+module.exports = new ArtistManager();
