@@ -1,13 +1,11 @@
 let THREE = require('three');
-
 let h = require('../helpers');
-let FacePlotter = require('./faces');
+
 let ArtistManager = require('../artists');
 
 class Looper {
-    constructor(facePlotter, plotter) { 
+    constructor(facePlotter) {
         this.facePlotter = facePlotter;
-        this.plotter = plotter;
         this.remaining = [];
     }
 
@@ -51,7 +49,7 @@ class Looper {
         let iterationResult = this.runIteration(remaining);
         if (startingLength === remaining.length) {
             // no paints on this pass, no use trying again
-            this.plotter.stop = true;
+            return true;
         }
         console.log('remaining', remaining.length);
         return iterationResult;

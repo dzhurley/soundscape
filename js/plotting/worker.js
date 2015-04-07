@@ -1,17 +1,17 @@
+let THREE = require('three');
 let h = require('../helpers');
 
-let THREE = require('three');
 let Dispatch = require('../dispatch');
 let ArtistManager = require('../artists');
 
-let Looper = require('./looper');
 let FacePlotter = require('./faces');
+let Looper = require('./looper');
 
 class Plotter {
     constructor(mesh) {
         this.mesh = mesh;
-        this.facePlotter = new FacePlotter(mesh);
-        this.looper = new Looper(this.facePlotter, this);
+        this.facePlotter = new FacePlotter(this.mesh);
+        this.looper = new Looper(this.facePlotter);
 
         Dispatch.on('plot.*', (method, payload) => this[method](payload));
     }
@@ -51,7 +51,11 @@ class Plotter {
         // seed the planet
         let seeds = this.mesh.utils.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
-        this.processIndexedBatch(seedIndices);
+
+        for (let i in seedIndices) {
+            // specifically plot one artist on one face
+            this.processOneArtist([ seedIndices[i] ]);
+        }
 
         // set remaining faces to paint
         let randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
@@ -70,14 +74,6 @@ class Plotter {
         }
     }
 
-    processIndexedBatch(faceIndices = []) {
-        for (let i in faceIndices) {
-            if (this.processOneArtist([faceIndices[i]])) {
-                break;
-            }
-        }
-    }
-
     respondWithPainted() {
         // TODO: send back progress
         postMessage({
@@ -91,8 +87,6 @@ class Plotter {
     // from events
 
     seed(payload) {
-        // reset stopping flag
-        this.stop = false;
         this.remaining = this.seedArtists(JSON.parse(payload));
         // TODO: send back progress
         postMessage({
@@ -109,15 +103,14 @@ class Plotter {
     }
 
     batchOnce() {
-        this.processSizedBatch();
+        let done = this.processSizedBatch();
         this.respondWithPainted();
+        return done;
     }
 
     batch() {
         for (let i = 0; i < this.remaining.length; i++) {
-            this.batchOnce();
-
-            if (this.stop) {
+            if (this.batchOnce()) {
                 break;
             }
         }
