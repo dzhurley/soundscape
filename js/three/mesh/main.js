@@ -4,7 +4,7 @@ let THREE = require('../../lib/HalfEdgeStructure');
 
 let Dispatch = require('../../dispatch');
 let scene = require('../scene');
-let Utils = require('./utils');
+let Globe = require('./globe');
 
 class Mesh {
     constructor() {
@@ -16,19 +16,17 @@ class Mesh {
         this.wireframe = this.createWireframe();
         this.stars = this.createStars();
 
-        this.utils = new Utils(this.globe);
-
         Dispatch.on('faces.*', (payload) => {
             this.updateFaces(JSON.parse(payload.faces));
         });
     }
 
     resetGlobe() {
-        this.utils.resetFaces();
+        this.globe.resetFaces();
     }
 
     createGlobe() {
-        return new THREE.Mesh(
+        return new Globe(
             new THREE.SphereGeometry(this.radius,
                                      this.widthAndHeight,
                                      this.widthAndHeight),

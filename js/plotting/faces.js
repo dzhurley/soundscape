@@ -11,14 +11,14 @@ class FacePlotter {
     }
 
     handleSwappers(startFace) {
-        let goal = this.mesh.utils.findClosestFreeFace(startFace);
+        let goal = this.mesh.findClosestFreeFace(startFace);
         let currentFace = startFace;
         let candidates = [];
         let path = [currentFace];
 
         while (currentFace != goal) {
             candidates = HEDS.adjacentFaces(currentFace);
-            currentFace = this.mesh.utils.findClosestFace(candidates, goal);
+            currentFace = this.mesh.findClosestFace(candidates, goal);
             path.push(currentFace);
         }
 

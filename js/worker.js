@@ -6,7 +6,7 @@ module.exports = function() {
     let Dispatch = require('./dispatch');
     let Constants = require('./constants');
     let ArtistManager = require('./artists');
-    let Utils = require('./three/mesh/utils');
+    let Globe = require('./three/mesh/globe');
     let Plotter = require('./plotting/worker');
 
     function startWorker() {
@@ -19,9 +19,8 @@ module.exports = function() {
             vertexColors: THREE.FaceColors
         });
 
-        self.Mesh = new THREE.Mesh(geometry, material);
+        self.Mesh = new Globe(geometry, material);
         self.HEDS = new THREE.HalfEdgeStructure(self.Mesh.geometry);
-        self.Mesh.utils = new Utils(self.Mesh);
         self.ArtistManager = ArtistManager;
         self.Plotter = new Plotter(self.Mesh);
         self.started = true;

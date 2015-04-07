@@ -49,7 +49,7 @@ class Plotter {
         this.facePlotter.faces.map((face) => { face.data = {}; });
 
         // seed the planet
-        let seeds = this.mesh.utils.findEquidistantFaces(ArtistManager.artists.length);
+        let seeds = this.mesh.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
 
         for (let i in seedIndices) {

@@ -25,6 +25,7 @@ class HUD {
         this.showing = false;
         this.activeMarkers = [];
         this.mouse = { x: 0, y: 0 };
+        this.globe = Threes.mesh.globe;
     }
 
     attachTo(element) {
@@ -47,7 +48,7 @@ class HUD {
         vector.unproject(Threes.camera);
         let position = Threes.camera.position;
         let ray = new THREE.Raycaster(position, vector.sub(position).normalize());
-        return ray.intersectObject(Threes.mesh.globe);
+        return ray.intersectObject(this.globe);
     }
 
     updateActive() {
@@ -69,7 +70,7 @@ class HUD {
             if (isPainted) {
                 this.setVerticesFromArtistEdges(this.active.data.artist);
 
-                Threes.mesh.globe.geometry.faces.filter(
+                this.globe.geometry.faces.filter(
                     (face) => face.data.artist === this.active.data.artist
                 ).map((face) => this.addFaceMarkers(face));
             } else {
@@ -91,7 +92,7 @@ class HUD {
 
     setVerticesFromArtistEdges(artist) {
         let edges = ArtistManager.edgesForArtist(artist);
-        let vertices = Threes.mesh.utils.uniqueVerticesForEdges(edges);
+        let vertices = this.globe.uniqueVerticesForEdges(edges);
         this.addVertexMarkers(vertices);
     }
 
@@ -100,7 +101,7 @@ class HUD {
         let mark, vertex;
         vertices.forEach((index) => {
             mark = this.makeMark(JSON.stringify(index));
-            vertex = Threes.mesh.globe.geometry.vertices[index];
+            vertex = this.globe.geometry.vertices[index];
             mark.position.copy(vertex.clone().multiplyScalar(1.005));
             this.activeMarkers.push(mark);
             Threes.scene.add(mark);
@@ -108,8 +109,8 @@ class HUD {
     }
 
     addFaceMarkers(face) {
-        let mark = this.makeMark(Threes.mesh.globe.geometry.faces.indexOf(face));
-        mark.position.copy(Threes.mesh.utils.faceCentroid(face).multiplyScalar(1.005));
+        let mark = this.makeMark(this.globe.geometry.faces.indexOf(face));
+        mark.position.copy(this.globe.faceCentroid(face).multiplyScalar(1.005));
         this.activeMarkers.push(mark);
         Threes.scene.add(mark);
     }

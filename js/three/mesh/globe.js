@@ -2,18 +2,17 @@ let h = require('../../helpers');
 let THREE = require('three');
 let scene = require('../scene');
 
-class Utils {
-    constructor(mesh) {
-        this.geo = mesh.geometry;
-        this.mesh = mesh;
+class Globe extends THREE.Mesh {
+    constructor(geometry, material) {
+        super(geometry, material);
     }
 
     faceCentroid(face) {
         // save deprecated face.centroid
         return new THREE.Vector3()
-            .add(this.geo.vertices[face.a])
-            .add(this.geo.vertices[face.b])
-            .add(this.geo.vertices[face.c])
+            .add(this.geometry.vertices[face.a])
+            .add(this.geometry.vertices[face.b])
+            .add(this.geometry.vertices[face.c])
             .divideScalar(3);
     }
 
@@ -26,11 +25,11 @@ class Utils {
 
     resetFaces() {
         // zero face values for fresh paint
-        this.mesh.geometry.faces.map((f) => {
+        this.geometry.faces.map((f) => {
             f.data = {};
             f.color.setHex(0xFFFFFF);
         });
-        this.geo.colorsNeedUpdate = true;
+        this.geometry.colorsNeedUpdate = true;
     }
 
     addEquidistantMarks(num) {
@@ -46,7 +45,7 @@ class Utils {
             mark.position.x = points[i][0];
             mark.position.y = points[i][1];
             mark.position.z = points[i][2];
-            mark.position.multiplyScalar(this.mesh.geometry.parameters.radius + 2);
+            mark.position.multiplyScalar(this.geometry.parameters.radius + 2);
             this.markers.push(mark);
             scene.add(mark);
         }
@@ -63,8 +62,8 @@ class Utils {
             // use the mark's vector as a ray to find the closest face
             // via its intersection
             marker = this.markers[i].position.clone();
-            caster.set(this.mesh.position, marker.normalize());
-            intersectingFaces.push(caster.intersectObject(this.mesh));
+            caster.set(this.position, marker.normalize());
+            intersectingFaces.push(caster.intersectObject(this));
         }
 
         // clean up transient markers
@@ -95,9 +94,9 @@ class Utils {
     }
 
     findClosestFreeFace(startFace) {
-        let freeFaces = this.mesh.geometry.faces.filter((f) => !f.data.artist);
+        let freeFaces = this.geometry.faces.filter((f) => !f.data.artist);
         return this.findClosestFace(freeFaces, startFace);
     }
 }
 
-module.exports = Utils;
+module.exports = Globe;
