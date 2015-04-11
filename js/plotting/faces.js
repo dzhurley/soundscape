@@ -1,38 +1,15 @@
 'use strict';
 
 let ArtistManager = require('../artists');
+let Swapper = require('./swapper');
 
 class FacePlotter {
     constructor(mesh) {
         this.mesh = mesh;
         this.faces = this.mesh.geometry.faces;
         this.vertices = this.mesh.geometry.vertices;
-    }
 
-    handleSwappers(startFace) {
-        let goal = this.mesh.findClosestFreeFace(startFace);
-        let currentFace = startFace;
-        let candidates = [];
-        let path = [currentFace];
-
-        while (currentFace !== goal) {
-            candidates = self.HEDS.adjacentFaces(currentFace);
-            currentFace = this.mesh.findClosestFace(candidates, goal);
-            path.push(currentFace);
-        }
-
-        let prevFace;
-        path.reverse().forEach((face, index) => {
-            prevFace = path[index + 1];
-            if (prevFace) {
-                // TODO: account for edge info, see expandArtistEdges
-                face.data = Object.assign({}, prevFace.data);
-                face.color.copy(prevFace.color);
-            }
-        });
-
-        this.mesh.geometry.colorsNeedUpdate = true;
-        return goal;
+        this.swapper = new Swapper(this.mesh);
     }
 
     validFace(artist, edge) {
@@ -97,7 +74,9 @@ class FacePlotter {
 
             // handle expanding out to the closest free face out of band
             console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
-            this.handleSwappers(faceOrSwap[0]);
+
+            this.swapper.handleSwappers(faceOrSwap[0]);
+
             return {
                 // TODO: bad, do something better to return face states
                 face: true,

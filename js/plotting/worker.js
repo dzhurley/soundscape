@@ -14,11 +14,13 @@ class Plotter {
         this.facePlotter = new FacePlotter(this.mesh);
         this.looper = new Looper(this.facePlotter);
 
+        this.remaining = [];
+
         Dispatch.on('plot.*', (method, payload) => this[method](payload));
     }
 
     newFaces(faces) {
-        return faces.map((face) => {
+        let newFaces = faces.map((face) => {
             let indexedFace = null;
 
             if (face.data.pending) {
@@ -33,6 +35,15 @@ class Plotter {
 
             return indexedFace;
         }).filter((face) => !!face);
+
+        // remove the newly painted face indices from the remaining list
+        this.remaining.filter((f) => Object.keys(newFaces).indexOf('' + f) < 0);
+
+        return newFaces;
+    }
+
+    stringifyNewFaces() {
+        return JSON.stringify(this.newFaces(this.mesh.geometry.faces));
     }
 
     seedArtists(data) {
@@ -60,18 +71,16 @@ class Plotter {
 
         // set remaining faces to paint
         let randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
-        return randos.filter((r) => seedIndices.indexOf(r) < 0);
+        this.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
     }
 
     processOneArtist(remaining = this.remaining) {
         return this.looper.loopOnce(remaining);
     }
 
-    processSizedBatch(batchSize = ArtistManager.artistsRemaining()) {
+    processBatch(batchSize = ArtistManager.artistsRemaining()) {
         for (let i = 0; i <= batchSize; i++) {
-            if (this.processOneArtist()) {
-                break;
-            }
+            if (this.processOneArtist()) break;
         }
     }
 
@@ -79,41 +88,35 @@ class Plotter {
         // TODO: send back progress
         postMessage({
             type: 'faces.painted',
-            payload: {
-                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
-            }
+            payload: { faces: this.stringifyNewFaces() }
         });
     }
 
     // from events
 
     seed(payload) {
-        this.remaining = this.seedArtists(JSON.parse(payload));
+        this.seedArtists(JSON.parse(payload));
         // TODO: send back progress
         postMessage({
             type: 'faces.seeded',
-            payload: {
-                faces: JSON.stringify(this.newFaces(this.mesh.geometry.faces))
-            }
+            payload: { faces: this.stringifyNewFaces() }
         });
     }
 
-    oneArtist() {
+    one() {
         this.processOneArtist();
         this.respondWithPainted();
     }
 
-    batchOnce() {
-        let done = this.processSizedBatch();
+    batch() {
+        let done = this.processBatch();
         this.respondWithPainted();
         return done;
     }
 
-    batch() {
+    all() {
         for (let i = 0; i < this.remaining.length; i++) {
-            if (this.batchOnce()) {
-                break;
-            }
+            if (this.batch()) break;
         }
     }
 }

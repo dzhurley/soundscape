@@ -8,7 +8,6 @@ module.exports = function() {
 
     let Dispatch = require('./dispatch');
     let Constants = require('./constants');
-    let ArtistManager = require('./artists');
     let Globe = require('./three/mesh/globe');
     let Plotter = require('./plotting/worker');
 
@@ -24,7 +23,6 @@ module.exports = function() {
 
         self.Mesh = new Globe(geometry, material);
         self.HEDS = new THREE.HalfEdgeStructure(self.Mesh.geometry);
-        self.ArtistManager = ArtistManager;
         self.Plotter = new Plotter(self.Mesh);
         self.started = true;
     }
