@@ -41,7 +41,7 @@ class DOM {
     }
 
     toggleControls() {
-        Threes.controls.toggleControls();
+        if (Threes.controls) Threes.controls.toggleControls();
     }
 
     toggleOverlay() {

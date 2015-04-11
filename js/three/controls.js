@@ -47,9 +47,9 @@ class Controls {
         Threes.camera.position.copy(prevCamera.position);
         Threes.camera.rotation.copy(prevCamera.rotation);
 
-        this.label = this.label === 'Orbital' ? 'Fly' : 'Orbital';
         this.setButtonText(this.label);
-        return this[`setup${this.label}`]();
+        this.label = this.label === 'Orbital' ? 'Fly' : 'Orbital';
+        this[`setup${this.label}`]();
     }
 
     update(interval) {
