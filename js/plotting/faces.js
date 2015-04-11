@@ -1,6 +1,5 @@
-let h = require('../helpers');
+'use strict';
 
-let THREE = require('../lib/HalfEdgeStructure');
 let ArtistManager = require('../artists');
 
 class FacePlotter {
@@ -16,8 +15,8 @@ class FacePlotter {
         let candidates = [];
         let path = [currentFace];
 
-        while (currentFace != goal) {
-            candidates = HEDS.adjacentFaces(currentFace);
+        while (currentFace !== goal) {
+            candidates = self.HEDS.adjacentFaces(currentFace);
             currentFace = this.mesh.findClosestFace(candidates, goal);
             path.push(currentFace);
         }
@@ -64,7 +63,7 @@ class FacePlotter {
         }
 
         // make sure one of the candidates isn't for the same artist
-        let swappersLeft = swappers.filter((f) => f.data.artist !== artist.name)
+        let swappersLeft = swappers.filter((f) => f.data.artist !== artist.name);
         return swappersLeft;
     }
 
@@ -73,7 +72,6 @@ class FacePlotter {
         let edges = Array.from(artist.edges);
         let edge;
         let faceOrSwap;
-        let swappedArtist;
 
         while (edges.length) {
             edge = edges[Math.floor(Math.random() * edges.length)];

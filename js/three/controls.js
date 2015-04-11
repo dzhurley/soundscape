@@ -1,3 +1,5 @@
+'use strict';
+
 // TODO find a better way
 let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
@@ -47,7 +49,7 @@ class Controls {
 
         this.label = this.label === 'Orbital' ? 'Fly' : 'Orbital';
         this.setButtonText(this.label);
-        return this[`setup${this.label}`]()
+        return this[`setup${this.label}`]();
     }
 
     update(interval) {

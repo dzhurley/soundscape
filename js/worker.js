@@ -1,3 +1,6 @@
+'use strict';
+/*eslint no-undef:0*/
+
 module.exports = function() {
     require('es6-shim');
 
@@ -27,7 +30,7 @@ module.exports = function() {
     }
 
     onmessage = function(evt) {
-        if (!self.started) { startWorker(); }
+        if (!self.started) startWorker();
 
         // expose namespaced method as first arg to callback
         if (evt.data.type.includes('.')) {

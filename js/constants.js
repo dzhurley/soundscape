@@ -1,3 +1,5 @@
+'use strict';
+
 // used on both app and worker side to create some sense of coherence
 
 const globe = Object.freeze({
@@ -31,6 +33,6 @@ const stars = Object.freeze({
     scaleMultiplier: function() {
         return Math.random() * 0.5;
     }
-})
+});
 
 module.exports = Object.freeze({ globe, labels, stars });

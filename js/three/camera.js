@@ -1,3 +1,5 @@
+'use strict';
+
 let THREE = require('three');
 let renderer = require('./renderer');
 

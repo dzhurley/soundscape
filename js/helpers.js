@@ -1,3 +1,5 @@
+'use strict';
+
 // internal
 
 let boundedArray = (min = 0, max = 0) => {
@@ -36,8 +38,8 @@ let equidistantishPointsOnSphere = (numPoints) => {
     let thetas = boundedArray(0, numPoints - 1).map((n) => n * goldenAngle);
 
     let zs = evenlySpacedInRange(
-        (1 - 1.0 / numPoints),
-        (1.0 / numPoints - 1),
+        1 - 1.0 / numPoints,
+        1.0 / numPoints - 1,
         numPoints
     );
 
@@ -103,18 +105,18 @@ let spacedColor = (numOfSteps, step) => {
     let f = h * 6 - i;
     let q = 1 - f;
 
-    switch(i % 6){
-        case 0: r = 1, g = f, b = 0; break;
-        case 1: r = q, g = 1, b = 0; break;
-        case 2: r = 0, g = 1, b = f; break;
-        case 3: r = 0, g = q, b = 1; break;
-        case 4: r = f, g = 0, b = 1; break;
-        case 5: r = 1, g = 0, b = q; break;
+    switch (i % 6) {
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
     }
 
-    let first = ('00' + (~ ~(r * 255)).toString(16)).slice(-2);
-    let second = ('00' + (~ ~(g * 255)).toString(16)).slice(-2);
-    let third = ('00' + (~ ~(b * 255)).toString(16)).slice(-2);
+    let first = ('00' + (~~(r * 255)).toString(16)).slice(-2);
+    let second = ('00' + (~~(g * 255)).toString(16)).slice(-2);
+    let third = ('00' + (~~(b * 255)).toString(16)).slice(-2);
     return `#${first}${second}${third}`;
 };
 

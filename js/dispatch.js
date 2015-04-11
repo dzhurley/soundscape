@@ -1,3 +1,5 @@
+'use strict';
+
 let EventEmitter = require('eventemitter2').EventEmitter2;
 
 class Dispatch extends EventEmitter {
@@ -6,20 +8,20 @@ class Dispatch extends EventEmitter {
     }
 
     bindToWorker(worker) {
-        this._worker = worker;
-        this._worker.onmessage = this.onWorkerMessage.bind(this);
-        this._worker.onerror = this.onWorkerError.bind(this);
+        this.worker = worker;
+        this.worker.onmessage = this.onWorkerMessage.bind(this);
+        this.worker.onerror = this.onWorkerError.bind(this);
     }
 
     emitOnWorker(event, data) {
-        this._worker.postMessage({ type: event, payload: data });
+        this.worker.postMessage({ type: event, payload: data });
     }
 
     onWorkerMessage(event) {
         this.emit(event.data.type, event.data.payload);
     }
 
-    onWorkerError(event) {
+    onWorkerError() {
         console.error('Worker Error:', arguments);
     }
 }

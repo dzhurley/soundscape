@@ -1,8 +1,9 @@
+'use strict';
+
 let THREE = require('three');
 let Constants = require('./constants');
 let Threes = require('./three/main');
 
-let Dispatch = require('./dispatch');
 let DOM = require('./dom');
 let ArtistManager = require('./artists');
 
@@ -39,7 +40,7 @@ class HUD {
     }
 
     updateMouse(evt) {
-        this.mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.x = evt.clientX / window.innerWidth * 2 - 1;
         this.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
     }
 
@@ -58,11 +59,10 @@ class HUD {
             return;
         }
 
-        let faces, vertices;
         let face = intersects[0].face;
         let isPainted = face.data && face.data.artist;
 
-        if (face != this.active) {
+        if (face !== this.active) {
             this.active = face;
 
             this.removeMarkers();
@@ -97,7 +97,6 @@ class HUD {
     }
 
     addVertexMarkers(vertices) {
-        let mesh = Threes.mesh;
         let mark, vertex;
         vertices.forEach((index) => {
             mark = this.makeMark(JSON.stringify(index));
@@ -162,6 +161,6 @@ class HUD {
         this.activeMarkers.forEach((mark) => Threes.scene.remove(mark));
         this.activeMarkers = [];
     }
-};
+}
 
 module.exports = new HUD();

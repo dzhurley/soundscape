@@ -1,3 +1,5 @@
+'use strict';
+
 let h = require('./helpers');
 let THREE = require('./lib/HalfEdgeStructure');
 
@@ -70,10 +72,10 @@ class ArtistManager {
 
         // find the other sides of the face that we'll overtake
         artist.edges.splice(artist.edges.indexOf(edge), 1);
-        if (HEDS.isSameEdge(edge, {v1: face.a, v2: face.b})) {
+        if (self.HEDS.isSameEdge(edge, {v1: face.a, v2: face.b})) {
             second = {v1: face.a, v2: face.c};
             third = {v1: face.b, v2: face.c};
-        } else if (HEDS.isSameEdge(edge, {v1: face.a, v2: face.c})) {
+        } else if (self.HEDS.isSameEdge(edge, {v1: face.a, v2: face.c})) {
             second = {v1: face.a, v2: face.b};
             third = {v1: face.b, v2: face.c};
         } else {
@@ -113,6 +115,6 @@ class ArtistManager {
         [artist, this.artistIndex] = findArtist(this.artistIndex, this.artists);
         return artist;
     }
-};
+}
 
 module.exports = new ArtistManager();

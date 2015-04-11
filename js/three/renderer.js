@@ -1,3 +1,5 @@
+'use strict';
+
 let THREE = require('three');
 
 class Renderer extends THREE.WebGLRenderer {

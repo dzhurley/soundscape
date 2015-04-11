@@ -1,4 +1,5 @@
-let h = require('../../helpers');
+'use strict';
+
 let Constants = require('../../constants');
 let THREE = require('../../lib/HalfEdgeStructure');
 
@@ -67,7 +68,7 @@ class Mesh {
     }
 
     getFaceIndex(face) {
-        return parseInt(Object.keys(face)[0]);
+        return parseInt(Object.keys(face)[0], 10);
     }
 
     updateFaces(newFaces) {

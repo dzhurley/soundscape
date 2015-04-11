@@ -1,5 +1,4 @@
-let THREE = require('three');
-let h = require('../helpers');
+'use strict';
 
 let ArtistManager = require('../artists');
 

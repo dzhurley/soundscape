@@ -1,3 +1,5 @@
+'use strict';
+
 let Dispatch = require('./dispatch');
 let Threes = require('./three/main');
 
@@ -27,7 +29,7 @@ class DOM {
 
         this.sourcesPrompt.addEventListener('submit', (evt) => Dispatch.emit('submitting', evt));
 
-        Dispatch.on('submitted', (evt) => {
+        Dispatch.on('submitted', () => {
             document.querySelector('#username').value = '';
             this.sourcesButton.click();
         });

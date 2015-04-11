@@ -1,4 +1,5 @@
-let THREE = require('three');
+'use strict';
+
 let h = require('../helpers');
 
 let Dispatch = require('../dispatch');
@@ -37,8 +38,8 @@ class Plotter {
     seedArtists(data) {
         if (!data.length) {
             // TODO: find a nicer way
-            alert('user has no plays');
-            return;
+            console.error('user has no plays');
+            return [];
         }
 
         ArtistManager.setArtists({
@@ -46,7 +47,7 @@ class Plotter {
             totalFaces: this.facePlotter.faces.length
         });
 
-        this.facePlotter.faces.map((face) => { face.data = {}; });
+        this.facePlotter.faces.map((face) => face.data = {});
 
         // seed the planet
         let seeds = this.mesh.findEquidistantFaces(ArtistManager.artists.length);

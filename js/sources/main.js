@@ -1,3 +1,5 @@
+'use strict';
+
 let h = require('../helpers');
 let Dispatch = require('../dispatch');
 let Last = require('./last');
@@ -10,7 +12,7 @@ class Sourcer {
     }
 
     sourceUrl(params = {}) {
-        let params = Object.assign({}, this.activeSource.defaultParams, params);
+        params = Object.assign({}, this.activeSource.defaultParams, params);
         return h.packUrlParams(this.activeSource.baseUrl, params);
     }
 
@@ -58,7 +60,7 @@ class Sourcer {
         request.open('GET', url, true);
 
         request.onload = () => {
-            if (request.status >= 200 && request.status < 400){
+            if (request.status >= 200 && request.status < 400) {
                 let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
                 let stringified = JSON.stringify(h.randomArray(this.artists));
@@ -69,6 +71,6 @@ class Sourcer {
 
         request.send();
     }
-};
+}
 
 module.exports = new Sourcer({last: Last});

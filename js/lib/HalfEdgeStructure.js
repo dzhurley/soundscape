@@ -12,6 +12,13 @@
 var THREE = require('three');
 
 var HalfEdgeStructure = function(geometry) {
+    var faceEdges = [];
+    var edgeKey = '';
+    var nextEdgeKey = '';
+    var pairEdgeKey = '';
+
+    var face, edge, faceIndex, edgeIndex;
+
     if (geometry instanceof THREE.Geometry === false) {
         console.error('geometry not an instance of THREE.Geometry.', geometry);
         return;
@@ -23,13 +30,6 @@ var HalfEdgeStructure = function(geometry) {
 
     // edges keyed on 'v1:v2'
     this.edges = {};
-
-    var faceEdges = [];
-    var edgeKey = '';
-    var nextEdgeKey = '';
-    var pairEdgeKey = '';
-
-    var face, edge, faceIndex, edgeIndex;
 
     for (faceIndex in this.geometry.faces) {
         face = this.geometry.faces[faceIndex];
@@ -67,7 +67,8 @@ var HalfEdgeStructure = function(geometry) {
         face.edge = this.edges[edgeKey];
     }
 };
- 
+
+
 HalfEdgeStructure.prototype = {
     constructor: THREE.HalfEdgeStructure,
 
@@ -81,8 +82,8 @@ HalfEdgeStructure.prototype = {
 
     createHalfEdge: function(edge, face) {
         return {
-            pair: undefined,
-            next: undefined,
+            pair: null,
+            next: null,
             vertex: edge.v1,
             face: face
         };
@@ -98,7 +99,7 @@ HalfEdgeStructure.prototype = {
     },
 
     edgeForVertices: function(first, second) {
-        return this.edges[this.keyForEdge()];
+        return this.edges[this.keyForEdge(first, second)];
     },
 
     adjacentFaces: function(face) {
@@ -124,7 +125,7 @@ HalfEdgeStructure.prototype = {
         var faces = [];
 
         function accumFaces(edge) {
-            if (faces.indexOf(edge.face) > -1) { return; }
+            if (faces.indexOf(edge.face) > -1) return false;
             faces.push(edge.face);
             return accumFaces(edge.next.pair);
         }

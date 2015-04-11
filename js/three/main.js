@@ -1,3 +1,5 @@
+'use strict';
+
 let Dispatch = require('../dispatch');
 
 let renderer = require('./renderer');
@@ -29,7 +31,7 @@ let threes = {
     },
 
     animate() {
-        threes.controls && threes.controls.update(1);
+        if (threes.controls) threes.controls.update(1);
         threes.renderer.render(threes.scene, threes.camera);
         window.requestAnimationFrame(threes.animate);
     }

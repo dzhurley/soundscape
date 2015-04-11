@@ -1,10 +1,11 @@
+'use strict';
+
 require('es6-shim');
 
 let work = require('webworkify');
 let worker = work(require('./worker'));
 
 let Dispatch = require('./dispatch');
-let Sourcer = require('./sources/main');
 let Threes = require('./three/main');
 let DOM = require('./dom');
 let HUD = require('./hud');
