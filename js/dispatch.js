@@ -1,6 +1,7 @@
 'use strict';
 
 let EventEmitter = require('eventemitter2').EventEmitter2;
+let events = require('./events');
 
 class Dispatch extends EventEmitter {
     constructor(options = { wildcard: true }) {
@@ -13,11 +14,19 @@ class Dispatch extends EventEmitter {
         this.worker.onerror = this.onWorkerError.bind(this);
     }
 
+    isValidEvent(event) {
+        return events.indexOf(event) > -1;
+    }
+
     emitOnWorker(event, data) {
+        if (!this.isValidEvent(event)) return false;
+
         this.worker.postMessage({ type: event, payload: data });
     }
 
     onWorkerMessage(event) {
+        if (!this.isValidEvent(event.data.type)) return false;
+
         this.emit(event.data.type, event.data.payload);
     }
 
