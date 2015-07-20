@@ -1,5 +1,21 @@
 'use strict';
 
+/* Connector between the form on screen and fetching data for a given user
+ *
+ * Caches responses in localStorage and manages set of possible sources for
+ * artist data. Once data is received, the plotting worker is kicked off
+ * with the dataset.
+ *
+ * Each source must expose the following API:
+ *
+ *     {
+ *         baseUrl: '',
+ *         defaultParams: {},
+ *         paramsForUser: fn,
+ *         parseData: fn
+ *     }
+ */
+
 let h = require('../helpers');
 let Dispatch = require('../dispatch');
 let Last = require('./last');
@@ -36,9 +52,7 @@ class Sourcer {
     }
 
     startSource(source, username) {
-        let src = this.sources[source];
-
-        this.activeSource = src;
+        this.activeSource = this.sources[source];
         this.getArtistsForUser(username);
 
         Dispatch.emit('submitted');

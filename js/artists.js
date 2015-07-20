@@ -54,8 +54,7 @@ class ArtistManager {
     }
 
     updateArtists(payload) {
-        payload.artists = JSON.parse(payload.artists);
-        this.artists = payload.artists;
+        this.artists = JSON.parse(payload.artists);
         this.artistIndex = payload.artistIndex;
     }
 

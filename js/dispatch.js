@@ -1,5 +1,12 @@
 'use strict';
 
+/* Conduit for main and worker appwide events
+ *
+ * Validates against cataloged list of events
+ *
+ * TODO: needs to be able to manage multiple workers
+ */
+
 let EventEmitter = require('eventemitter2').EventEmitter2;
 let events = require('./events');
 

@@ -1,5 +1,9 @@
 'use strict';
 
+/* Adds methods useful in finding seed points for artists and
+ * finding the nearest free face from a given face on the mesh
+ */
+
 let h = require('../../helpers');
 let THREE = require('three');
 let scene = require('../scene');
@@ -19,6 +23,7 @@ class Globe extends THREE.Mesh {
     }
 
     uniqueVerticesForEdges(edges) {
+        // TODO: belongs here?
         return edges
             .map((e) => [e.v1, e.v2])
             .reduce((a, b) => a.concat(b))

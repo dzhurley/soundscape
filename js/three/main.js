@@ -1,5 +1,10 @@
 'use strict';
 
+/* Meat of the THREE.js integration and rendering loop
+ *
+ * This also manages the rebinding of fly/orbital controls
+ */
+
 let Dispatch = require('../dispatch');
 
 let renderer = require('./renderer');

@@ -1,11 +1,17 @@
 'use strict';
 
+/* Runs main loop to iterate through artists and paint faces when possible
+ *
+ * While face specific work is handled in the FacePlotter, starting the
+ * search with the right artist and actually painting the face happens here.
+ *
+ */
+
 let ArtistManager = require('../artists');
 
 class Looper {
     constructor(facePlotter) {
         this.facePlotter = facePlotter;
-        this.remaining = [];
     }
 
     setNewFace(face, artist) {

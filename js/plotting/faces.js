@@ -1,15 +1,20 @@
 'use strict';
 
+/* Meat of traversal to find the next face to paint for a given artist
+ *
+ * If this isn't the first paint for an artist, we search through the
+ * edges of the existing faces for the artist and try to grow its
+ * region. If no edge can immediately be painted, we offload swapping
+ * work to Swapper.
+ */
+
 let ArtistManager = require('../artists');
 let Swapper = require('./swapper');
 
 class FacePlotter {
     constructor(mesh) {
-        this.mesh = mesh;
-        this.faces = this.mesh.geometry.faces;
-        this.vertices = this.mesh.geometry.vertices;
-
-        this.swapper = new Swapper(this.mesh);
+        this.faces = mesh.geometry.faces;
+        this.swapper = new Swapper(mesh);
     }
 
     validFace(artist, edge) {

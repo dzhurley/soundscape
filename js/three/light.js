@@ -13,4 +13,5 @@ class Light extends THREE.AmbientLight {
     }
 }
 
+// TODO: constants
 module.exports = new Light(0xf0f0f0);

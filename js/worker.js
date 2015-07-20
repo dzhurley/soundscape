@@ -1,5 +1,14 @@
 'use strict';
-/*eslint no-undef:0*/
+
+/* WebWorker used for initial seeding and painted of the globe
+ *
+ * Events funnel in from the main thread's Dispatch.emitOnWorker
+ * and are pushed out on the worker's Dispatch to seed or batch
+ * paint faces on the sphere.
+ *
+ * A minimal mirror of the main scene is made in startWorker to
+ * use in all the plotting module's workings.
+ */
 
 module.exports = function() {
     require('es6-shim');

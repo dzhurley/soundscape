@@ -1,5 +1,12 @@
 'use strict';
 
+/* Creates all THREE.js objects added to the scene
+ *
+ * This also responds to updated face values coming in from
+ * the plotting worker and modifies the main Globe with the
+ * new values
+ */
+
 let Constants = require('../../constants');
 let THREE = require('../../lib/HalfEdgeStructure');
 

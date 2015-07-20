@@ -1,5 +1,7 @@
 'use strict';
 
+/* Last.fm specific source */
+
 let h = require('../helpers');
 
 let last = {

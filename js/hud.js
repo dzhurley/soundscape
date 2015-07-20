@@ -1,5 +1,13 @@
 'use strict';
 
+/* Displays artist and face information on click
+ *
+ * A constant display for artist info is updated on click
+ * with the closest artist. All faces and vertices in a
+ * given artist's region are also annotated with their
+ * indices for debugging purposes.
+ */
+
 let THREE = require('three');
 let Constants = require('./constants');
 let Threes = require('./three/main');

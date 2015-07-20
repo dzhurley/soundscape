@@ -1,5 +1,13 @@
 'use strict';
 
+/* Handle case where no free adjacent faces were found to paint
+ *
+ * We find an edge-wise path from the face that needs to swap to
+ * the nearest free face, then travel back along the path and swap
+ * each face with its predecessor until we've bubbled the entire
+ * path out.
+ */
+
 class Swapper {
     constructor(mesh) {
         this.mesh = mesh;
