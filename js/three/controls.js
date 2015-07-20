@@ -4,6 +4,7 @@
 let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
 
+let Constants = require('../constants');
 let Threes = require('./main');
 let DOM = require('../dom');
 
@@ -19,31 +20,23 @@ class Controls {
 
     setupFly() {
         this.active = new THREE.FlyControls(Threes.camera, DOM.container);
-        // TODO: constants
-        Object.assign(this.active, {
-            autoForward: false,
-            domElement: DOM.container,
-            dragToLook: true,
-            movementSpeed: 1,
-            rollSpeed: 0.03
-        });
+        Object.assign(this.active, Constants.flyControls, { domElement: DOM.container });
     }
 
     setupOrbital() {
         this.active = new THREE.OrbitControls(Threes.camera, DOM.container);
-        // TODO: constants
-        Object.assign(this.active, {
-            zoomSpeed: 0.2,
-            rotateSpeed: 0.5,
-            noKeys: true
-        });
+        Object.assign(this.active, Constants.orbitalControls);
     }
 
     toggleControls() {
         let prevCamera = Threes.camera;
 
         Threes.camera = new THREE.PerspectiveCamera(
-            75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            Constants.camera.fov,
+            Constants.camera.aspect(),
+            Constants.camera.near,
+            Constants.camera.far
+        );
         Threes.camera.position.copy(prevCamera.position);
         Threes.camera.rotation.copy(prevCamera.rotation);
 

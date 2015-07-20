@@ -35,4 +35,41 @@ const stars = Object.freeze({
     }
 });
 
-module.exports = Object.freeze({ globe, labels, stars });
+const camera = Object.freeze({
+    initialX: 0,
+    initialY: 100,
+    initialZ: 100,
+
+    fov: 75,
+    aspect: function() {
+        // needs to be callable as constants are used in workers, which don't have window
+        return window.innerWidth / window.innerHeight;
+    },
+    near: 0.1,
+    far: 1000
+});
+
+const light = Object.freeze({ color: 0xf0f0f0 });
+
+const flyControls = Object.freeze({
+    autoForward: false,
+    dragToLook: true,
+    movementSpeed: 1,
+    rollSpeed: 0.03
+});
+
+const orbitalControls = Object.freeze({
+    zoomSpeed: 0.2,
+    rotateSpeed: 0.5,
+    noKeys: true
+});
+
+module.exports = Object.freeze({
+    camera,
+    flyControls,
+    globe,
+    labels,
+    light,
+    orbitalControls,
+    stars
+});
