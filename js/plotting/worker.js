@@ -12,17 +12,12 @@ let h = require('../helpers');
 let Dispatch = require('../dispatch');
 let ArtistManager = require('../artists');
 
-let FacePlotter = require('./faces');
-let Looper = require('./looper');
+let facePlotter = require('./faces');
+let looper = require('./looper');
 
 class Plotter {
-    constructor(globe) {
-        this.globe = globe;
-        this.facePlotter = new FacePlotter(this.globe);
-        this.looper = new Looper(this.facePlotter);
-
+    constructor() {
         this.remaining = [];
-
         Dispatch.on('plot.*', (method, payload) => this[method](payload));
     }
 
@@ -50,7 +45,7 @@ class Plotter {
     }
 
     stringifyNewFaces() {
-        return JSON.stringify(this.newFaces(this.globe.geometry.faces));
+        return JSON.stringify(this.newFaces(self.globe.geometry.faces));
     }
 
     seedArtists(data) {
@@ -62,13 +57,13 @@ class Plotter {
 
         ArtistManager.setArtists({
             artists: data,
-            totalFaces: this.facePlotter.faces.length
+            totalFaces: facePlotter.faces().length
         });
 
-        this.facePlotter.faces.map((face) => face.data = {});
+        facePlotter.faces().map((face) => face.data = {});
 
         // seed the planet
-        let seeds = this.globe.findEquidistantFaces(ArtistManager.artists.length);
+        let seeds = self.globe.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
 
         for (let i in seedIndices) {
@@ -77,12 +72,12 @@ class Plotter {
         }
 
         // set remaining faces to paint
-        let randos = h.randomBoundedArray(0, this.facePlotter.faces.length - 1);
+        let randos = h.randomBoundedArray(0, facePlotter.faces().length - 1);
         this.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
     }
 
     processOneArtist(remaining = this.remaining) {
-        return this.looper.loopOnce(remaining);
+        return looper.loopOnce(remaining);
     }
 
     processBatch(batchSize = ArtistManager.artistsRemaining()) {
@@ -128,4 +123,4 @@ class Plotter {
     }
 }
 
-module.exports = Plotter;
+module.exports = new Plotter();

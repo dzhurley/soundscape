@@ -14,14 +14,12 @@ module.exports = function() {
     require('es6-shim');
 
     let THREE = require('./lib/HalfEdgeStructure');
-
     let Dispatch = require('./dispatch');
-    let globe = require('./three/globe');
-    let Plotter = require('./plotting/worker');
 
     function startWorker() {
+        self.globe = require('./three/globe');
+        self.plotter = require('./plotting/worker');
         self.HEDS = new THREE.HalfEdgeStructure(globe.geometry);
-        self.Plotter = new Plotter(globe);
         self.started = true;
     }
 

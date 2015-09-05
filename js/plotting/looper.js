@@ -8,12 +8,9 @@
  */
 
 let ArtistManager = require('../artists');
+let facePlotter = require('./faces');
 
 class Looper {
-    constructor(facePlotter) {
-        this.facePlotter = facePlotter;
-    }
-
     setNewFace(face, artist) {
         // TODO: doesn't belong here
         face.color.set(artist.color);
@@ -35,7 +32,7 @@ class Looper {
             // no more faces left for any artist to paint
             return true;
         }
-        faceInfo = this.facePlotter.nextFace(artist, rando);
+        faceInfo = facePlotter.nextFace(artist, rando);
 
         if (faceInfo.face) {
             remainingIndex = remaining.indexOf(faceInfo.index);
@@ -61,4 +58,4 @@ class Looper {
     }
 }
 
-module.exports = Looper;
+module.exports = new Looper();

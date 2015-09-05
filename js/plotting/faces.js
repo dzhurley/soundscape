@@ -9,18 +9,17 @@
  */
 
 let ArtistManager = require('../artists');
-let Swapper = require('./swapper');
+let swapper = require('./swapper');
 
 class FacePlotter {
-    constructor(globe) {
-        this.faces = globe.geometry.faces;
-        this.swapper = new Swapper(globe);
+    faces() {
+        return self.globe.geometry.faces;
     }
 
     validFace(artist, edge) {
         let swappers = [];
 
-        let face = this.faces.filter((f) => {
+        let face = this.faces().filter((f) => {
             let valid = false;
 
             if (edge.v1 === f.a) {
@@ -64,7 +63,7 @@ class FacePlotter {
                 ArtistManager.expandArtistEdges(faceOrSwap, artist, edge);
                 return {
                     face: faceOrSwap,
-                    index: this.faces.indexOf(faceOrSwap)
+                    index: this.faces().indexOf(faceOrSwap)
                 };
             }
 
@@ -80,18 +79,18 @@ class FacePlotter {
             // handle expanding out to the closest free face out of band
             console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
 
-            this.swapper.handleSwappers(faceOrSwap[0]);
+            swapper.handleSwappers(faceOrSwap[0]);
 
             return {
                 // TODO: bad, do something better to return face states
                 face: true,
-                index: this.faces.indexOf(faceOrSwap)
+                index: this.faces().indexOf(faceOrSwap)
             };
         }
     }
 
     nextFace(artist, rando) {
-        let face = this.faces[rando];
+        let face = this.faces()[rando];
         let paintedInfo = {artist: artist};
 
         if (face.data.artist) {
@@ -102,7 +101,7 @@ class FacePlotter {
             artist.edges.push({v1: face.a, v2: face.b},
                               {v1: face.b, v2: face.c},
                               {v1: face.a, v2: face.c});
-            return {face: face, index: this.faces.indexOf(face)};
+            return {face: face, index: this.faces().indexOf(face)};
         }
 
         // artist has been painted somewhere else
@@ -113,4 +112,4 @@ class FacePlotter {
     }
 }
 
-module.exports = FacePlotter;
+module.exports = new FacePlotter();
