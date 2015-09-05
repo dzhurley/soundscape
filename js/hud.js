@@ -129,6 +129,7 @@ class HUD {
         return isNaN(value) ? value : +value;
     }
 
+    // TODO: favor DOM over canvas for tooltips
     makeMark(message) {
         let canvas = document.createElement('canvas');
         canvas.width = canvas.height = 1600;

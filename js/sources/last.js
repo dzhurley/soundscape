@@ -4,7 +4,7 @@
 
 let h = require('../helpers');
 
-let last = {
+module.exports = {
     baseUrl: 'http://ws.audioscrobbler.com/2.0/',
 
     defaultParams: {
@@ -32,5 +32,3 @@ let last = {
         })), 'playCount', 'normCount');
     }
 };
-
-module.exports = last;

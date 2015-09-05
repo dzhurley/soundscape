@@ -1,11 +1,34 @@
 'use strict';
 
+/* Central store for artists and their relationship to the globe.
+ *
+ * Artists are annotated with app-specific data as follows:
+ * {
+ *      color: THREE.Color,
+ *      edges: [{v1:0, v2:0}, ...],
+ *      faces: 0,  // count of faces remaining for artist
+ *      name: '',
+ *      playCount: 0
+ * }
+ *
+ * This helps manage interactions with edges of artist territories
+ * and synchronizing artist state between main and worker threads.
+ *
+ * TODO: rework to following format:
+ * {
+ *      color: THREE.Color,
+ *      faces: [faceIndex, faceIndex, ...],
+ *      name: '',
+ *      outerBoundaryEdges: [HalfEdge, HalfEdge, ...],
+ *      plays: 0
+ * }
+ *
+ */
+
 let h = require('./helpers');
 let THREE = require('./lib/HalfEdgeStructure');
 
 let Dispatch = require('./dispatch');
-
-// { color, faces, name, outerBoundaryEdges, plays }
 
 class ArtistManager {
     constructor() {

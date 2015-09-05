@@ -1,5 +1,7 @@
 'use strict';
 
+/* Tie together Orbital and Fly controls into toggle under button */
+
 // TODO find a better way
 let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
@@ -31,6 +33,8 @@ class Controls {
     toggleControls() {
         let prevCamera = Threes.camera;
 
+        // TODO: use './camera' instead of THREE.PerspectiveCamera to preserve
+        // resize event handler on window
         Threes.camera = new THREE.PerspectiveCamera(
             Constants.camera.fov,
             Constants.camera.aspect(),

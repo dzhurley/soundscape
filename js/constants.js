@@ -17,20 +17,20 @@ const labels = Object.freeze({
 const stars = Object.freeze({
     number: 1000,
 
-    initialX: function() {
+    initialX() {
         return Math.random() * 2 - 1;
     },
-    initialY: function() {
+    initialY() {
         return Math.random() * 2 - 1;
     },
-    initialZ: function() {
+    initialZ() {
         return Math.random() * 2 - 1;
     },
 
-    positionMultiplier: function() {
+    positionMultiplier() {
         return Math.random() * 100 + 200;
     },
-    scaleMultiplier: function() {
+    scaleMultiplier() {
         return Math.random() * 0.5;
     }
 });
@@ -41,7 +41,7 @@ const camera = Object.freeze({
     initialZ: 100,
 
     fov: 75,
-    aspect: function() {
+    aspect() {
         // needs to be callable as constants are used in workers, which don't have window
         return window.innerWidth / window.innerHeight;
     },
