@@ -5,10 +5,6 @@ let Constants = require('../constants');
 let scene = require('./scene');
 
 class Light extends THREE.AmbientLight {
-    constructor(color) {
-        super(color);
-    }
-
     addToScene() {
         scene.add(this);
     }

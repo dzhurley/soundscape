@@ -12,13 +12,15 @@ class Camera extends THREE.PerspectiveCamera {
         this.position.y = Constants.camera.initialY;
         this.position.z = Constants.camera.initialZ;
 
-        window.addEventListener('resize', this.onResize.bind(this));
+        this.bindResize();
     }
 
-    onResize() {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        this.aspect = Constants.camera.aspect();
-        this.updateProjectionMatrix();
+    bindResize() {
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            this.aspect = Constants.camera.aspect();
+            this.updateProjectionMatrix();
+        });
     }
 }
 

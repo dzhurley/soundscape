@@ -15,20 +15,16 @@ let mesh = require('./mesh/main');
 
 let threes = {
     camera,
-    light,
-    mesh,
-    renderer,
-    scene,
 
     setScene() {
-        this.light.addToScene();
-        this.mesh.addToScene();
+        light.addToScene();
+        mesh.addToScene();
 
         this.camera.lookAt(scene.position);
         this.animate();
 
         Dispatch.on('submitted', () => {
-            this.mesh.resetGlobe();
+            mesh.resetGlobe();
             if (!this.controls) {
                 this.controls = require('./controls');
             }
@@ -37,7 +33,7 @@ let threes = {
 
     animate() {
         if (threes.controls) threes.controls.update(1);
-        threes.renderer.render(threes.scene, threes.camera);
+        renderer.render(scene, threes.camera);
         window.requestAnimationFrame(threes.animate);
     }
 };

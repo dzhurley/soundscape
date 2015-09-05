@@ -18,7 +18,7 @@
 
 let h = require('../helpers');
 let Dispatch = require('../dispatch');
-let Last = require('./last');
+let last = require('./last');
 
 class Sourcer {
     constructor(sources = {}) {
@@ -87,4 +87,4 @@ class Sourcer {
     }
 }
 
-module.exports = new Sourcer({last: Last});
+module.exports = new Sourcer({ last });

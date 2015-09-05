@@ -11,6 +11,8 @@
 let THREE = require('three');
 let Constants = require('./constants');
 let Threes = require('./three/main');
+let mesh = require('./three/mesh/main');
+let scene = require('./three/scene');
 
 let DOM = require('./dom');
 let ArtistManager = require('./artists');
@@ -34,7 +36,7 @@ class HUD {
         this.showing = false;
         this.activeMarkers = [];
         this.mouse = { x: 0, y: 0 };
-        this.globe = Threes.mesh.globe;
+        this.globe = mesh.globe;
     }
 
     attachTo(element) {
@@ -111,7 +113,7 @@ class HUD {
             vertex = this.globe.geometry.vertices[index];
             mark.position.copy(vertex.clone().multiplyScalar(1.005));
             this.activeMarkers.push(mark);
-            Threes.scene.add(mark);
+            scene.add(mark);
         });
     }
 
@@ -119,7 +121,7 @@ class HUD {
         let mark = this.makeMark(this.globe.geometry.faces.indexOf(face));
         mark.position.copy(this.globe.faceCentroid(face).multiplyScalar(1.005));
         this.activeMarkers.push(mark);
-        Threes.scene.add(mark);
+        scene.add(mark);
     }
 
     getMarkProp(key) {
@@ -167,7 +169,7 @@ class HUD {
     }
 
     removeMarkers() {
-        this.activeMarkers.forEach((mark) => Threes.scene.remove(mark));
+        this.activeMarkers.forEach((mark) => scene.remove(mark));
         this.activeMarkers = [];
     }
 }
