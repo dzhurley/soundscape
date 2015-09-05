@@ -12,6 +12,7 @@ let camera = require('./camera');
 let scene = require('./scene');
 let light = require('./light');
 let mesh = require('./mesh/main');
+let stars = require('./stars');
 
 let threes = {
     camera,
@@ -19,6 +20,7 @@ let threes = {
     setScene() {
         light.addToScene();
         mesh.addToScene();
+        stars.addToScene();
 
         this.camera.lookAt(scene.position);
         this.animate();

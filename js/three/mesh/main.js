@@ -7,7 +7,6 @@
  * new values
  */
 
-let Constants = require('../../constants');
 let THREE = require('../../lib/HalfEdgeStructure');
 
 let Dispatch = require('../../dispatch');
@@ -19,7 +18,6 @@ class Mesh {
         this.globe = globe;
         this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
         this.wireframe = this.createWireframe();
-        this.stars = this.createStars();
 
         Dispatch.on('faces.*', (payload) => {
             this.updateFaces(JSON.parse(payload.faces));
@@ -34,28 +32,9 @@ class Mesh {
         return new THREE.WireframeHelper(this.globe);
     }
 
-    createStars() {
-        let stars = [];
-        let star;
-
-        for (let i = 0; i < Constants.stars.number; ++i) {
-            star = new THREE.Sprite(new THREE.SpriteMaterial());
-            star.position.x = Constants.stars.initialX();
-            star.position.y = Constants.stars.initialY();
-            star.position.z = Constants.stars.initialZ();
-
-            star.position.normalize();
-            star.position.multiplyScalar(Constants.stars.positionMultiplier());
-            star.scale.multiplyScalar(Constants.stars.scaleMultiplier());
-            stars.push(star);
-        }
-        return stars;
-    }
-
     addToScene() {
         scene.add(this.globe);
         scene.add(this.wireframe);
-        this.stars.map((star) => scene.add(star));
     }
 
     getFaceIndex(face) {
