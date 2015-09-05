@@ -8,11 +8,10 @@ let h = require('../../helpers');
 let THREE = require('three');
 let scene = require('../scene');
 
-class Globe extends THREE.Mesh {
-    constructor(geometry, material) {
-        super(geometry, material);
-    }
+let geometry = require('./globeGeometry');
+let material = require('./globeMaterial');
 
+class Globe extends THREE.Mesh {
     faceCentroid(face) {
         // save deprecated face.centroid
         return new THREE.Vector3()
@@ -23,7 +22,7 @@ class Globe extends THREE.Mesh {
     }
 
     uniqueVerticesForEdges(edges) {
-        // TODO: belongs here?
+        // TODO: belongs here? use heds?
         return edges
             .map((e) => [e.v1, e.v2])
             .reduce((a, b) => a.concat(b))
@@ -106,4 +105,4 @@ class Globe extends THREE.Mesh {
     }
 }
 
-module.exports = Globe;
+module.exports = new Globe(geometry, material);

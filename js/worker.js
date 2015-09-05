@@ -16,21 +16,11 @@ module.exports = function() {
     let THREE = require('./lib/HalfEdgeStructure');
 
     let Dispatch = require('./dispatch');
-    let Constants = require('./constants');
-    let Globe = require('./three/mesh/globe');
+    let globe = require('./three/mesh/globe');
     let Plotter = require('./plotting/worker');
 
     function startWorker() {
-        let geometry = new THREE.SphereGeometry(Constants.globe.radius,
-                                                Constants.globe.widthAndHeight,
-                                                Constants.globe.widthAndHeight);
-        let material = new THREE.MeshLambertMaterial({
-            shading: THREE.FlatShading,
-            side: THREE.DoubleSide,
-            vertexColors: THREE.FaceColors
-        });
-
-        self.Mesh = new Globe(geometry, material);
+        self.Mesh = globe;
         self.HEDS = new THREE.HalfEdgeStructure(self.Mesh.geometry);
         self.Plotter = new Plotter(self.Mesh);
         self.started = true;

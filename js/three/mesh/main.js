@@ -12,14 +12,11 @@ let THREE = require('../../lib/HalfEdgeStructure');
 
 let Dispatch = require('../../dispatch');
 let scene = require('../scene');
-let Globe = require('./globe');
+let globe = require('./globe');
 
 class Mesh {
     constructor() {
-        this.radius = Constants.globe.radius;
-        this.widthAndHeight = Constants.globe.widthAndHeight;
-
-        this.globe = this.createGlobe();
+        this.globe = globe;
         this.heds = new THREE.HalfEdgeStructure(this.globe.geometry);
         this.wireframe = this.createWireframe();
         this.stars = this.createStars();
@@ -31,19 +28,6 @@ class Mesh {
 
     resetGlobe() {
         this.globe.resetFaces();
-    }
-
-    createGlobe() {
-        return new Globe(
-            new THREE.SphereGeometry(this.radius,
-                                     this.widthAndHeight,
-                                     this.widthAndHeight),
-            new THREE.MeshLambertMaterial({
-                shading: THREE.FlatShading,
-                side: THREE.DoubleSide,
-                vertexColors: THREE.FaceColors
-            })
-        );
     }
 
     createWireframe() {
