@@ -9,19 +9,19 @@
  */
 
 class Swapper {
-    constructor(mesh) {
-        this.mesh = mesh;
+    constructor(globe) {
+        this.globe = globe;
     }
 
     handleSwappers(startFace) {
-        let goal = this.mesh.findClosestFreeFace(startFace);
+        let goal = this.globe.findClosestFreeFace(startFace);
         let currentFace = startFace;
         let candidates = [];
         let path = [currentFace];
 
         while (currentFace !== goal) {
             candidates = self.HEDS.adjacentFaces(currentFace);
-            currentFace = this.mesh.findClosestFace(candidates, goal);
+            currentFace = this.globe.findClosestFace(candidates, goal);
             path.push(currentFace);
         }
 
@@ -35,7 +35,7 @@ class Swapper {
             }
         });
 
-        this.mesh.geometry.colorsNeedUpdate = true;
+        this.globe.geometry.colorsNeedUpdate = true;
         return goal;
     }
 }

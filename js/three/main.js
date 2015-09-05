@@ -5,13 +5,15 @@
  * This also manages the rebinding of fly/orbital controls
  */
 
+let THREE = require('three');
 let Dispatch = require('../dispatch');
 
-let renderer = require('./renderer');
 let camera = require('./camera');
-let scene = require('./scene');
 let light = require('./light');
-let mesh = require('./mesh/main');
+let renderer = require('./renderer');
+let scene = require('./scene');
+
+let globe = require('./globe');
 let stars = require('./stars');
 
 let threes = {
@@ -19,14 +21,18 @@ let threes = {
 
     setScene() {
         light.addToScene();
-        mesh.addToScene();
+
+        globe.addToScene();
         stars.addToScene();
+
+        // TODO: flag for optional debugging mode?
+        scene.add(new THREE.WireframeHelper(globe));
 
         this.camera.lookAt(scene.position);
         this.animate();
 
         Dispatch.on('submitted', () => {
-            mesh.resetGlobe();
+            globe.resetGlobe();
             if (!this.controls) {
                 this.controls = require('./controls');
             }

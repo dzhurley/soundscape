@@ -16,9 +16,9 @@ let FacePlotter = require('./faces');
 let Looper = require('./looper');
 
 class Plotter {
-    constructor(mesh) {
-        this.mesh = mesh;
-        this.facePlotter = new FacePlotter(this.mesh);
+    constructor(globe) {
+        this.globe = globe;
+        this.facePlotter = new FacePlotter(this.globe);
         this.looper = new Looper(this.facePlotter);
 
         this.remaining = [];
@@ -50,7 +50,7 @@ class Plotter {
     }
 
     stringifyNewFaces() {
-        return JSON.stringify(this.newFaces(this.mesh.geometry.faces));
+        return JSON.stringify(this.newFaces(this.globe.geometry.faces));
     }
 
     seedArtists(data) {
@@ -68,7 +68,7 @@ class Plotter {
         this.facePlotter.faces.map((face) => face.data = {});
 
         // seed the planet
-        let seeds = this.mesh.findEquidistantFaces(ArtistManager.artists.length);
+        let seeds = this.globe.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
 
         for (let i in seedIndices) {

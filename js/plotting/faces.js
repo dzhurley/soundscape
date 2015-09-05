@@ -12,9 +12,9 @@ let ArtistManager = require('../artists');
 let Swapper = require('./swapper');
 
 class FacePlotter {
-    constructor(mesh) {
-        this.faces = mesh.geometry.faces;
-        this.swapper = new Swapper(mesh);
+    constructor(globe) {
+        this.faces = globe.geometry.faces;
+        this.swapper = new Swapper(globe);
     }
 
     validFace(artist, edge) {

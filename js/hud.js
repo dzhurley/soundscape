@@ -11,7 +11,7 @@
 let THREE = require('three');
 let Constants = require('./constants');
 let Threes = require('./three/main');
-let mesh = require('./three/mesh/main');
+let globe = require('./three/globe');
 let scene = require('./three/scene');
 
 let DOM = require('./dom');
@@ -36,7 +36,7 @@ class HUD {
         this.showing = false;
         this.activeMarkers = [];
         this.mouse = { x: 0, y: 0 };
-        this.globe = mesh.globe;
+        this.globe = globe;
     }
 
     attachTo(element) {

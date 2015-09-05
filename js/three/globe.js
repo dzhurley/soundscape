@@ -4,14 +4,44 @@
  * finding the nearest free face from a given face on the mesh
  */
 
-let h = require('../../helpers');
+let h = require('../helpers');
+let Constants = require('../constants');
+let Dispatch = require('../dispatch');
 let THREE = require('three');
-let scene = require('../scene');
-
-let geometry = require('./globeGeometry');
-let material = require('./globeMaterial');
+let scene = require('./scene');
 
 class Globe extends THREE.Mesh {
+    constructor(geometry, material) {
+        super(geometry, material);
+
+        Dispatch.on('faces.*', (payload) => {
+            this.updateFaces(JSON.parse(payload.faces));
+        });
+    }
+
+    getFaceIndex(face) {
+        return parseInt(Object.keys(face)[0], 10);
+    }
+
+    updateFaces(newFaces) {
+        let oldFaces = this.geometry.faces;
+
+        console.log('painting new faces:',
+                    newFaces.map((face) => this.getFaceIndex(face)));
+
+        newFaces.forEach((face) => {
+            let index = this.getFaceIndex(face);
+            oldFaces[index].color.copy(face[index].color);
+            oldFaces[index].data = face[index].data;
+        });
+
+        this.geometry.colorsNeedUpdate = true;
+    }
+
+    addToScene() {
+        scene.add(this);
+    }
+
     faceCentroid(face) {
         // save deprecated face.centroid
         return new THREE.Vector3()
@@ -29,7 +59,7 @@ class Globe extends THREE.Mesh {
             .filter((e, i, es) => es.indexOf(e) === i);
     }
 
-    resetFaces() {
+    resetGlobe() {
         // zero face values for fresh paint
         this.geometry.faces.map((f) => {
             f.data = {};
@@ -105,4 +135,15 @@ class Globe extends THREE.Mesh {
     }
 }
 
-module.exports = new Globe(geometry, material);
+module.exports = new Globe(
+    new THREE.SphereGeometry(
+        Constants.globe.radius,
+        Constants.globe.widthAndHeight,
+        Constants.globe.widthAndHeight
+    ),
+    new THREE.MeshLambertMaterial({
+        shading: THREE.FlatShading,
+        side: THREE.DoubleSide,
+        vertexColors: THREE.FaceColors
+    })
+);
