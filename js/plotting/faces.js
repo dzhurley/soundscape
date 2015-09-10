@@ -9,11 +9,12 @@
  */
 
 let ArtistManager = require('../artists');
+let globe = require('../three/globe');
 let swapper = require('./swapper');
 
 class FacePlotter {
     faces() {
-        return self.globe.geometry.faces;
+        return globe.geometry.faces;
     }
 
     validFace(artist, edge) {

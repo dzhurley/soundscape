@@ -15,11 +15,12 @@ module.exports = function() {
 
     let THREE = require('./lib/HalfEdgeStructure');
     let Dispatch = require('./dispatch');
+    let globe = require('./three/globe');
+    let plotter = require('./plotting/worker');
 
     function startWorker() {
-        self.globe = require('./three/globe');
-        self.plotter = require('./plotting/worker');
         self.HEDS = new THREE.HalfEdgeStructure(globe.geometry);
+        Dispatch.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }
 

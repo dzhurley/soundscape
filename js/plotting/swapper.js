@@ -8,16 +8,18 @@
  * path out.
  */
 
+let globe = require('../three/globe');
+
 class Swapper {
     handleSwappers(startFace) {
-        let goal = self.globe.findClosestFreeFace(startFace);
+        let goal = globe.findClosestFreeFace(startFace);
         let currentFace = startFace;
         let candidates = [];
         let path = [currentFace];
 
         while (currentFace !== goal) {
             candidates = self.HEDS.adjacentFaces(currentFace);
-            currentFace = self.globe.findClosestFace(candidates, goal);
+            currentFace = globe.findClosestFace(candidates, goal);
             path.push(currentFace);
         }
 
@@ -31,7 +33,7 @@ class Swapper {
             }
         });
 
-        self.globe.geometry.colorsNeedUpdate = true;
+        globe.geometry.colorsNeedUpdate = true;
         return goal;
     }
 }

@@ -11,44 +11,62 @@ let h = require('../helpers');
 
 let Dispatch = require('../dispatch');
 let ArtistManager = require('../artists');
+let globe = require('../three/globe');
 
 let facePlotter = require('./faces');
 let looper = require('./looper');
 
-class Plotter {
-    constructor() {
-        this.remaining = [];
-        Dispatch.on('plot.*', (method, payload) => this[method](payload));
+function getNewFaces(faces) {
+    let newFaces = faces.map((face) => {
+        let indexedFace = null;
+
+        if (face.data.pending) {
+            let index = faces.indexOf(face).toString();
+            indexedFace = {};
+            indexedFace[index] = {
+                color: face.color,
+                data: face.data
+            };
+            delete face.data.pending;
+        }
+
+        return indexedFace;
+    }).filter((face) => !!face);
+
+    // remove the newly painted face indices from the remaining list
+    self.remaining.filter((f) => Object.keys(newFaces).indexOf('' + f) < 0);
+
+    return newFaces;
+}
+
+function stringifyNewFaces() {
+    return JSON.stringify(getNewFaces(globe.geometry.faces));
+}
+
+function processOneArtist(left = self.remaining) {
+    return looper.loopOnce(left);
+}
+
+function processBatch(batchSize = ArtistManager.artistsRemaining()) {
+    for (let i = 0; i <= batchSize; i++) {
+        if (processOneArtist()) break;
     }
+}
 
-    newFaces(faces) {
-        let newFaces = faces.map((face) => {
-            let indexedFace = null;
+function respondWithPainted() {
+    // TODO: send back progress
+    postMessage({
+        type: 'faces.painted',
+        payload: { faces: stringifyNewFaces() }
+    });
+}
 
-            if (face.data.pending) {
-                let index = faces.indexOf(face).toString();
-                indexedFace = {};
-                indexedFace[index] = {
-                    color: face.color,
-                    data: face.data
-                };
-                delete face.data.pending;
-            }
+self.remaining = [];
 
-            return indexedFace;
-        }).filter((face) => !!face);
+module.exports = {
+    seed(payload) {
+        let data = JSON.parse(payload);
 
-        // remove the newly painted face indices from the remaining list
-        this.remaining.filter((f) => Object.keys(newFaces).indexOf('' + f) < 0);
-
-        return newFaces;
-    }
-
-    stringifyNewFaces() {
-        return JSON.stringify(this.newFaces(self.globe.geometry.faces));
-    }
-
-    seedArtists(data) {
         if (!data.length) {
             // TODO: find a nicer way
             console.error('user has no plays');
@@ -63,64 +81,39 @@ class Plotter {
         facePlotter.faces().map((face) => face.data = {});
 
         // seed the planet
-        let seeds = self.globe.findEquidistantFaces(ArtistManager.artists.length);
+        let seeds = globe.findEquidistantFaces(ArtistManager.artists.length);
         let seedIndices = seeds.map((seed) => seed.faceIndex);
 
         for (let i in seedIndices) {
             // specifically plot one artist on one face
-            this.processOneArtist([ seedIndices[i] ]);
+            processOneArtist([ seedIndices[i] ]);
         }
 
         // set remaining faces to paint
         let randos = h.randomBoundedArray(0, facePlotter.faces().length - 1);
-        this.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
-    }
+        self.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
 
-    processOneArtist(remaining = this.remaining) {
-        return looper.loopOnce(remaining);
-    }
-
-    processBatch(batchSize = ArtistManager.artistsRemaining()) {
-        for (let i = 0; i <= batchSize; i++) {
-            if (this.processOneArtist()) break;
-        }
-    }
-
-    respondWithPainted() {
-        // TODO: send back progress
-        postMessage({
-            type: 'faces.painted',
-            payload: { faces: this.stringifyNewFaces() }
-        });
-    }
-
-    // from events
-
-    seed(payload) {
-        this.seedArtists(JSON.parse(payload));
         // TODO: send back progress
         postMessage({
             type: 'faces.seeded',
-            payload: { faces: this.stringifyNewFaces() }
+            payload: { faces: stringifyNewFaces() }
         });
-    }
+    },
 
     one() {
-        this.processOneArtist();
-        this.respondWithPainted();
-    }
+        processOneArtist();
+        respondWithPainted();
+    },
 
     batch() {
-        let done = this.processBatch();
-        this.respondWithPainted();
+        let done = processBatch();
+        respondWithPainted();
         return done;
-    }
+    },
 
     all() {
-        for (let i = 0; i < this.remaining.length; i++) {
+        for (let i = 0; i < self.remaining.length; i++) {
             if (this.batch()) break;
         }
     }
-}
-
-module.exports = new Plotter();
+};
