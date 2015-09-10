@@ -9,12 +9,55 @@
 
 let h = require('../helpers');
 
-let Dispatch = require('../dispatch');
 let ArtistManager = require('../artists');
 let globe = require('../three/globe');
-
 let facePlotter = require('./faces');
-let looper = require('./looper');
+
+function setNewFace(face, artist) {
+    // TODO: doesn't belong here
+    face.color.set(artist.color);
+    face.data.artist = artist.name;
+    face.data.plays = artist.playCount;
+    face.data.pending = true;
+    artist.faces--;
+}
+
+function runIteration(remaining) {
+    let rando = remaining[0];
+    let artist;
+    let faceInfo;
+    let remainingIndex;
+
+    // choose random face for each face to paint
+    artist = ArtistManager.nextArtist();
+    if (!artist) {
+        // no more faces left for any artist to paint
+        return true;
+    }
+    faceInfo = facePlotter.nextFace(artist, rando);
+
+    if (faceInfo.face) {
+        remainingIndex = remaining.indexOf(faceInfo.index);
+        if (remainingIndex > -1) {
+            remaining.splice(remainingIndex, 1);
+        }
+        if (faceInfo.face !== true) {
+            setNewFace(faceInfo.face, artist);
+        }
+    }
+    return false;
+}
+
+function iterate(remaining = self.remaining) {
+    let startingLength = remaining.length;
+    let iterationResult = runIteration(remaining);
+    if (startingLength === remaining.length) {
+        // no paints on this pass, no use trying again
+        return true;
+    }
+    console.log('remaining', remaining.length);
+    return iterationResult;
+}
 
 function getNewFaces(faces) {
     let newFaces = faces.map((face) => {
@@ -39,25 +82,11 @@ function getNewFaces(faces) {
     return newFaces;
 }
 
-function stringifyNewFaces() {
-    return JSON.stringify(getNewFaces(globe.geometry.faces));
-}
-
-function processOneArtist(left = self.remaining) {
-    return looper.loopOnce(left);
-}
-
-function processBatch(batchSize = ArtistManager.artistsRemaining()) {
-    for (let i = 0; i <= batchSize; i++) {
-        if (processOneArtist()) break;
-    }
-}
-
-function respondWithPainted() {
+function respondWithFaces(event = 'painted') {
     // TODO: send back progress
     postMessage({
-        type: 'faces.painted',
-        payload: { faces: stringifyNewFaces() }
+        type: `faces.${event}`,
+        payload: { faces: JSON.stringify(getNewFaces(globe.geometry.faces)) }
     });
 }
 
@@ -75,10 +104,10 @@ module.exports = {
 
         ArtistManager.setArtists({
             artists: data,
-            totalFaces: facePlotter.faces().length
+            totalFaces: globe.geometry.faces.length
         });
 
-        facePlotter.faces().map((face) => face.data = {});
+        globe.geometry.faces.map((face) => face.data = {});
 
         // seed the planet
         let seeds = globe.findEquidistantFaces(ArtistManager.artists.length);
@@ -86,29 +115,26 @@ module.exports = {
 
         for (let i in seedIndices) {
             // specifically plot one artist on one face
-            processOneArtist([ seedIndices[i] ]);
+            iterate([ seedIndices[i] ]);
         }
 
         // set remaining faces to paint
-        let randos = h.randomBoundedArray(0, facePlotter.faces().length - 1);
+        let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
         self.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
 
-        // TODO: send back progress
-        postMessage({
-            type: 'faces.seeded',
-            payload: { faces: stringifyNewFaces() }
-        });
+        respondWithFaces('seeded');
     },
 
     one() {
-        processOneArtist();
-        respondWithPainted();
+        iterate();
+        respondWithFaces();
     },
 
     batch() {
-        let done = processBatch();
-        respondWithPainted();
-        return done;
+        for (let i = 0; i <= ArtistManager.artistsRemaining(); i++) {
+            if (iterate()) break;
+        }
+        respondWithFaces();
     },
 
     all() {
