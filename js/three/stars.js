@@ -21,6 +21,6 @@ for (let i = 0; i < Constants.stars.number; ++i) {
 
 module.exports = {
     addToScene() {
-        stars.map((star) => scene.add(star));
+        stars.map(star => scene.add(star));
     }
 };

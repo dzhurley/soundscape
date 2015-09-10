@@ -60,7 +60,7 @@ function iterate(remaining = self.remaining) {
 }
 
 function getNewFaces(faces) {
-    let newFaces = faces.map((face) => {
+    let newFaces = faces.map(face => {
         let indexedFace = null;
 
         if (face.data.pending) {
@@ -74,10 +74,10 @@ function getNewFaces(faces) {
         }
 
         return indexedFace;
-    }).filter((face) => !!face);
+    }).filter(face => !!face);
 
     // remove the newly painted face indices from the remaining list
-    self.remaining.filter((f) => Object.keys(newFaces).indexOf('' + f) < 0);
+    self.remaining.filter(f => Object.keys(newFaces).indexOf('' + f) < 0);
 
     return newFaces;
 }
@@ -107,11 +107,11 @@ module.exports = {
             totalFaces: globe.geometry.faces.length
         });
 
-        globe.geometry.faces.map((face) => face.data = {});
+        globe.geometry.faces.map(face => face.data = {});
 
         // seed the planet
         let seeds = globe.findEquidistantFaces(ArtistManager.artists.length);
-        let seedIndices = seeds.map((seed) => seed.faceIndex);
+        let seedIndices = seeds.map(seed => seed.faceIndex);
 
         for (let i in seedIndices) {
             // specifically plot one artist on one face
@@ -120,7 +120,7 @@ module.exports = {
 
         // set remaining faces to paint
         let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
-        self.remaining = randos.filter((r) => seedIndices.indexOf(r) < 0);
+        self.remaining = randos.filter(r => seedIndices.indexOf(r) < 0);
 
         respondWithFaces('seeded');
     },

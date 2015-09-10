@@ -14,7 +14,7 @@ class Globe extends THREE.Mesh {
     constructor(geometry, material) {
         super(geometry, material);
 
-        Dispatch.on('faces.*', (payload) => {
+        Dispatch.on('faces.*', payload => {
             this.updateFaces(JSON.parse(payload.faces));
         });
     }
@@ -27,9 +27,9 @@ class Globe extends THREE.Mesh {
         let oldFaces = this.geometry.faces;
 
         console.log('painting new faces:',
-                    newFaces.map((face) => this.getFaceIndex(face)));
+                    newFaces.map(face => this.getFaceIndex(face)));
 
-        newFaces.forEach((face) => {
+        newFaces.forEach(face => {
             let index = this.getFaceIndex(face);
             oldFaces[index].color.copy(face[index].color);
             oldFaces[index].data = face[index].data;
@@ -54,14 +54,14 @@ class Globe extends THREE.Mesh {
     uniqueVerticesForEdges(edges) {
         // TODO: belongs here? use heds?
         return edges
-            .map((e) => [e.v1, e.v2])
+            .map(e => [e.v1, e.v2])
             .reduce((a, b) => a.concat(b))
             .filter((e, i, es) => es.indexOf(e) === i);
     }
 
     resetGlobe() {
         // zero face values for fresh paint
-        this.geometry.faces.map((f) => {
+        this.geometry.faces.map(f => {
             f.data = {};
             f.color.setHex(0xFFFFFF);
         });
@@ -103,11 +103,11 @@ class Globe extends THREE.Mesh {
         }
 
         // clean up transient markers
-        this.markers.map((mark) => scene.remove(mark));
+        this.markers.map(mark => scene.remove(mark));
         delete this.markers;
 
         // return at most one face for each intersection
-        return intersectingFaces.map((hit) => hit[0]);
+        return intersectingFaces.map(hit => hit[0]);
     }
 
     findClosestFace(candidates, target) {
@@ -130,7 +130,7 @@ class Globe extends THREE.Mesh {
     }
 
     findClosestFreeFace(startFace) {
-        let freeFaces = this.geometry.faces.filter((f) => !f.data.artist);
+        let freeFaces = this.geometry.faces.filter(f => !f.data.artist);
         return this.findClosestFace(freeFaces, startFace);
     }
 }

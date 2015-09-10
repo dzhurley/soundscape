@@ -26,7 +26,7 @@ module.exports = {
             return {};
         }
 
-        return h.normalize(data.artists.artist.map((artist) => ({
+        return h.normalize(data.artists.artist.map(artist => ({
             name: artist.name,
             playCount: Number.parseInt(artist.playcount, 10)
         })), 'playCount', 'normCount');

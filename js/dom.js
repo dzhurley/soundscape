@@ -28,11 +28,10 @@ class DOM {
         let mainButtons = Array.from(document.querySelectorAll('.main button'));
         let workerButtons = Array.from(document.querySelectorAll('.worker button'));
 
-        mainButtons.forEach((button) =>
-            button.addEventListener('click', () => this[button.id]()));
-        workerButtons.forEach((button) => this.workerBindings(button));
+        mainButtons.forEach(button => button.addEventListener('click', () => this[button.id]()));
+        workerButtons.forEach(button => this.workerBindings(button));
 
-        this.sourcesPrompt.addEventListener('submit', (evt) => Dispatch.emit('submitting', evt));
+        this.sourcesPrompt.addEventListener('submit', evt => Dispatch.emit('submitting', evt));
 
         Dispatch.on('submitted', () => {
             document.querySelector('#username').value = '';

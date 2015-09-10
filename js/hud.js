@@ -40,7 +40,7 @@ class HUD {
     }
 
     attachTo(element) {
-        element.addEventListener('click', (evt) => {
+        element.addEventListener('click', evt => {
             if (evt.target.nodeName === 'BUTTON') {
                 return false;
             }
@@ -81,8 +81,8 @@ class HUD {
                 this.setVerticesFromArtistEdges(this.active.data.artist);
 
                 this.globe.geometry.faces.filter(
-                    (face) => face.data.artist === this.active.data.artist
-                ).map((face) => this.addFaceMarkers(face));
+                    face => face.data.artist === this.active.data.artist
+                ).map(face => this.addFaceMarkers(face));
             } else {
                 this.addVertexMarkers([face.a, face.b, face.c]);
                 this.addFaceMarkers(face);
@@ -108,7 +108,7 @@ class HUD {
 
     addVertexMarkers(vertices) {
         let mark, vertex;
-        vertices.forEach((index) => {
+        vertices.forEach(index => {
             mark = this.makeMark(JSON.stringify(index));
             vertex = this.globe.geometry.vertices[index];
             mark.position.copy(vertex.clone().multiplyScalar(1.005));
@@ -169,7 +169,7 @@ class HUD {
     }
 
     removeMarkers() {
-        this.activeMarkers.forEach((mark) => scene.remove(mark));
+        this.activeMarkers.forEach(mark => scene.remove(mark));
         this.activeMarkers = [];
     }
 }

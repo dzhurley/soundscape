@@ -42,7 +42,7 @@ class ArtistManager {
     }
 
     edgesForArtist(artistName) {
-        let artist = this.artists.filter((artist) => artist.name === artistName);
+        let artist = this.artists.filter(artist => artist.name === artistName);
         return artist.length && artist[0].edges;
     }
 
@@ -63,7 +63,7 @@ class ArtistManager {
         });
 
         // don't bother with artists that don't merit faces
-        return artists.filter((artist) => artist.faces > 0);
+        return artists.filter(artist => artist.faces > 0);
     }
 
     getArtists() {

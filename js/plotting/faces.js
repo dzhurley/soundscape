@@ -20,7 +20,7 @@ class FacePlotter {
     validFace(artist, edge) {
         let swappers = [];
 
-        let face = this.faces().filter((f) => {
+        let face = this.faces().filter(f => {
             let valid = false;
 
             if (edge.v1 === f.a) {
@@ -45,7 +45,7 @@ class FacePlotter {
         }
 
         // make sure one of the candidates isn't for the same artist
-        let swappersLeft = swappers.filter((f) => f.data.artist !== artist.name);
+        let swappersLeft = swappers.filter(f => f.data.artist !== artist.name);
         return swappersLeft;
     }
 
