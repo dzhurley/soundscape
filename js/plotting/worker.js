@@ -11,7 +11,11 @@ let h = require('../helpers');
 
 let ArtistManager = require('../artists');
 let globe = require('../three/globe');
+let seeder = require('./seeder');
 let facePlotter = require('./faces');
+
+// WebWorker-wide list of remaining face indices yet to be painted
+self.remaining = [];
 
 function setNewFace(face, artist) {
     // TODO: doesn't belong here
@@ -90,56 +94,47 @@ function respondWithFaces(event = 'painted') {
     });
 }
 
-self.remaining = [];
+function seed(payload) {
+    let data = JSON.parse(payload);
 
-module.exports = {
-    seed(payload) {
-        let data = JSON.parse(payload);
-
-        if (!data.length) {
-            // TODO: find a nicer way
-            console.error('user has no plays');
-            return [];
-        }
-
-        ArtistManager.setArtists({
-            artists: data,
-            totalFaces: globe.geometry.faces.length
-        });
-
-        globe.geometry.faces.map(face => face.data = {});
-
-        // seed the planet
-        let seeds = globe.findEquidistantFaces(ArtistManager.artists.length);
-        let seedIndices = seeds.map(seed => seed.faceIndex);
-
-        for (let i in seedIndices) {
-            // specifically plot one artist on one face
-            iterate([ seedIndices[i] ]);
-        }
-
-        // set remaining faces to paint
-        let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
-        self.remaining = randos.filter(r => seedIndices.indexOf(r) < 0);
-
-        respondWithFaces('seeded');
-    },
-
-    one() {
-        iterate();
-        respondWithFaces();
-    },
-
-    batch() {
-        for (let i = 0; i <= ArtistManager.artistsRemaining(); i++) {
-            if (iterate()) break;
-        }
-        respondWithFaces();
-    },
-
-    all() {
-        for (let i = 0; i < self.remaining.length; i++) {
-            if (this.batch()) break;
-        }
+    if (!data.length) {
+        // TODO: find a nicer way
+        console.error('user has no plays');
+        return [];
     }
-};
+
+    // seed the planet
+    seeder.prepareData(data);
+    let seedIndices = seeder.seedIndices();
+
+    for (let i in seedIndices) {
+        // specifically plot one artist on one face
+        iterate([ seedIndices[i] ]);
+    }
+
+    // set remaining faces to paint
+    let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
+    self.remaining = randos.filter(r => seedIndices.indexOf(r) < 0);
+
+    respondWithFaces('seeded');
+}
+
+function one() {
+    iterate();
+    respondWithFaces();
+}
+
+function batch() {
+    for (let i = 0; i <= ArtistManager.artistsLeft(); i++) {
+        if (iterate()) break;
+    }
+    respondWithFaces();
+}
+
+function all() {
+    for (let i = 0; i < self.remaining.length; i++) {
+        if (batch()) break;
+    }
+}
+
+module.exports = { seed, one, batch, all };

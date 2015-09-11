@@ -68,48 +68,6 @@ class Globe extends THREE.Mesh {
         this.geometry.colorsNeedUpdate = true;
     }
 
-    addEquidistantMarks(num) {
-        if (this.markers && this.markers.length) {
-            return this.markers;
-        }
-        this.markers = [];
-        let mark;
-        let points = h.equidistantishPointsOnSphere(num);
-
-        for (let i in points) {
-            mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
-            mark.position.x = points[i][0];
-            mark.position.y = points[i][1];
-            mark.position.z = points[i][2];
-            mark.position.multiplyScalar(this.geometry.parameters.radius + 2);
-            this.markers.push(mark);
-            scene.add(mark);
-        }
-    }
-
-    findEquidistantFaces(numMarkers) {
-        // add transient helper marks
-        this.addEquidistantMarks(numMarkers);
-
-        let caster = new THREE.Raycaster();
-        let intersectingFaces = [];
-        let marker;
-        for (let i = 0; i < this.markers.length; i++) {
-            // use the mark's vector as a ray to find the closest face
-            // via its intersection
-            marker = this.markers[i].position.clone();
-            caster.set(this.position, marker.normalize());
-            intersectingFaces.push(caster.intersectObject(this));
-        }
-
-        // clean up transient markers
-        this.markers.map(mark => scene.remove(mark));
-        delete this.markers;
-
-        // return at most one face for each intersection
-        return intersectingFaces.map(hit => hit[0]);
-    }
-
     findClosestFace(candidates, target) {
         // compute the distance between each one of the candidates and
         // the target to find the closest candidate

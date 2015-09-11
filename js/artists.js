@@ -37,7 +37,7 @@ class ArtistManager {
         Dispatch.on('updateArtists', this.updateArtists.bind(this));
     }
 
-    artistsRemaining() {
+    artistsLeft() {
         return this.artists.reduce((memo, artist) => memo + (artist.faces ? 1 : 0), 0);
     }
 
