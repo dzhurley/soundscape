@@ -56,7 +56,7 @@ Drawing.SphereGraph = function(options = {}) {
             lng = (180/max_Y) * node.position.y;
         }
 
-        var area = 5000;
+        var area = 55;
         var phi = (90 - lat) * Math.PI / 180;
         var theta = (180 - lng) * Math.PI / 180;
         node.data.draw_object.position.x = area * Math.sin(phi) * Math.cos(theta);
@@ -101,7 +101,7 @@ Drawing.SphereGraph = function(options = {}) {
     function drawNode(node) {
         var draw_object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {  color: Math.random() * 0xffffff } ) );
 
-        var area = 2000;
+        var area = 10000;
         draw_object.position.x = Math.floor(Math.random() * (area + area + 1) - area);
         draw_object.position.y = Math.floor(Math.random() * (area + area + 1) - area);
 
