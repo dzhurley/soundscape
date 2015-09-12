@@ -7,6 +7,8 @@ let ArtistManager = require('../artists');
 let scene = require('../three/scene');
 let globe = require('../three/globe');
 
+let Drawing = require('../seeding/sphere_graph');
+
 function addEquidistantMarks(num) {
     let markers = [];
     let mark;
@@ -49,14 +51,7 @@ function equidistantFaces(numMarkers) {
 
 function createGraph(payload) {
     let data = JSON.parse(payload);
-
-    let newMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(5, 50, 50),
-        new THREE.MeshBasicMaterial({ color: 0xffa400 })
-    );
-
-    newMesh.position.z = 55;
-    scene.add(newMesh);
+    window.seedGraph = new Drawing.SphereGraph();
 }
 
 function prepareData(data) {

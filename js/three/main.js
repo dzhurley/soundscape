@@ -41,6 +41,13 @@ let threes = {
 
     animate() {
         if (threes.controls) threes.controls.update(1);
+        if (window.seedGraph) {
+            window.seedGraph.layout.generate();
+            // Update position of lines (edges)
+            for (let i = 0; i < window.seedGeometries.length; i++) {
+                window.seedGeometries[i].verticesNeedUpdate = true;
+            }
+        }
         renderer.render(scene, threes.camera);
         window.requestAnimationFrame(threes.animate);
     }
