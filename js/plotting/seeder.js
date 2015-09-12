@@ -47,6 +47,18 @@ function equidistantFaces(numMarkers) {
     return intersectingFaces.map(hit => hit[0]);
 }
 
+function createGraph(payload) {
+    let data = JSON.parse(payload);
+
+    let newMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(5, 50, 50),
+        new THREE.MeshBasicMaterial({ color: 0xffa400 })
+    );
+
+    newMesh.position.z = 55;
+    scene.add(newMesh);
+}
+
 function prepareData(data) {
     ArtistManager.setArtists({
         artists: data,
@@ -60,4 +72,4 @@ function seedIndices() {
     return equidistantFaces(ArtistManager.artistsLeft()).map(seed => seed.faceIndex);
 }
 
-module.exports = { prepareData, seedIndices };
+module.exports = { prepareData, seedIndices, createGraph };
