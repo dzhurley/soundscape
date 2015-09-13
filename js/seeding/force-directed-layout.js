@@ -11,26 +11,19 @@ var ForceDirected = function(graph, options = {}) {
     var positionCallback = options.positionUpdated;
 
     var EPSILON = 0.000001;
-    var repulsionConstant;
-    var forceConstant;
-    var iterations = 0;
-    var temperature = 0;
-    var numNodes;
+    var width = 200;
+    var height = 200;
 
-    this.repulsionFactor = 0.75;
+    var temperature = width / 10.0;
+    var numNodes = graph.nodes.length;
+    var forceConstant = Math.sqrt(width * height / numNodes);
+
+    var repulsionConstant = 0.75 * forceConstant;
+    var iterations = 0;
+
     this.maxIterations = 1000;
     this.graph = graph;
-    this.width = 200;
-    this.height = 200;
     this.finished = false;
-
-    this.init = function() {
-        this.finished = false;
-        temperature = this.width / 10.0;
-        numNodes = this.graph.nodes.length;
-        forceConstant = Math.sqrt(this.height * this.width / numNodes);
-        repulsionConstant = this.repulsionFactor * forceConstant;
-    };
 
     this.generate = function() {
         if (iterations < this.maxIterations && temperature > 0.000001) {

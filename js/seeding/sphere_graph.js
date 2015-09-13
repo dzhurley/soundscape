@@ -100,8 +100,7 @@ var SphereGraph = function() {
             steps++;
         }
 
-        graph.layout = new ForceDirected(graph, { positionUpdated });
-        graph.layout.init();
+        return new ForceDirected(graph, { positionUpdated });
     }
 
     function drawEdge(source, target) {
@@ -126,9 +125,7 @@ var SphereGraph = function() {
         return Math.floor(Math.random() * (to - from + 1) + from);
     }
 
-    createGraph();
-
-    return graph;
+    return createGraph();
 };
 
 module.exports = SphereGraph;
