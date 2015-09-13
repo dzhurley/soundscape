@@ -3,8 +3,8 @@
 let THREE = require('three');
 let scene = require('../three/scene');
 
-let ForceDirected = require('./force-directed-layout');
-let graphModule = require('./Graph');
+let ForceDirected = require('./force');
+let graphModule = require('./graph');
 
 let Graph = graphModule.Graph;
 let Node = graphModule.Node;

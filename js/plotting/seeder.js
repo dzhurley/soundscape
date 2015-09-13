@@ -7,7 +7,7 @@ let ArtistManager = require('../artists');
 let scene = require('../three/scene');
 let globe = require('../three/globe');
 
-let SphereGraph = require('../seeding/sphere_graph');
+let SphereGraph = require('../seeding/sphere');
 
 function addEquidistantMarks(num) {
     let markers = [];
