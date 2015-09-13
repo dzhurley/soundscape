@@ -1,6 +1,5 @@
 'use strict';
 
-let THREE = require('three');
 let scene = require('../three/scene');
 
 let ForceDirected = require('./force');
@@ -18,7 +17,7 @@ var SphereGraph = function() {
 
     var graph = new Graph();
 
-    var numNodes = 50;
+    var totalNodes = 200;
 
     window.seedGeometries = [];
 
@@ -55,27 +54,20 @@ var SphereGraph = function() {
         graph.addNode(startNode);
         scene.add(startNode);
 
-        while (steps < numNodes) {
-            let edges = randomFromTo(1, 10);
-            for (let i = 1; i <= edges; i++) {
-                let targetNode = new Node(i * steps);
-                if (graph.addNode(targetNode)) {
-                    scene.add(targetNode);
-                    let edge = graph.addEdge(startNode, targetNode);
-                    if (edge) {
-                        window.seedGeometries.push(edge.geometry);
-                        scene.add(edge);
-                    }
+        while (steps < totalNodes) {
+            let targetNode = new Node(steps);
+            if (graph.addNode(targetNode)) {
+                scene.add(targetNode);
+                let edge = graph.addEdge(startNode, targetNode);
+                if (edge) {
+                    window.seedGeometries.push(edge.geometry);
+                    scene.add(edge);
                 }
             }
             steps++;
         }
 
         return new ForceDirected(graph, { positionUpdated });
-    }
-
-    function randomFromTo(from, to) {
-        return Math.floor(Math.random() * (to - from + 1) + from);
     }
 
     return createGraph();

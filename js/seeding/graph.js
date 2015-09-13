@@ -18,10 +18,6 @@ class Graph {
         return false;
     }
 
-    getNode(nodeId) {
-        return this.nodeSet[nodeId];
-    }
-
     addEdge(source, target) {
         if (source.addConnectedTo(target) === true) {
             let edge = new Edge(source, target);
@@ -35,7 +31,7 @@ class Graph {
 class Node extends THREE.Mesh {
     constructor(nodeId) {
         super(
-            new THREE.SphereGeometry(5, 5, 0),
+            new THREE.SphereGeometry(2, 15, 15),
             new THREE.MeshBasicMaterial({color: Math.random() * 0xffffff})
         );
 
@@ -44,8 +40,6 @@ class Node extends THREE.Mesh {
         this.position.y = Math.floor(Math.random() * (area + area + 1) - area);
 
         this.nid = nodeId;
-        this.layout = { maxX: 90, minX: -90, maxY: 180, minY: -180 };
-
         this.nodesTo = [];
         this.nodesFrom = [];
     }

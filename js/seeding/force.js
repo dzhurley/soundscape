@@ -15,20 +15,20 @@ var ForceDirected = function(graph, options = {}) {
     var height = 200;
 
     var temperature = width / 10.0;
-    var numNodes = graph.nodes.length;
-    var forceConstant = Math.sqrt(width * height / numNodes);
+    var totalNodes = graph.nodes.length;
+    var forceConstant = Math.sqrt(width * height / totalNodes);
 
     var repulsionConstant = 0.75 * forceConstant;
     var iterations = 0;
 
-    this.maxIterations = 1000;
+    this.maxIterations = 100000;
     this.graph = graph;
     this.finished = false;
 
     this.generate = function() {
-        if (iterations < this.maxIterations && temperature > 0.000001) {
+        if (iterations < this.maxIterations && temperature > EPSILON) {
             // calculate repulsion
-            for (let i = 0; i < numNodes; i++) {
+            for (let i = 0; i < totalNodes; i++) {
                 let nodeV = graph.nodes[i];
                 nodeV.layout = nodeV.layout || {};
                 if (i === 0) {
@@ -37,12 +37,23 @@ var ForceDirected = function(graph, options = {}) {
                     nodeV.layout.offsetZ = 0;
                 }
 
+                if (i === 1) {
+                    repulsionConstant = 100000;
+                    nodeV.scale.x = 3;
+                    nodeV.scale.y = 3;
+                    nodeV.scale.z = 3;
+                } else {
+                    repulsionConstant = 0.75;
+                }
+
+                repulsionConstant *= forceConstant;
+
                 nodeV.layout.force = 0;
                 nodeV.layout.tmpPosX = nodeV.layout.tmpPosX || nodeV.position.x;
                 nodeV.layout.tmpPosY = nodeV.layout.tmpPosY || nodeV.position.y;
                 nodeV.layout.tmpPosZ = nodeV.layout.tmpPosZ || nodeV.position.z;
 
-                for (let j = i + 1; j < numNodes; j++) {
+                for (let j = i + 1; j < totalNodes; j++) {
                     let nodeU = graph.nodes[j];
                     if (i !== j) {
                         nodeU.layout = nodeU.layout || {};
@@ -85,7 +96,7 @@ var ForceDirected = function(graph, options = {}) {
             }
 
             // calculate positions
-            for (let i = 0; i < numNodes; i++) {
+            for (let i = 0; i < totalNodes; i++) {
                 let node = graph.nodes[i];
 
                 let deltaLength = Math.max(
