@@ -1,159 +1,134 @@
+'use strict';
+
 let THREE = require('three');
 let scene = require('../three/scene');
 
-let Layout = require('./force-directed-layout');
+let ForceDirected = require('./force-directed-layout');
 let graphModule = require('./Graph');
 
 let Graph = graphModule.Graph;
 let Node = graphModule.Node;
-let Edge = graphModule.Edge;
 
-var Drawing = Drawing || {};
+var SphereGraph = function() {
+    var radius = 5;
+    var maxX = radius;
+    var minX = -radius;
+    var maxY = radius;
+    var minY = -radius;
 
-Drawing.SphereGraph = function(options = {}) {
-    this.nodes_count = 50;
-    this.edges_count = 10;
-
-    var camera;
     var geometry = new THREE.SphereGeometry( 5, 5, 0 );
     var graph = new Graph();
 
+    var numNodes = 50;
+
     window.seedGeometries = [];
 
-    var sphere_radius = 5;
-    var max_X = sphere_radius;
-    var min_X = -sphere_radius;
-    var max_Y = sphere_radius;
-    var min_Y = -sphere_radius;
-
-    var that = this;
-
-    createGraph();
-
     function positionUpdated(node) {
-        if (node._id === 0) {
-            node.data.draw_object.position.x = 0;
-            node.data.draw_object.position.y = 0;
-            node.data.draw_object.position.z = 0;
+        if (node.nid === 0) {
+            node.data.drawObject.position.x = 0;
+            node.data.drawObject.position.y = 0;
+            node.data.drawObject.position.z = 0;
             return;
         }
-        max_X = Math.max(max_X, node.position.x);
-        min_X = Math.min(min_X, node.position.x);
-        max_Y = Math.max(max_Y, node.position.y);
-        min_Y = Math.min(min_Y, node.position.y);
+        maxX = Math.max(maxX, node.position.x);
+        minX = Math.min(minX, node.position.x);
+        maxY = Math.max(maxY, node.position.y);
+        minY = Math.min(minY, node.position.y);
 
-        console.log(`(${min_X} -> ${max_X}, ${min_Y} -> ${max_Y})`);
-
-        var lat, lng;
-        if(node.position.x < 0) {
-            lat = (-90/min_X) * node.position.x;
+        let lat, lng;
+        if (node.position.x < 0) {
+            lat = -90 / minX * node.position.x;
         } else {
-            lat = (90/max_X) * node.position.x;
+            lat = 90 / maxX * node.position.x;
         }
-        if(node.position.y < 0) {
-            lng = (-180/min_Y) * node.position.y;
+        if (node.position.y < 0) {
+            lng = -180 / minY * node.position.y;
         } else {
-            lng = (180/max_Y) * node.position.y;
+            lng = 180 / maxY * node.position.y;
         }
 
-        var area = 55;
-        var phi = (90 - lat) * Math.PI / 180;
-        var theta = (180 - lng) * Math.PI / 180;
-        node.data.draw_object.position.x = area * Math.sin(phi) * Math.cos(theta);
-        node.data.draw_object.position.y = area * Math.cos(phi);
-        node.data.draw_object.position.z = area * Math.sin(phi) * Math.sin(theta);
+        let area = 55;
+        let phi = (90 - lat) * Math.PI / 180;
+        let theta = (180 - lng) * Math.PI / 180;
+        node.data.drawObject.position.x = area * Math.sin(phi) * Math.cos(theta);
+        node.data.drawObject.position.y = area * Math.cos(phi);
+        node.data.drawObject.position.z = area * Math.sin(phi) * Math.sin(theta);
     }
 
-    /**
-     *  Creates a graph with random nodes and edges.
-     *  Number of nodes and edges can be set with
-     *  numNodes and numEdges.
-     */
+    function drawNode(node) {
+        var drawObject = new THREE.Mesh(
+            geometry,
+            new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff })
+        );
+
+        var area = 10000;
+        drawObject.position.x = Math.floor(Math.random() * (area + area + 1) - area);
+        drawObject.position.y = Math.floor(Math.random() * (area + area + 1) - area);
+
+        node.position.x = Math.floor(Math.random() * (area + area + 1) - area);
+        node.position.y = Math.floor(Math.random() * (area + area + 1) - area);
+
+        drawObject.nid = node.nid;
+        node.data.drawObject = drawObject;
+        node.layout = {};
+        node.layout.maxX = 90;
+        node.layout.minX = -90;
+        node.layout.maxY = 180;
+        node.layout.minY = -180;
+
+        // node.position = drawObject.position;
+        scene.add( node.data.drawObject );
+    }
+
     function createGraph() {
+        var steps = 1;
         var startNode = new Node(0);
         graph.addNode(startNode);
         drawNode(startNode);
 
-        var steps = 1;
-        while(steps < that.nodes_count) {
-            var numEdges = randomFromTo(1, that.edges_count);
-            for(var i=1; i <= numEdges; i++) {
-                var target_node = new Node(i*steps);
-                if(graph.addNode(target_node)) {
-                    drawNode(target_node);
-                    if(graph.addEdge(startNode, target_node)) {
-                        drawEdge(startNode, target_node);
+        while (steps < numNodes) {
+            let edges = randomFromTo(1, 10);
+            for (let i = 1; i <= edges; i++) {
+                let targetNode = new Node(i * steps);
+                if (graph.addNode(targetNode)) {
+                    drawNode(targetNode);
+                    if (graph.addEdge(startNode, targetNode)) {
+                        drawEdge(startNode, targetNode);
                     }
                 }
             }
             steps++;
         }
 
-        // Transform a lat, lng-position to x,y.
-        graph.layout = new Layout.ForceDirected(graph, { positionUpdated });
+        graph.layout = new ForceDirected(graph, { positionUpdated });
         graph.layout.init();
     }
 
-
-    /**
-     *  Create a node object and add it to the scene.
-     */
-    function drawNode(node) {
-        var draw_object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {  color: Math.random() * 0xffffff } ) );
-
-        var area = 10000;
-        draw_object.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-        draw_object.position.y = Math.floor(Math.random() * (area + area + 1) - area);
-
-        node.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-        node.position.y = Math.floor(Math.random() * (area + area + 1) - area);
-
-        draw_object._id = node._id;
-        node.data.draw_object = draw_object;
-        node.layout = {}
-        node.layout.max_X = 90;
-        node.layout.min_X = -90;
-        node.layout.max_Y = 180;
-        node.layout.min_Y = -180;
-
-        // node.position = draw_object.position;
-        scene.add( node.data.draw_object );
-    }
-
-
-    /**
-     *  Create an edge object (line) and add it to the scene.
-     */
     function drawEdge(source, target) {
         var material = new THREE.LineBasicMaterial({
-            color: 0xCCCCCC, opacity: 0.5, linewidth: 0.5
+            color: 0xCCCCCC, opacity: 1, linewidth: 0.5
         });
-        var tmp_geo = new THREE.Geometry();
+        var tmpGeo = new THREE.Geometry();
 
-        tmp_geo.vertices.push(source.data.draw_object.position);
-        tmp_geo.vertices.push(target.data.draw_object.position);
+        tmpGeo.vertices.push(source.data.drawObject.position);
+        tmpGeo.vertices.push(target.data.drawObject.position);
 
-        var line = new THREE.Line( tmp_geo, material, THREE.LinePieces );
+        let line = new THREE.Line(tmpGeo, material, THREE.LinePieces);
         line.scale.x = line.scale.y = line.scale.z = 1;
         line.originalScale = 1;
 
-        window.seedGeometries.push(tmp_geo);
+        window.seedGeometries.push(tmpGeo);
 
-        scene.add( line );
+        scene.add(line);
     }
 
-
-    // Generate random number
     function randomFromTo(from, to) {
         return Math.floor(Math.random() * (to - from + 1) + from);
     }
 
-    // Stop layout calculation
-    this.stop_calculating = function() {
-        graph.layout.stop_calculating();
-    };
+    createGraph();
 
     return graph;
 };
 
-module.exports = Drawing;
+module.exports = SphereGraph;

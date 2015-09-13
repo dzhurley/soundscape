@@ -1,138 +1,132 @@
+'use strict';
+
 /**
+  Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization
+
   Implements a force-directed layout, the algorithm is based on Fruchterman and Reingold and
   the JUNG implementation.
  */
 
-var Layout = Layout || {};
+var ForceDirected = function(graph, options = {}) {
+    var positionCallback = options.positionUpdated;
 
-Layout.ForceDirected = function(graph, options = {}) {
-    this.repulsion_multiplier = 0.75;
-    this.max_iterations = 1000;
+    var EPSILON = 0.000001;
+    var repulsionConstant;
+    var forceConstant;
+    var iterations = 0;
+    var temperature = 0;
+    var numNodes;
+
+    this.repulsionFactor = 0.75;
+    this.maxIterations = 1000;
     this.graph = graph;
     this.width = 200;
     this.height = 200;
     this.finished = false;
 
-    var callback_positionUpdated = options.positionUpdated;
-
-    var EPSILON = 0.000001;
-    var repulsion_constant;
-    var forceConstant;
-    var layout_iterations = 0;
-    var temperature = 0;
-    var nodes_length;
-    var edges_length;
-    var that = this;
-
-    /**
-     * Initialize parameters used by the algorithm.
-     */
     this.init = function() {
         this.finished = false;
         temperature = this.width / 10.0;
-        nodes_length = this.graph.nodes.length;
-        edges_length = this.graph.edges.length;
-        forceConstant = Math.sqrt(this.height * this.width / nodes_length);
-        repulsion_constant = this.repulsion_multiplier * forceConstant;
+        numNodes = this.graph.nodes.length;
+        forceConstant = Math.sqrt(this.height * this.width / numNodes);
+        repulsionConstant = this.repulsionFactor * forceConstant;
     };
 
-    /**
-     * Generates the force-directed layout.
-     *
-     * It finishes when the number of max_iterations has been reached or when
-     * the temperature is nearly zero.
-     */
     this.generate = function() {
-        if(layout_iterations < this.max_iterations && temperature > 0.000001) {
+        if (iterations < this.maxIterations && temperature > 0.000001) {
             // calculate repulsion
-            for(var i=0; i < nodes_length; i++) {
-                var node_v = graph.nodes[i];
-                node_v.layout = node_v.layout || {};
-                if(i==0) {
-                    node_v.layout.offset_x = 0;
-                    node_v.layout.offset_y = 0;
-                    node_v.layout.offset_z = 0;
+            for (let i = 0; i < numNodes; i++) {
+                let nodeV = graph.nodes[i];
+                nodeV.layout = nodeV.layout || {};
+                if (i === 0) {
+                    nodeV.layout.offsetX = 0;
+                    nodeV.layout.offsetY = 0;
+                    nodeV.layout.offsetZ = 0;
                 }
 
-                node_v.layout.force = 0;
-                node_v.layout.tmp_pos_x = node_v.layout.tmp_pos_x || node_v.position.x;
-                node_v.layout.tmp_pos_y = node_v.layout.tmp_pos_y || node_v.position.y;
-                node_v.layout.tmp_pos_z = node_v.layout.tmp_pos_z || node_v.position.z;
+                nodeV.layout.force = 0;
+                nodeV.layout.tmpPosX = nodeV.layout.tmpPosX || nodeV.position.x;
+                nodeV.layout.tmpPosY = nodeV.layout.tmpPosY || nodeV.position.y;
+                nodeV.layout.tmpPosZ = nodeV.layout.tmpPosZ || nodeV.position.z;
 
-                for(var j=i+1; j < nodes_length; j++) {
-                    var node_u = graph.nodes[j];
-                    if(i != j) {
-                        node_u.layout = node_u.layout || {};
-                        node_u.layout.tmp_pos_x = node_u.layout.tmp_pos_x || node_u.position.x;
-                        node_u.layout.tmp_pos_y = node_u.layout.tmp_pos_y || node_u.position.y;
-                        node_u.layout.tmp_pos_z = node_u.layout.tmp_pos_z || node_u.position.z;
+                for (let j = i + 1; j < numNodes; j++) {
+                    let nodeU = graph.nodes[j];
+                    if (i !== j) {
+                        nodeU.layout = nodeU.layout || {};
+                        nodeU.layout.tmpPosX = nodeU.layout.tmpPosX || nodeU.position.x;
+                        nodeU.layout.tmpPosY = nodeU.layout.tmpPosY || nodeU.position.y;
+                        nodeU.layout.tmpPosZ = nodeU.layout.tmpPosZ || nodeU.position.z;
 
-                        var delta_x = node_v.layout.tmp_pos_x - node_u.layout.tmp_pos_x;
-                        var delta_y = node_v.layout.tmp_pos_y - node_u.layout.tmp_pos_y;
-                        var delta_z = node_v.layout.tmp_pos_z - node_u.layout.tmp_pos_z;
+                        let deltaX = nodeV.layout.tmpPosX - nodeU.layout.tmpPosX;
+                        let deltaY = nodeV.layout.tmpPosY - nodeU.layout.tmpPosY;
+                        let deltaZ = nodeV.layout.tmpPosZ - nodeU.layout.tmpPosZ;
 
-                        var delta_length = Math.max(EPSILON, Math.sqrt((delta_x * delta_x) + (delta_y * delta_y)));
-                        var delta_length_z = Math.max(EPSILON, Math.sqrt((delta_z * delta_z) + (delta_y * delta_y)));
+                        let deltaLength = Math.max(
+                            EPSILON, Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+                        );
+                        let deltaLengthZ = Math.max(
+                            EPSILON, Math.sqrt(deltaZ * deltaZ + deltaY * deltaY)
+                        );
 
-                        var force = (repulsion_constant * repulsion_constant) / delta_length;
-                        var force_z = (repulsion_constant * repulsion_constant) / delta_length_z;
+                        let force = repulsionConstant * repulsionConstant / deltaLength;
+                        let forceZ = repulsionConstant * repulsionConstant / deltaLengthZ;
 
-                        node_v.layout.force += force;
-                        node_u.layout.force += force;
+                        nodeV.layout.force += force;
+                        nodeU.layout.force += force;
 
-                        node_v.layout.offset_x += (delta_x / delta_length) * force;
-                        node_v.layout.offset_y += (delta_y / delta_length) * force;
+                        nodeV.layout.offsetX += deltaX / deltaLength * force;
+                        nodeV.layout.offsetY += deltaY / deltaLength * force;
 
-                        if(i==0) {
-                            node_u.layout.offset_x = 0;
-                            node_u.layout.offset_y = 0;
-                            node_u.layout.offset_z = 0;
+                        if (i === 0) {
+                            nodeU.layout.offsetX = 0;
+                            nodeU.layout.offsetY = 0;
+                            nodeU.layout.offsetZ = 0;
                         }
-                        node_u.layout.offset_x -= (delta_x / delta_length) * force;
-                        node_u.layout.offset_y -= (delta_y / delta_length) * force;
+                        nodeU.layout.offsetX -= deltaX / deltaLength * force;
+                        nodeU.layout.offsetY -= deltaY / deltaLength * force;
 
-                        node_v.layout.offset_z += (delta_z / delta_length_z) * force_z;
-                        node_u.layout.offset_z -= (delta_z / delta_length_z) * force_z;
+                        nodeV.layout.offsetZ += deltaZ / deltaLengthZ * forceZ;
+                        nodeU.layout.offsetZ -= deltaZ / deltaLengthZ * forceZ;
                     }
                 }
             }
 
             // calculate positions
-            for(var i=0; i < nodes_length; i++) {
-                var node = graph.nodes[i];
+            for (let i = 0; i < numNodes; i++) {
+                let node = graph.nodes[i];
 
-                var delta_length = Math.max(EPSILON, Math.sqrt(node.layout.offset_x * node.layout.offset_x + node.layout.offset_y * node.layout.offset_y));
-                var delta_length_z = Math.max(EPSILON, Math.sqrt(node.layout.offset_z * node.layout.offset_z + node.layout.offset_y * node.layout.offset_y));
+                let deltaLength = Math.max(
+                    EPSILON, Math.sqrt(node.layout.offsetX * node.layout.offsetX +
+                                       node.layout.offsetY * node.layout.offsetY));
+                let deltaLengthZ = Math.max(
+                    EPSILON, Math.sqrt(node.layout.offsetZ * node.layout.offsetZ +
+                                       node.layout.offsetY * node.layout.offsetY));
 
-                node.layout.tmp_pos_x += (node.layout.offset_x / delta_length) * Math.min(delta_length, temperature);
-                node.layout.tmp_pos_y += (node.layout.offset_y / delta_length) * Math.min(delta_length, temperature);
-                node.layout.tmp_pos_z += (node.layout.offset_z / delta_length_z) * Math.min(delta_length_z, temperature);
+                node.layout.tmpPosX += node.layout.offsetX / deltaLength * Math.min(deltaLength,
+                                                                                    temperature);
+                node.layout.tmpPosY += node.layout.offsetY / deltaLength * Math.min(deltaLength,
+                                                                                    temperature);
+                node.layout.tmpPosZ += node.layout.offsetZ / deltaLengthZ * Math.min(deltaLengthZ,
+                                                                                     temperature);
 
-                var updated = true;
-                node.position.x -=  (node.position.x-node.layout.tmp_pos_x)/10;
-                node.position.y -=  (node.position.y-node.layout.tmp_pos_y)/10;
-                node.position.z -=  (node.position.z-node.layout.tmp_pos_z)/10;
+                let updated = true;
+                node.position.x -= node.position.x - node.layout.tmpPosX / 10;
+                node.position.y -= node.position.y - node.layout.tmpPosY / 10;
+                node.position.z -= node.position.z - node.layout.tmpPosZ / 10;
 
                 // execute callback function if positions has been updated
-                if(updated && typeof callback_positionUpdated === 'function') {
-                    callback_positionUpdated(node);
+                if (updated && typeof positionCallback === 'function') {
+                    positionCallback(node);
                 }
             }
-            temperature *= (1 - (layout_iterations / this.max_iterations));
-            layout_iterations++;
+            temperature *= 1 - iterations / this.maxIterations;
+            iterations++;
         } else {
             this.finished = true;
             return false;
         }
         return true;
     };
-
-    /**
-     * Stops the calculation by setting the current_iterations to max_iterations.
-     */
-    this.stop_calculating = function() {
-        layout_iterations = this.max_iterations;
-    }
 };
 
-module.exports = Layout;
+module.exports = ForceDirected;

@@ -7,7 +7,7 @@ let ArtistManager = require('../artists');
 let scene = require('../three/scene');
 let globe = require('../three/globe');
 
-let Drawing = require('../seeding/sphere_graph');
+let SphereGraph = require('../seeding/sphere_graph');
 
 function addEquidistantMarks(num) {
     let markers = [];
@@ -49,9 +49,8 @@ function equidistantFaces(numMarkers) {
     return intersectingFaces.map(hit => hit[0]);
 }
 
-function createGraph(payload) {
-    let data = JSON.parse(payload);
-    window.seedGraph = new Drawing.SphereGraph();
+function createGraph(/* payload */) {
+    window.seedGraph = new SphereGraph();
 }
 
 function prepareData(data) {
