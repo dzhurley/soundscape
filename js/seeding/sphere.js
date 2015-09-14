@@ -3,10 +3,7 @@
 let scene = require('../three/scene');
 
 let ForceDirected = require('./force');
-let graphModule = require('./graph');
-
-let Graph = graphModule.Graph;
-let Node = graphModule.Node;
+let {Graph, Node} = require('./graph');
 
 var SphereGraph = function(data) {
     var radius = 5;
@@ -38,7 +35,7 @@ var SphereGraph = function(data) {
             -180 / minY * node.position.y :
             180 / maxY * node.position.y;
 
-        let area = 52;
+        let area = 55;
         let phi = (90 - lat) * Math.PI / 180;
         let theta = (180 - lng) * Math.PI / 180;
         node.position.x = area * Math.sin(phi) * Math.cos(theta);

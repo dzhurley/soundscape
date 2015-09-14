@@ -4,15 +4,13 @@ let THREE = require('three');
 
 class Graph {
     constructor() {
-        this.nodeSet = {};
-        this.nodes = [];
+        this.nodes = new Set();
         this.edges = [];
     }
 
     addNode(node) {
-        if (typeof this.nodeSet[node.charge] === 'undefined') {
-            this.nodeSet[node.charge] = node;
-            this.nodes.push(node);
+        if (!this.nodes.has(node)) {
+            this.nodes.add(node);
             return node;
         }
         return false;
@@ -31,7 +29,7 @@ class Graph {
 class Node extends THREE.Mesh {
     constructor({name: name, faces: charge, color: color=0xffffff} = {}) {
         super(
-            new THREE.SphereGeometry(1, 15, 15),
+            new THREE.SphereGeometry(2.5, 15, 15),
             new THREE.MeshBasicMaterial({color: color})
         );
 
@@ -39,6 +37,13 @@ class Node extends THREE.Mesh {
         this.position.x = Math.floor(Math.random() * (-area - area + 1) + area);
         this.position.y = Math.floor(Math.random() * (-area - area + 1) + area);
         this.position.z = Math.floor(Math.random() * (-area - area + 1) + area);
+
+        // Force layout helpers
+        this.layout = {
+            offsetX: 0, offsetY: 0, offsetZ: 0,
+            tmpPosX: this.position.x, tmpPosY: this.position.y, tmpPosZ: this.position.z,
+            force: 0
+        };
 
         this.name = name;
         this.charge = charge;
@@ -57,7 +62,7 @@ class Node extends THREE.Mesh {
     connectedTo(node) {
         for (let i = 0; i < this.nodesTo.length; i++) {
             let connectedNode = this.nodesTo[i];
-            if (connectedNode.charge === node.charge) {
+            if (connectedNode.name === node.name) {
                 return true;
             }
         }

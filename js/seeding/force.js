@@ -15,8 +15,7 @@ var ForceDirected = function(graph, options = {}) {
     var height = 200;
 
     var temperature = width / 10.0;
-    var totalNodes = graph.nodes.length;
-    var forceConstant = Math.sqrt(width * height / totalNodes);
+    var forceConstant = Math.sqrt(width * height / graph.nodes.size);
 
     var repulsionConstant = 0.75 * forceConstant;
     var iterations = 0;
@@ -28,26 +27,9 @@ var ForceDirected = function(graph, options = {}) {
     this.generate = function() {
         if (iterations < this.maxIterations && temperature > EPSILON) {
             // calculate repulsion
-            for (let i = 0; i < totalNodes; i++) {
-                let nodeV = graph.nodes[i];
-                nodeV.layout = nodeV.layout || {};
-                if (i === 0) {
-                    nodeV.layout.offsetX = 0;
-                    nodeV.layout.offsetY = 0;
-                    nodeV.layout.offsetZ = 0;
-                }
-
-                nodeV.layout.force = 0;
-                nodeV.layout.tmpPosX = nodeV.layout.tmpPosX || nodeV.position.x;
-                nodeV.layout.tmpPosY = nodeV.layout.tmpPosY || nodeV.position.y;
-                nodeV.layout.tmpPosZ = nodeV.layout.tmpPosZ || nodeV.position.z;
-
-                for (let j = i + 1; j < totalNodes; j++) {
-                    let nodeU = graph.nodes[j];
-                    nodeU.layout = nodeU.layout || {};
-                    nodeU.layout.tmpPosX = nodeU.layout.tmpPosX || nodeU.position.x;
-                    nodeU.layout.tmpPosY = nodeU.layout.tmpPosY || nodeU.position.y;
-                    nodeU.layout.tmpPosZ = nodeU.layout.tmpPosZ || nodeU.position.z;
+            for (let nodeV of graph.nodes) {
+                for (let nodeU of graph.nodes) {
+                    if (nodeU.name === nodeV.name) continue;
 
                     let deltaX = nodeV.layout.tmpPosX - nodeU.layout.tmpPosX;
                     let deltaY = nodeV.layout.tmpPosY - nodeU.layout.tmpPosY;
@@ -69,11 +51,6 @@ var ForceDirected = function(graph, options = {}) {
                     nodeV.layout.offsetX += deltaX / deltaLength * force;
                     nodeV.layout.offsetY += deltaY / deltaLength * force;
 
-                    if (i === 0) {
-                        nodeU.layout.offsetX = 0;
-                        nodeU.layout.offsetY = 0;
-                        nodeU.layout.offsetZ = 0;
-                    }
                     nodeU.layout.offsetX -= deltaX / deltaLength * force;
                     nodeU.layout.offsetY -= deltaY / deltaLength * force;
 
@@ -83,9 +60,7 @@ var ForceDirected = function(graph, options = {}) {
             }
 
             // calculate positions
-            for (let i = 0; i < totalNodes; i++) {
-                let node = graph.nodes[i];
-
+            for (let node of graph.nodes) {
                 let deltaLength = Math.max(
                     EPSILON, Math.sqrt(node.layout.offsetX * node.layout.offsetX +
                                        node.layout.offsetY * node.layout.offsetY));
@@ -100,15 +75,11 @@ var ForceDirected = function(graph, options = {}) {
                 node.layout.tmpPosZ += node.layout.offsetZ / deltaLengthZ * Math.min(deltaLengthZ,
                                                                                      temperature);
 
-                let updated = true;
                 node.position.x -= node.position.x - node.layout.tmpPosX / 10;
                 node.position.y -= node.position.y - node.layout.tmpPosY / 10;
                 node.position.z -= node.position.z - node.layout.tmpPosZ / 10;
 
-                // execute callback function if positions has been updated
-                if (updated && typeof positionCallback === 'function') {
-                    positionCallback(node);
-                }
+                positionCallback && positionCallback(node);
             }
             temperature *= 1 - iterations / this.maxIterations;
             iterations++;
