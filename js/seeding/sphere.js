@@ -8,7 +8,7 @@ let graphModule = require('./graph');
 let Graph = graphModule.Graph;
 let Node = graphModule.Node;
 
-var SphereGraph = function() {
+var SphereGraph = function(data) {
     var radius = 5;
     var maxX = radius;
     var minX = -radius;
@@ -17,12 +17,10 @@ var SphereGraph = function() {
 
     var graph = new Graph();
 
-    var totalNodes = 200;
-
     window.seedGeometries = [];
 
     function positionUpdated(node) {
-        if (node.nid === 0) {
+        if (!node.charge) {
             node.position.x = 0;
             node.position.y = 0;
             node.position.z = 0;
@@ -40,7 +38,7 @@ var SphereGraph = function() {
             -180 / minY * node.position.y :
             180 / maxY * node.position.y;
 
-        let area = 55;
+        let area = 52;
         let phi = (90 - lat) * Math.PI / 180;
         let theta = (180 - lng) * Math.PI / 180;
         node.position.x = area * Math.sin(phi) * Math.cos(theta);
@@ -49,13 +47,12 @@ var SphereGraph = function() {
     }
 
     function createGraph() {
-        var steps = 1;
-        var startNode = new Node(0);
+        var startNode = new Node();
         graph.addNode(startNode);
         scene.add(startNode);
 
-        while (steps < totalNodes) {
-            let targetNode = new Node(steps);
+        for (let artist of data) {
+            let targetNode = new Node(artist);
             if (graph.addNode(targetNode)) {
                 scene.add(targetNode);
                 let edge = graph.addEdge(startNode, targetNode);
@@ -64,7 +61,6 @@ var SphereGraph = function() {
                     scene.add(edge);
                 }
             }
-            steps++;
         }
 
         return new ForceDirected(graph, { positionUpdated });

@@ -10,8 +10,8 @@ class Graph {
     }
 
     addNode(node) {
-        if (typeof this.nodeSet[node.nid] === 'undefined') {
-            this.nodeSet[node.nid] = node;
+        if (typeof this.nodeSet[node.charge] === 'undefined') {
+            this.nodeSet[node.charge] = node;
             this.nodes.push(node);
             return node;
         }
@@ -29,17 +29,19 @@ class Graph {
 }
 
 class Node extends THREE.Mesh {
-    constructor(nodeId) {
+    constructor({name: name, faces: charge, color: color=0xffffff} = {}) {
         super(
-            new THREE.SphereGeometry(2, 15, 15),
-            new THREE.MeshBasicMaterial({color: Math.random() * 0xffffff})
+            new THREE.SphereGeometry(1, 15, 15),
+            new THREE.MeshBasicMaterial({color: color})
         );
 
-        let area = 10000;
-        this.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-        this.position.y = Math.floor(Math.random() * (area + area + 1) - area);
+        let area = 55;
+        this.position.x = Math.floor(Math.random() * (-area - area + 1) + area);
+        this.position.y = Math.floor(Math.random() * (-area - area + 1) + area);
+        this.position.z = Math.floor(Math.random() * (-area - area + 1) + area);
 
-        this.nid = nodeId;
+        this.name = name;
+        this.charge = charge;
         this.nodesTo = [];
         this.nodesFrom = [];
     }
@@ -55,7 +57,7 @@ class Node extends THREE.Mesh {
     connectedTo(node) {
         for (let i = 0; i < this.nodesTo.length; i++) {
             let connectedNode = this.nodesTo[i];
-            if (connectedNode.nid === node.nid) {
+            if (connectedNode.charge === node.charge) {
                 return true;
             }
         }

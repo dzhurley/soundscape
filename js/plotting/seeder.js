@@ -49,10 +49,6 @@ function equidistantFaces(numMarkers) {
     return intersectingFaces.map(hit => hit[0]);
 }
 
-function createGraph(/* payload */) {
-    window.seedGraph = new SphereGraph();
-}
-
 function prepareData(data) {
     ArtistManager.setArtists({
         artists: data,
@@ -64,6 +60,11 @@ function prepareData(data) {
 
 function seedIndices() {
     return equidistantFaces(ArtistManager.artistsLeft()).map(seed => seed.faceIndex);
+}
+
+function createGraph(payload) {
+    prepareData(JSON.parse(payload));
+    window.seedGraph = new SphereGraph(ArtistManager.artists);
 }
 
 module.exports = { prepareData, seedIndices, createGraph };
