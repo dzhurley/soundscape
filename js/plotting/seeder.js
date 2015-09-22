@@ -1,53 +1,11 @@
 'use strict';
 
-let THREE = require('three');
-
-let h = require('../helpers');
 let ArtistManager = require('../artists');
-let scene = require('../three/scene');
 let globe = require('../three/globe');
+let scene = require('../three/scene');
 
-let SphereGraph = require('../seeding/sphere');
-
-function addEquidistantMarks(num) {
-    let markers = [];
-    let mark;
-    let points = h.equidistantishPointsOnSphere(num);
-
-    for (let i in points) {
-        mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
-        mark.position.x = points[i][0];
-        mark.position.y = points[i][1];
-        mark.position.z = points[i][2];
-        mark.position.multiplyScalar(globe.geometry.parameters.radius + 2);
-        markers.push(mark);
-        scene.add(mark);
-    }
-
-    return markers;
-}
-
-function equidistantFaces(numMarkers) {
-    // add transient helper marks
-    let markers = addEquidistantMarks(numMarkers);
-
-    let caster = new THREE.Raycaster();
-    let intersectingFaces = [];
-    let marker;
-    for (let i = 0; i < markers.length; i++) {
-        // use the mark's vector as a ray to find the closest face
-        // via its intersection
-        marker = markers[i].position.clone();
-        caster.set(globe.position, marker.normalize());
-        intersectingFaces.push(caster.intersectObject(globe));
-    }
-
-    // clean up transient markers
-    markers.map(mark => scene.remove(mark));
-
-    // return at most one face for each intersection
-    return intersectingFaces.map(hit => hit[0]);
-}
+let ForceDirected = require('../seeding/force');
+let {Graph, Node} = require('../seeding/graph');
 
 function prepareData(data) {
     ArtistManager.setArtists({
@@ -58,13 +16,34 @@ function prepareData(data) {
     globe.geometry.faces.map(face => face.data = {});
 }
 
-function seedIndices() {
-    return equidistantFaces(ArtistManager.artistsLeft()).map(seed => seed.faceIndex);
+function createGraph(data) {
+    var graph = new Graph();
+
+    var startNode = new Node();
+    graph.addNode(startNode);
+    scene.add(startNode);
+
+    for (let artist of data) {
+        let targetNode = new Node(artist);
+        if (graph.addNode(targetNode)) {
+            scene.add(targetNode);
+            let edge = graph.addEdge(startNode, targetNode);
+            if (edge) {
+                window.seedGeometries.push(edge.geometry);
+                scene.add(edge);
+            }
+        }
+    }
+
+    return new ForceDirected(graph);
 }
 
-function createGraph(payload) {
+function seed(payload) {
+    window.seedGeometries = [];
+
     prepareData(JSON.parse(payload));
-    window.seedGraph = new SphereGraph(ArtistManager.artists);
+
+    window.seedGraph = createGraph(ArtistManager.artists);
 }
 
-module.exports = { prepareData, seedIndices, createGraph };
+module.exports = { prepareData, seed };

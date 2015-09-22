@@ -28,7 +28,7 @@ class Sourcer {
 
         Dispatch.on('submitting', this.checkSource.bind(this));
 
-        Dispatch.on('plot.seed', payload => seeder.createGraph(payload));
+        Dispatch.on('plot.seed', payload => seeder.seed(payload));
     }
 
     sourceUrl(params = {}) {

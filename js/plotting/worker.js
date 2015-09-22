@@ -7,11 +7,8 @@
  * are sent back to the main thread for update.
  */
 
-let h = require('../helpers');
-
 let ArtistManager = require('../artists');
 let globe = require('../three/globe');
-let seeder = require('./seeder');
 let facePlotter = require('./faces');
 
 // WebWorker-wide list of remaining face indices yet to be painted
@@ -94,31 +91,6 @@ function respondWithFaces(event = 'painted') {
     });
 }
 
-function seed(payload) {
-    let data = JSON.parse(payload);
-
-    if (!data.length) {
-        // TODO: find a nicer way
-        console.error('user has no plays');
-        return [];
-    }
-
-    // seed the planet
-    seeder.prepareData(data);
-    let seedIndices = seeder.seedIndices();
-
-    for (let i in seedIndices) {
-        // specifically plot one artist on one face
-        iterate([ seedIndices[i] ]);
-    }
-
-    // set remaining faces to paint
-    let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
-    self.remaining = randos.filter(r => seedIndices.indexOf(r) < 0);
-
-    respondWithFaces('seeded');
-}
-
 function one() {
     iterate();
     respondWithFaces();
@@ -137,4 +109,4 @@ function all() {
     }
 }
 
-module.exports = { seed, one, batch, all };
+module.exports = { one, batch, all };
