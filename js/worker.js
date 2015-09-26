@@ -11,8 +11,6 @@
  */
 
 module.exports = function() {
-    require('es6-shim');
-
     let THREE = require('./lib/HalfEdgeStructure');
     let Dispatch = require('./dispatch');
     let globe = require('./three/globe');

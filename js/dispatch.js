@@ -7,7 +7,7 @@
  * TODO: needs to be able to manage multiple workers
  */
 
-let EventEmitter = require('eventemitter2').EventEmitter2;
+let EventEmitter = require('eventemitter2');
 let events = require('./events');
 
 class Dispatch extends EventEmitter {
@@ -16,7 +16,7 @@ class Dispatch extends EventEmitter {
     }
 
     bindToWorker(worker) {
-        this.worker = worker;
+        this.worker = new worker;
         this.worker.onmessage = this.onWorkerMessage.bind(this);
         this.worker.onerror = this.onWorkerError.bind(this);
     }
