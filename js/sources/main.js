@@ -16,8 +16,8 @@
  *     }
  */
 
-let h = require('../helpers');
-let Dispatch = require('../dispatch');
+const h = require('../helpers');
+const Dispatch = require('../dispatch');
 
 class Sourcer {
     constructor() {

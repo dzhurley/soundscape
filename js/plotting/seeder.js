@@ -1,11 +1,11 @@
 'use strict';
 
-let THREE = require('three');
+const THREE = require('three');
 
-let h = require('../helpers');
-let ArtistManager = require('../artists');
-let scene = require('../three/scene');
-let globe = require('../three/globe');
+const h = require('../helpers');
+const ArtistManager = require('../artists');
+const scene = require('../three/scene');
+const globe = require('../three/globe');
 
 function addEquidistantMarks(num) {
     let markers = [];
@@ -13,7 +13,7 @@ function addEquidistantMarks(num) {
     let points = h.equidistantishPointsOnSphere(num);
 
     for (let i in points) {
-        mark = new THREE.Sprite(new THREE.SpriteMaterial({color: 0xff0000}));
+        mark = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xff0000 }));
         mark.position.x = points[i][0];
         mark.position.y = points[i][1];
         mark.position.z = points[i][2];

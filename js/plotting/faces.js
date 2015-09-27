@@ -8,9 +8,9 @@
  * work to Swapper.
  */
 
-let ArtistManager = require('../artists');
-let globe = require('../three/globe');
-let swapper = require('./swapper');
+const ArtistManager = require('../artists');
+const globe = require('../three/globe');
+const swapper = require('./swapper');
 
 class FacePlotter {
     faces() {
@@ -92,17 +92,17 @@ class FacePlotter {
 
     nextFace(artist, rando) {
         let face = this.faces()[rando];
-        let paintedInfo = {artist: artist};
+        let paintedInfo = { artist };
 
         if (face.data.artist) {
-            return {face: false};
+            return { face: false };
         }
 
         if (!artist.edges.length) {
-            artist.edges.push({v1: face.a, v2: face.b},
-                              {v1: face.b, v2: face.c},
-                              {v1: face.a, v2: face.c});
-            return {face: face, index: this.faces().indexOf(face)};
+            artist.edges.push({ v1: face.a, v2: face.b },
+                              { v1: face.b, v2: face.c },
+                              { v1: face.a, v2: face.c });
+            return { face, index: this.faces().indexOf(face) };
         }
 
         // artist has been painted somewhere else

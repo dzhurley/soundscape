@@ -8,24 +8,24 @@
  * indices for debugging purposes.
  */
 
-let THREE = require('three');
-let Constants = require('./constants');
-let Threes = require('./three/main');
-let globe = require('./three/globe');
-let scene = require('./three/scene');
+const THREE = require('three');
+const Constants = require('./constants');
+const Threes = require('./three/main');
+const globe = require('./three/globe');
+const scene = require('./three/scene');
 
-let DOM = require('./dom');
-let ArtistManager = require('./artists');
+const DOM = require('./dom');
+const ArtistManager = require('./artists');
 
 class HUD {
-    template({artist, plays, a, b, c}) {
+    template({ artist, plays, a, b, c }) {
         return `<span>${artist}, played ${plays} time(s)</span>
                 <span>face.a = ${a}</span>
                 <span>face.b = ${b}</span>
                 <span>face.c = ${c}</span>`;
     }
 
-    blankTemplate({a, b, c}) {
+    blankTemplate({ a, b, c }) {
         return `<span>face.a = ${a}</span>
                 <span>face.b = ${b}</span>
                 <span>face.c = ${c}</span>`;

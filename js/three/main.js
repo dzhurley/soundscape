@@ -5,16 +5,16 @@
  * This also manages the rebinding of fly/orbital controls
  */
 
-let THREE = require('three');
-let Dispatch = require('../dispatch');
+const THREE = require('three');
+const Dispatch = require('../dispatch');
 
-let camera = require('./camera');
-let light = require('./light');
-let renderer = require('./renderer');
-let scene = require('./scene');
+const camera = require('./camera');
+const light = require('./light');
+const renderer = require('./renderer');
+const scene = require('./scene');
 
-let globe = require('./globe');
-let stars = require('./stars');
+const globe = require('./globe');
+const stars = require('./stars');
 
 let threes = {
     camera,

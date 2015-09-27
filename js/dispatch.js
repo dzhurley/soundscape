@@ -7,8 +7,8 @@
  * TODO: needs to be able to manage multiple workers
  */
 
-let EventEmitter = require('eventemitter2');
-let events = require('./events');
+const EventEmitter = require('eventemitter2');
+const events = require('./events');
 
 class Dispatch extends EventEmitter {
     constructor(options = { wildcard: true }) {

@@ -1,12 +1,12 @@
 'use strict';
 
-let Worker = require('worker!./worker');
+const Worker = require('worker!./worker');
 
-let Dispatch = require('./dispatch');
-let Threes = require('./three/main');
-let Sourcer = require('./sources/main');
-let DOM = require('./dom');
-let HUD = require('./hud');
+const Dispatch = require('./dispatch');
+const Threes = require('./three/main');
+const Sourcer = require('./sources/main');
+const DOM = require('./dom');
+const HUD = require('./hud');
 
 Dispatch.bindToWorker(new Worker());
 

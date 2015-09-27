@@ -6,9 +6,9 @@
 let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
 
-let Constants = require('../constants');
-let Threes = require('./main');
-let DOM = require('../dom');
+const Constants = require('../constants');
+const Threes = require('./main');
+const DOM = require('../dom');
 
 class Controls {
     constructor(label = 'Orbital') {

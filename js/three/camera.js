@@ -1,8 +1,8 @@
 'use strict';
 
-let THREE = require('three');
-let Constants = require('../constants');
-let renderer = require('./renderer');
+const THREE = require('three');
+const Constants = require('../constants');
+const renderer = require('./renderer');
 
 class Camera extends THREE.PerspectiveCamera {
     constructor(fov, aspect, near, far) {

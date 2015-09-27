@@ -19,19 +19,19 @@ onmessage = function(evt) {
         let plotter = require('./plotting/worker');
 
         self.HEDS = new THREE.HalfEdgeStructure(globe.geometry);
-        Dispatch.on('plot.*', (method, payload) => plotter[method](payload));
+        self.Dispatch.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }
 
     // expose namespaced method as first arg to callback
     if (evt.data.type.includes('.')) {
-        Dispatch.emit(evt.data.type,
+        self.Dispatch.emit(evt.data.type,
                       evt.data.type.split('.')[1],
                       evt.data.payload);
     } else {
-        Dispatch.emit(evt.data.type, evt.data.payload);
+        self.Dispatch.emit(evt.data.type, evt.data.payload);
     }
 
     // TODO: explore transferrable objects for syncing artists
-    Dispatch.emit('getArtists');
+    self.Dispatch.emit('getArtists');
 };

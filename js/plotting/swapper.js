@@ -8,7 +8,7 @@
  * path out.
  */
 
-let globe = require('../three/globe');
+const globe = require('../three/globe');
 
 class Swapper {
     handleSwappers(startFace) {

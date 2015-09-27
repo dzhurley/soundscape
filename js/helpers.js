@@ -34,7 +34,7 @@ function equidistantishPointsOnSphere(numPoints) {
     // each other on a sphere. This applies Vogel's method, adapted from
     // http://blog.marmakoide.org/?p=1
 
-    let goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
     let thetas = boundedArray(0, numPoints - 1).map(n => n * goldenAngle);
 
     let zs = evenlySpacedInRange(

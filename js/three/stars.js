@@ -1,8 +1,8 @@
 'use strict';
 
-let THREE = require('three');
-let Constants = require('../constants');
-let scene = require('./scene');
+const THREE = require('three');
+const Constants = require('../constants');
+const scene = require('./scene');
 
 let stars = [];
 let star;
