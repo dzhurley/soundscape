@@ -10,31 +10,28 @@
  * use in all the plotting module's workings.
  */
 
-module.exports = function() {
-    let THREE = require('./lib/HalfEdgeStructure');
-    let Dispatch = require('./dispatch');
-    let globe = require('./three/globe');
-    let plotter = require('./plotting/worker');
+onmessage = function(evt) {
+    if (!self.started) {
+        // add Dispatch to WebWorker context for one-time require() and on()
+        self.Dispatch = require('./dispatch');
+        let THREE = require('./lib/HalfEdgeStructure');
+        let globe = require('./three/globe');
+        let plotter = require('./plotting/worker');
 
-    function startWorker() {
         self.HEDS = new THREE.HalfEdgeStructure(globe.geometry);
         Dispatch.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }
 
-    onmessage = function(evt) {
-        if (!self.started) startWorker();
+    // expose namespaced method as first arg to callback
+    if (evt.data.type.includes('.')) {
+        Dispatch.emit(evt.data.type,
+                      evt.data.type.split('.')[1],
+                      evt.data.payload);
+    } else {
+        Dispatch.emit(evt.data.type, evt.data.payload);
+    }
 
-        // expose namespaced method as first arg to callback
-        if (evt.data.type.includes('.')) {
-            Dispatch.emit(evt.data.type,
-                          evt.data.type.split('.')[1],
-                          evt.data.payload);
-        } else {
-            Dispatch.emit(evt.data.type, evt.data.payload);
-        }
-
-        // TODO: explore transferrable objects for syncing artists
-        Dispatch.emit('getArtists');
-    };
+    // TODO: explore transferrable objects for syncing artists
+    Dispatch.emit('getArtists');
 };

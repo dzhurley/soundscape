@@ -16,7 +16,7 @@ class Dispatch extends EventEmitter {
     }
 
     bindToWorker(worker) {
-        this.worker = new worker;
+        this.worker = worker;
         this.worker.onmessage = this.onWorkerMessage.bind(this);
         this.worker.onerror = this.onWorkerError.bind(this);
     }

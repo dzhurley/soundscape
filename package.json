@@ -16,13 +16,13 @@
     "eventemitter2": "^0.4.14",
     "three": "^0.70.0",
     "webpack": "~1.12.2",
-    "webworker-loader": "^0.1.0"
+    "worker-loader": "^0.6.0"
   },
   "devDependencies": {
     "webpack-dev-server": "^1.11.0"
   },
   "scripts": {
-    "pack": "webpack --progress --colors --display-modules",
-    "serve": "webpack-dev-server --progress --colors --display-modules"
+    "pack": "webpack --progress --colors",
+    "serve": "webpack-dev-server --inline --progress --colors"
   }
 }
