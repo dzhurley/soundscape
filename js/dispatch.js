@@ -27,7 +27,6 @@ class Dispatch extends EventEmitter {
 
     emitOnWorker(event, data) {
         if (!this.isValidEvent(event)) return false;
-
         this.worker.postMessage({ type: event, payload: data });
     }
 

@@ -4,7 +4,6 @@
  * finding the nearest free face from a given face on the mesh
  */
 
-let h = require('../helpers');
 let Constants = require('../constants');
 let Dispatch = require('../dispatch');
 let THREE = require('three');

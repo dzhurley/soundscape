@@ -3,11 +3,11 @@
 module.exports = {
     entry: './js/app.js',
     debug: true,
-    devtool: 'source-map',
+    devtool: 'cheap-module-eval-source-map',
     output: {
-        path: __dirname,
-        filename: 'build.js',
-        publicPath: '/'
+        path: __dirname + '/build',
+        filename: 'app.js',
+        publicPath: '/build'
     },
     resolve: {
         // Allow to omit extensions when requiring these files
