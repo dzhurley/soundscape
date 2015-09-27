@@ -18,13 +18,17 @@
 
 let h = require('../helpers');
 let Dispatch = require('../dispatch');
-let last = require('./last');
 
 class Sourcer {
-    constructor(sources = {}) {
-        this.sources = sources;
-
+    constructor() {
+        this.sources = {};
         Dispatch.on('submitting', this.checkSource.bind(this));
+    }
+
+    addSources(sources) {
+        for (let src of sources) {
+            this.sources[src] = require(`./${src}`);
+        }
     }
 
     sourceUrl(params = {}) {
@@ -87,4 +91,4 @@ class Sourcer {
     }
 }
 
-module.exports = new Sourcer({ last });
+module.exports = new Sourcer;

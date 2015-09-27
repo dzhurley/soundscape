@@ -18,6 +18,7 @@ let stars = require('./stars');
 
 let threes = {
     camera,
+    renderer,
 
     setScene() {
         light.addToScene();

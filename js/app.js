@@ -4,7 +4,7 @@ let worker = require('./worker');
 
 let Dispatch = require('./dispatch');
 let Threes = require('./three/main');
-let renderer = require('./three/renderer');
+let Sourcer = require('./sources/main');
 let DOM = require('./dom');
 let HUD = require('./hud');
 
@@ -12,6 +12,8 @@ Dispatch.bindToWorker(worker);
 
 Threes.setScene();
 
-DOM.attachTo(renderer.domElement);
+Sourcer.addSources(['lastfm']);
+
+DOM.attachTo(Threes.renderer.domElement);
 
 HUD.attachTo(DOM.container);
