@@ -7,7 +7,7 @@ module.exports = {
     output: {
         path: __dirname + '/build',
         filename: 'app.js',
-        publicPath: '/build'
+        publicPath: './build/'
     },
     resolve: {
         // Allow to omit extensions when requiring these files
