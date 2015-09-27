@@ -7,8 +7,8 @@
  * TODO: needs to be able to manage multiple workers
  */
 
-let EventEmitter = require('eventemitter2').EventEmitter2;
-let events = require('./events');
+const EventEmitter = require('eventemitter2');
+const events = require('./events');
 
 class Dispatch extends EventEmitter {
     constructor(options = { wildcard: true }) {
@@ -27,7 +27,6 @@ class Dispatch extends EventEmitter {
 
     emitOnWorker(event, data) {
         if (!this.isValidEvent(event)) return false;
-
         this.worker.postMessage({ type: event, payload: data });
     }
 

@@ -16,19 +16,23 @@
  *     }
  */
 
-let h = require('../helpers');
-let Dispatch = require('../dispatch');
-let last = require('./last');
+const h = require('../helpers');
+const Dispatch = require('../dispatch');
 
 let seeder = require('../plotting/seeder');
 
 class Sourcer {
-    constructor(sources = {}) {
-        this.sources = sources;
-
+    constructor() {
+        this.sources = {};
         Dispatch.on('submitting', this.checkSource.bind(this));
 
         Dispatch.on('plot.seed', payload => seeder.seed(payload));
+    }
+
+    addSources(sources) {
+        for (let src of sources) {
+            this.sources[src] = require(`./${src}`);
+        }
     }
 
     sourceUrl(params = {}) {
@@ -91,4 +95,4 @@ class Sourcer {
     }
 }
 
-module.exports = new Sourcer({ last });
+module.exports = new Sourcer;

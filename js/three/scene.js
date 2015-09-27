@@ -1,5 +1,5 @@
 'use strict';
 
-let THREE = require('three');
+const THREE = require('three');
 
 module.exports = new THREE.Scene();

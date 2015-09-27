@@ -2,7 +2,7 @@
 
 /* Last.fm specific source */
 
-let h = require('../helpers');
+const h = require('../helpers');
 
 module.exports = {
     baseUrl: 'http://ws.audioscrobbler.com/2.0/',

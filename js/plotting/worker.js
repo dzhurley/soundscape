@@ -7,9 +7,9 @@
  * are sent back to the main thread for update.
  */
 
-let ArtistManager = require('../artists');
-let globe = require('../three/globe');
-let facePlotter = require('./faces');
+const ArtistManager = require('../artists');
+const globe = require('../three/globe');
+const facePlotter = require('./faces');
 
 // WebWorker-wide list of remaining face indices yet to be painted
 self.remaining = [];

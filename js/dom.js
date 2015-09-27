@@ -5,8 +5,8 @@
  * Button selectors are cached and events are pumped into Dispatch
  */
 
-let Dispatch = require('./dispatch');
-let Threes = require('./three/main');
+const Dispatch = require('./dispatch');
+const Threes = require('./three/main');
 
 class DOM {
     attachTo(element) {

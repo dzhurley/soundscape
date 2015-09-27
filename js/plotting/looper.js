@@ -7,8 +7,8 @@
  *
  */
 
-let ArtistManager = require('../artists');
-let facePlotter = require('./faces');
+const ArtistManager = require('../artists');
+const facePlotter = require('./faces');
 
 class Looper {
     setNewFace(face, artist) {

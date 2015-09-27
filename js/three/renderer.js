@@ -1,6 +1,6 @@
 'use strict';
 
-let THREE = require('three');
+const THREE = require('three');
 
 class Renderer extends THREE.WebGLRenderer {
     constructor() {

@@ -1,11 +1,11 @@
 'use strict';
 
-let ArtistManager = require('../artists');
-let globe = require('../three/globe');
-let scene = require('../three/scene');
+const ArtistManager = require('../artists');
+const globe = require('../three/globe');
+const scene = require('../three/scene');
 
-let ForceDirected = require('../seeding/force');
-let {Graph, Node} = require('../seeding/graph');
+const ForceDirected = require('../seeding/force');
+const { Graph, Node } = require('../seeding/graph');
 
 function prepareData(data) {
     ArtistManager.setArtists({

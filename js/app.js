@@ -1,20 +1,19 @@
 'use strict';
 
-require('es6-shim');
+const Worker = require('worker!./worker');
 
-let work = require('webworkify');
-let worker = work(require('./worker'));
+const Dispatch = require('./dispatch');
+const Threes = require('./three/main');
+const Sourcer = require('./sources/main');
+const DOM = require('./dom');
+const HUD = require('./hud');
 
-let Dispatch = require('./dispatch');
-let Threes = require('./three/main');
-let renderer = require('./three/renderer');
-let DOM = require('./dom');
-let HUD = require('./hud');
-
-Dispatch.bindToWorker(worker);
+Dispatch.bindToWorker(new Worker());
 
 Threes.setScene();
 
-DOM.attachTo(renderer.domElement);
+Sourcer.addSources(['lastfm']);
+
+DOM.attachTo(Threes.renderer.domElement);
 
 HUD.attachTo(DOM.container);
