@@ -42,8 +42,7 @@ let threes = {
 
     animate() {
         if (threes.controls) threes.controls.update(1);
-        if (window.seedGraph) {
-            window.seedGraph.generate();
+        if (window.seedGraph && window.seedGraph.generate()) {
             // Update position of lines (edges)
             for (let i = 0; i < window.seedGeometries.length; i++) {
                 window.seedGeometries[i].verticesNeedUpdate = true;

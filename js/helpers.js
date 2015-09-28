@@ -72,7 +72,7 @@ function normalize(data, key, saveAs) {
         });
         return data;
     }
-    return data.map(datum => (datum[key] - min) / denom );
+    return data.map(datum => (datum[key] - min) / denom);
 }
 
 function packUrlParams(base, params) {

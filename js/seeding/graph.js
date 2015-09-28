@@ -27,10 +27,10 @@ class Graph {
 }
 
 class Node extends THREE.Mesh {
-    constructor({name: name, faces: charge, color: color=0xffffff} = {}) {
+    constructor({ name, faces: charge, color: color=0xffffff } = {}) {
         super(
             new THREE.SphereGeometry(2.5, 15, 15),
-            new THREE.MeshBasicMaterial({color: color})
+            new THREE.MeshBasicMaterial({ color })
         );
 
         let area = 55;
