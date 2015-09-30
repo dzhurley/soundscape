@@ -95,6 +95,7 @@ class ArtistManager {
         // find the other sides of the face that we'll overtake
         artist.edges.splice(artist.edges.indexOf(edge), 1);
         if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.b })) {
+            second = { v1: face.a, v2: face.c };
             third = { v1: face.b, v2: face.c };
         } else if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.c })) {
             second = { v1: face.a, v2: face.b };
@@ -103,6 +104,7 @@ class ArtistManager {
             second = { v1: face.a, v2: face.b };
             third = { v1: face.a, v2: face.c };
         }
+
         artist.edges.push(second, third);
 
         // TODO: handle swapping
