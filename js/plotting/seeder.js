@@ -1,11 +1,28 @@
 'use strict';
 
+const THREE = require('three');
 const ArtistManager = require('../artists');
 const globe = require('../three/globe');
 const scene = require('../three/scene');
 
 const ForceDirected = require('../seeding/force');
-const { Graph, Node } = require('../seeding/graph');
+
+class Node extends THREE.Mesh {
+    constructor({ name, faces: charge, color: color=0xffffff } = {}) {
+        super(
+            new THREE.SphereGeometry(2.5, 15, 15),
+            new THREE.MeshBasicMaterial({ color })
+        );
+
+        this.name = name;
+        this.charge = charge;
+
+        let area = 55;
+        this.position.x = Math.floor(Math.random() * (-area - area + 1) + area);
+        this.position.y = Math.floor(Math.random() * (-area - area + 1) + area);
+        this.position.z = Math.floor(Math.random() * (-area - area + 1) + area);
+    }
+}
 
 function prepareData(data) {
     ArtistManager.setArtists({
@@ -17,30 +34,23 @@ function prepareData(data) {
 }
 
 function createGraph(data) {
-    var graph = new Graph();
-
-    var startNode = new Node();
-    graph.addNode(startNode);
+    let nodeSet = new Set();
+    let startNode = new Node();
+    nodeSet.add(startNode);
     scene.add(startNode);
 
     for (let artist of data) {
         let targetNode = new Node(artist);
-        if (graph.addNode(targetNode)) {
+        if (!nodeSet.has(targetNode)) {
+            nodeSet.add(targetNode);
             scene.add(targetNode);
-            let edge = graph.addEdge(startNode, targetNode);
-            if (edge) {
-                window.seedGeometries.push(edge.geometry);
-                scene.add(edge);
-            }
         }
     }
 
-    return new ForceDirected(graph);
+    return new ForceDirected(nodeSet);
 }
 
 function seed(payload) {
-    window.seedGeometries = [];
-
     prepareData(JSON.parse(payload));
 
     window.seedGraph = createGraph(ArtistManager.artists);

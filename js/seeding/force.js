@@ -18,13 +18,19 @@ const repulsionMultiplier = 0.75;
 const nodeArea = 55;
 
 class ForceDirected {
-    constructor(graph) {
-        this.temp = width / 10.0;
-        this.graph = graph;
-        this.iterations = 0;
+    constructor(nodes) {
+        this.nodes = nodes;
+        this.nodes.forEach(node => {
+            node.layout = {
+                offsetX: 0, offsetY: 0, offsetZ: 0,
+                tmpPosX: node.position.x, tmpPosY: node.position.y, tmpPosZ: node.position.z,
+                force: 0
+            };
+        });
 
-        this.repulsionConstant = repulsionMultiplier *
-            Math.sqrt(width * height / this.graph.nodes.size);
+        this.temp = width / 10.0;
+        this.iterations = 0;
+        this.repulsionConstant = repulsionMultiplier * Math.sqrt(width * height / this.nodes.size);
     }
 
     onPositionUpdate(node) {
@@ -54,8 +60,8 @@ class ForceDirected {
     }
 
     calculateRepulsion() {
-        for (let nodeV of this.graph.nodes) {
-            for (let nodeU of this.graph.nodes) {
+        for (let nodeV of this.nodes) {
+            for (let nodeU of this.nodes) {
                 if (nodeU.name === nodeV.name) continue;
 
                 let deltaX = nodeV.layout.tmpPosX - nodeU.layout.tmpPosX;
@@ -88,7 +94,7 @@ class ForceDirected {
     }
 
     calculatePositions() {
-        for (let node of this.graph.nodes) {
+        for (let node of this.nodes) {
             let deltaLength = Math.max(
                 EPSILON, Math.sqrt(node.layout.offsetX * node.layout.offsetX +
                                    node.layout.offsetY * node.layout.offsetY));
