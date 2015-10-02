@@ -16,12 +16,14 @@ class DOM {
     }
 
     findElements() {
+        // TODO: downsize for less state
         this.container = document.getElementById('scape');
         this.hudContainer = document.getElementById('hud');
         this.sourcesOverlay = document.getElementById('sources-overlay');
         this.sourcesButton = document.getElementById('toggleOverlay');
         this.controlsButton = document.getElementById('toggleControls');
         this.sourcesPrompt = document.getElementById('sources');
+        this.forcesButton = document.getElementById('iterateForce');
     }
 
     bindHandlers() {
@@ -54,6 +56,10 @@ class DOM {
         if (!classes.contains('closed')) {
             this.sourcesPrompt.querySelector('#username').focus();
         }
+    }
+
+    iterateForce() {
+        window.seedGraph && window.seedGraph.generate();
     }
 }
 

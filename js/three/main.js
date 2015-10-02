@@ -28,6 +28,8 @@ let threes = {
 
         // TODO: flag for optional debugging mode?
         scene.add(new THREE.WireframeHelper(globe));
+        // red: x, green: y, blue: z
+        scene.add(new THREE.AxisHelper(75));
 
         this.camera.lookAt(scene.position);
         this.animate();
@@ -42,12 +44,6 @@ let threes = {
 
     animate() {
         if (threes.controls) threes.controls.update(1);
-        if (window.seedGraph && window.seedGraph.generate()) {
-            // Update position of lines (edges)
-            for (let i = 0; i < window.seedGeometries.length; i++) {
-                window.seedGeometries[i].verticesNeedUpdate = true;
-            }
-        }
         renderer.render(scene, threes.camera);
         window.requestAnimationFrame(threes.animate);
     }
