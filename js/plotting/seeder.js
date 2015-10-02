@@ -10,6 +10,7 @@ const ForceDirected = require('../seeding/force');
 class Node extends THREE.Mesh {
     constructor({ name, faces: charge, color: color=0xffffff } = {}) {
         super(
+            // TODO: constants
             new THREE.SphereGeometry(2.5, 15, 15),
             new THREE.MeshBasicMaterial({ color })
         );
@@ -17,10 +18,12 @@ class Node extends THREE.Mesh {
         this.name = name;
         this.charge = charge;
 
-        let area = 55;
-        this.position.x = Math.floor(Math.random() * (-area - area + 1) + area);
-        this.position.y = Math.floor(Math.random() * (-area - area + 1) + area);
-        this.position.z = Math.floor(Math.random() * (-area - area + 1) + area);
+        // TODO: constants
+        let randomStart = () => Math.random() * -100 + 50;
+
+        this.position.x = randomStart();
+        this.position.y = randomStart();
+        this.position.z = randomStart();
     }
 }
 
@@ -35,9 +38,6 @@ function prepareData(data) {
 
 function createGraph(data) {
     let nodeSet = new Set();
-    let startNode = new Node();
-    nodeSet.add(startNode);
-    scene.add(startNode);
 
     for (let artist of data) {
         let targetNode = new Node(artist);
@@ -52,7 +52,6 @@ function createGraph(data) {
 
 function seed(payload) {
     prepareData(JSON.parse(payload));
-
     window.seedGraph = createGraph(ArtistManager.artists);
 }
 

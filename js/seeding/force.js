@@ -15,7 +15,7 @@ const radius = 5;
 const maxIterations = 100000;
 
 const repulsionMultiplier = 0.75;
-const nodeArea = 55;
+const nodeArea = 50;
 
 class ForceDirected {
     constructor(nodes) {
@@ -34,12 +34,6 @@ class ForceDirected {
     }
 
     onPositionUpdate(node) {
-        if (!node.charge) {
-            node.position.x = 0;
-            node.position.y = 0;
-            node.position.z = 0;
-            return;
-        }
         let maxX = Math.max(radius, node.position.x);
         let minX = Math.min(-radius, node.position.x);
         let maxY = Math.max(radius, node.position.y);
