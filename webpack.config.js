@@ -6,8 +6,7 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     output: {
         path: __dirname + '/build',
-        filename: 'app.js',
-        publicPath: './build/'
+        filename: 'app.js'
     },
     resolve: {
         // Allow to omit extensions when requiring these files

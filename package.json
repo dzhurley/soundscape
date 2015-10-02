@@ -23,7 +23,8 @@
   },
   "scripts": {
     "lint": "eslint js",
-    "build": "webpack -p --progress --colors",
+    "build": "cp -r css img index.html build && webpack -p",
+    "deploy": "npm run build && cd build && git add . && git commit -m 'bump' && git push origin gh-pages",
     "start": "webpack-dev-server --inline -d --progress --colors"
   }
 }
