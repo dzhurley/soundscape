@@ -31,13 +31,12 @@ class Node extends THREE.Mesh {
 
     updatePosition() {
         let { x, y, z } = this.position;
-        // calculate new theta and phi
-        let theta = Math.acos(z / Constants.globe.radius);
-        let phi = Math.atan2(y, x);
-
-        console.log(`theta: ${theta}`);
-        console.log(`phi: ${phi}`);
-        this.setPosition(theta, phi);
+        // -50 >= z >= 50 for valid acos() domain
+        let boundedZ = z > 50 ? 50 : z < -50 ? -50 : z;
+        this.setPosition(
+            Math.acos(boundedZ / Constants.globe.radius),
+            Math.atan2(y, x)
+        );
     }
 }
 
