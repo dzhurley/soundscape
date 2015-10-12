@@ -1,5 +1,6 @@
 'use strict';
 
+const Constants = require('../constants');
 const THREE = require('three');
 const ArtistManager = require('../artists');
 const globe = require('../three/globe');
@@ -11,19 +12,41 @@ class Node extends THREE.Mesh {
     constructor({ name, faces: charge, color: color=0xffffff } = {}) {
         super(
             // TODO: constants
-            new THREE.SphereGeometry(2.5, 15, 15),
+            new THREE.SphereGeometry(2.5, 25, 25),
             new THREE.MeshBasicMaterial({ color })
         );
 
         this.name = name;
         this.charge = charge;
 
-        // TODO: constants
-        let randomStart = () => Math.random() * -100 + 50;
+        // randomize theta and phi on initial plot
+        this.setPosition(Math.random() * Math.PI, Math.random() * 2 * Math.PI);
+    }
 
-        this.position.x = randomStart();
-        this.position.y = randomStart();
-        this.position.z = randomStart();
+    setPosition(theta, phi) {
+        this.position.x = Constants.globe.radius * Math.sin(theta) * Math.cos(phi);
+        this.position.y = Constants.globe.radius * Math.cos(theta);
+        this.position.z = Constants.globe.radius * Math.sin(theta) * Math.sin(phi);
+    }
+
+    updatePosition() {
+        let maxX = Math.max(Constants.globe.radius, this.position.x);
+        let minX = Math.min(-Constants.globe.radius, this.position.x);
+
+        let maxY = Math.max(Constants.globe.radius, this.position.y);
+        let minY = Math.min(-Constants.globe.radius, this.position.y);
+
+        let lat = this.position.x < 0 ?
+            -90 / minX * this.position.x :
+            90 / maxX * this.position.x;
+        let lng = this.position.y < 0 ?
+            -180 / minY * this.position.y :
+            180 / maxY * this.position.y;
+
+        this.setPosition(
+            (180 - lng) * Math.PI / 180,
+            (90 - lat) * Math.PI / 180
+        );
     }
 }
 

@@ -11,11 +11,9 @@
 const EPSILON = 0.000001;
 const width = 200;
 const height = 200;
-const radius = 5;
 const maxIterations = 100000;
 
 const repulsionMultiplier = 0.75;
-const nodeArea = 50;
 
 class ForceDirected {
     constructor(nodes) {
@@ -31,26 +29,6 @@ class ForceDirected {
         this.temp = width / 10.0;
         this.iterations = 0;
         this.repulsionConstant = repulsionMultiplier * Math.sqrt(width * height / this.nodes.size);
-    }
-
-    onPositionUpdate(node) {
-        let maxX = Math.max(radius, node.position.x);
-        let minX = Math.min(-radius, node.position.x);
-        let maxY = Math.max(radius, node.position.y);
-        let minY = Math.min(-radius, node.position.y);
-
-        let lat = node.position.x < 0 ?
-            -90 / minX * node.position.x :
-            90 / maxX * node.position.x;
-        let lng = node.position.y < 0 ?
-            -180 / minY * node.position.y :
-            180 / maxY * node.position.y;
-
-        let phi = (90 - lat) * Math.PI / 180;
-        let theta = (180 - lng) * Math.PI / 180;
-        node.position.x = nodeArea * Math.sin(phi) * Math.cos(theta);
-        node.position.y = nodeArea * Math.cos(phi);
-        node.position.z = nodeArea * Math.sin(phi) * Math.sin(theta);
     }
 
     calculateRepulsion() {
@@ -107,7 +85,7 @@ class ForceDirected {
             node.position.y -= node.position.y - node.layout.tmpPosY / 10;
             node.position.z -= node.position.z - node.layout.tmpPosZ / 10;
 
-            this.onPositionUpdate(node);
+            node.updatePosition();
         }
     }
 
