@@ -9,7 +9,7 @@
  */
 
 const THREE = require('three');
-const Constants = require('./constants');
+const labels = require('./constants').labels;
 const Threes = require('./three/main');
 const globe = require('./three/globe');
 const scene = require('./three/scene');
@@ -125,7 +125,7 @@ class HUD {
     }
 
     getMarkProp(key) {
-        let value = Constants.labels[key];
+        let value = labels[key];
         // if the value is a string, return it, otherwise return
         // the number as an integer
         return isNaN(value) ? value : +value;

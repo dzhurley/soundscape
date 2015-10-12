@@ -1,16 +1,16 @@
 'use strict';
 
 const THREE = require('three');
-const Constants = require('../constants');
+const camera = require('../constants').camera;
 const renderer = require('./renderer');
 
 class Camera extends THREE.PerspectiveCamera {
     constructor(fov, aspect, near, far) {
         super(fov, aspect, near, far);
 
-        this.position.x = Constants.camera.initialX;
-        this.position.y = Constants.camera.initialY;
-        this.position.z = Constants.camera.initialZ;
+        this.position.x = camera.initialX;
+        this.position.y = camera.initialY;
+        this.position.z = camera.initialZ;
 
         this.bindResize();
     }
@@ -18,15 +18,10 @@ class Camera extends THREE.PerspectiveCamera {
     bindResize() {
         window.addEventListener('resize', () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
-            this.aspect = Constants.camera.aspect();
+            this.aspect = camera.aspect();
             this.updateProjectionMatrix();
         });
     }
 }
 
-module.exports = new Camera(
-    Constants.camera.fov,
-    Constants.camera.aspect(),
-    Constants.camera.near,
-    Constants.camera.far
-);
+module.exports = new Camera(camera.fov, camera.aspect(), camera.near, camera.far);

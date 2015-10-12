@@ -4,7 +4,7 @@
  * finding the nearest free face from a given face on the mesh
  */
 
-const Constants = require('../constants');
+const globe = require('../constants').globe;
 const Dispatch = require('../dispatch');
 const THREE = require('three');
 const scene = require('./scene');
@@ -93,11 +93,7 @@ class Globe extends THREE.Mesh {
 }
 
 module.exports = new Globe(
-    new THREE.SphereGeometry(
-        Constants.globe.radius,
-        Constants.globe.widthAndHeight,
-        Constants.globe.widthAndHeight
-    ),
+    new THREE.SphereGeometry(globe.radius, globe.widthAndHeight, globe.widthAndHeight),
     new THREE.MeshLambertMaterial({
         shading: THREE.FlatShading,
         side: THREE.DoubleSide,

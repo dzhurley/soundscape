@@ -1,8 +1,8 @@
 'use strict';
 
-let THREE = require('three');
-let Constants = require('../constants');
-let scene = require('./scene');
+const THREE = require('three');
+const color = require('../constants').light.color;
+const scene = require('./scene');
 
 class Light extends THREE.AmbientLight {
     addToScene() {
@@ -10,4 +10,4 @@ class Light extends THREE.AmbientLight {
     }
 }
 
-module.exports = new Light(Constants.light.color);
+module.exports = new Light(color);

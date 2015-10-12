@@ -1,6 +1,6 @@
 'use strict';
 
-const Constants = require('../constants');
+const radius = require('../constants').globe.radius;
 const THREE = require('three');
 const ArtistManager = require('../artists');
 const globe = require('../three/globe');
@@ -24,19 +24,16 @@ class Node extends THREE.Mesh {
     }
 
     setPosition(theta, phi) {
-        this.position.x = Constants.globe.radius * Math.sin(theta) * Math.cos(phi);
-        this.position.y = Constants.globe.radius * Math.cos(theta);
-        this.position.z = Constants.globe.radius * Math.sin(theta) * Math.sin(phi);
+        this.position.x = radius * Math.sin(theta) * Math.cos(phi);
+        this.position.y = radius * Math.cos(theta);
+        this.position.z = radius * Math.sin(theta) * Math.sin(phi);
     }
 
     updatePosition() {
         let { x, y, z } = this.position;
         // -50 >= z >= 50 for valid acos() domain
         let boundedZ = z > 50 ? 50 : z < -50 ? -50 : z;
-        this.setPosition(
-            Math.acos(boundedZ / Constants.globe.radius),
-            Math.atan2(y, x)
-        );
+        this.setPosition(Math.acos(boundedZ / radius), Math.atan2(y, x));
     }
 }
 
