@@ -30,23 +30,14 @@ class Node extends THREE.Mesh {
     }
 
     updatePosition() {
-        let maxX = Math.max(Constants.globe.radius, this.position.x);
-        let minX = Math.min(-Constants.globe.radius, this.position.x);
+        let { x, y, z } = this.position;
+        // calculate new theta and phi
+        let theta = Math.acos(z / Constants.globe.radius);
+        let phi = Math.atan2(y, x);
 
-        let maxY = Math.max(Constants.globe.radius, this.position.y);
-        let minY = Math.min(-Constants.globe.radius, this.position.y);
-
-        let lat = this.position.x < 0 ?
-            -90 / minX * this.position.x :
-            90 / maxX * this.position.x;
-        let lng = this.position.y < 0 ?
-            -180 / minY * this.position.y :
-            180 / maxY * this.position.y;
-
-        this.setPosition(
-            (180 - lng) * Math.PI / 180,
-            (90 - lat) * Math.PI / 180
-        );
+        console.log(`theta: ${theta}`);
+        console.log(`phi: ${phi}`);
+        this.setPosition(theta, phi);
     }
 }
 
