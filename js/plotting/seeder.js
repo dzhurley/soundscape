@@ -3,6 +3,7 @@
 const radius = require('../constants').globe.radius;
 const THREE = require('three');
 const ArtistManager = require('../artists');
+const h = require('../helpers');
 const globe = require('../three/globe');
 const scene = require('../three/scene');
 
@@ -18,22 +19,12 @@ class Node extends THREE.Mesh {
 
         this.name = name;
         this.charge = charge;
-
-        // randomize theta and phi on initial plot
-        this.setPosition(Math.random() * Math.PI, Math.random() * 2 * Math.PI);
     }
 
     setPosition(theta, phi) {
         this.position.x = radius * Math.sin(theta) * Math.cos(phi);
         this.position.y = radius * Math.cos(theta);
         this.position.z = radius * Math.sin(theta) * Math.sin(phi);
-    }
-
-    updatePosition() {
-        let { x, y, z } = this.position;
-        // -50 >= z >= 50 for valid acos() domain
-        let boundedZ = z > 50 ? 50 : z < -50 ? -50 : z;
-        this.setPosition(Math.acos(boundedZ / radius), Math.atan2(y, x));
     }
 }
 
@@ -48,13 +39,17 @@ function prepareData(data) {
 
 function createGraph(data) {
     let nodeSet = new Set();
+    let points = h.equidistantishPointsOnSphere(data.length);
 
-    for (let artist of data) {
-        let targetNode = new Node(artist);
-        if (!nodeSet.has(targetNode)) {
-            nodeSet.add(targetNode);
-            scene.add(targetNode);
-        }
+    for (let i in data) {
+        let targetNode = new Node(data[i]);
+        targetNode.position.x = points[i][0];
+        targetNode.position.y = points[i][1];
+        targetNode.position.z = points[i][2];
+        targetNode.position.multiplyScalar(radius);
+
+        nodeSet.add(targetNode);
+        scene.add(targetNode);
     }
 
     return new ForceDirected(nodeSet);

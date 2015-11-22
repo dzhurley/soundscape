@@ -7,6 +7,8 @@
   the JUNG implementation.
  */
 
+const radius = require('../constants').globe.radius;
+
 // TODO: constants
 const EPSILON = 0.000001;
 const width = 200;
@@ -85,7 +87,11 @@ class ForceDirected {
             node.position.y -= node.position.y - node.layout.tmpPosY / 10;
             node.position.z -= node.position.z - node.layout.tmpPosZ / 10;
 
-            node.updatePosition();
+
+            let { x, y, z } = node.position;
+            // -50 >= z >= 50 for valid acos() domain
+            let boundedZ = z > 50 ? 50 : z < -50 ? -50 : z;
+            node.setPosition(Math.acos(boundedZ / radius), Math.atan2(y, x));
         }
     }
 
