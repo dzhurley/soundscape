@@ -43,9 +43,7 @@ function createGraph(data) {
 
     for (let i in data) {
         let targetNode = new Node(data[i]);
-        targetNode.position.x = points[i][0];
-        targetNode.position.y = points[i][1];
-        targetNode.position.z = points[i][2];
+        targetNode.position.set(...points[i]);
         targetNode.position.multiplyScalar(radius);
 
         nodeSet.add(targetNode);
