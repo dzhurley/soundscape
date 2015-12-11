@@ -8,6 +8,7 @@
  */
 
 const radius = require('../constants').globe.radius;
+const { Vector3 } = require('three');
 
 // TODO: constants
 const EPSILON = 0.000001;
@@ -86,8 +87,11 @@ class ForceDirected {
             node.position.x -= node.position.x - node.layout.tmpPosX / 10;
             node.position.y -= node.position.y - node.layout.tmpPosY / 10;
             node.position.z -= node.position.z - node.layout.tmpPosZ / 10;
+        }
+    }
 
-
+    bind() {
+        for (let node of this.nodes) {
             let { x, y, z } = node.position;
             // -50 >= z >= 50 for valid acos() domain
             let boundedZ = z > 50 ? 50 : z < -50 ? -50 : z;

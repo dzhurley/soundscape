@@ -24,6 +24,7 @@ class DOM {
         this.controlsButton = document.getElementById('toggleControls');
         this.sourcesPrompt = document.getElementById('sources');
         this.forcesButton = document.getElementById('iterateForce');
+        this.bindButton = document.getElementById('bindSeeds');
     }
 
     bindHandlers() {
@@ -60,6 +61,10 @@ class DOM {
 
     iterateForce() {
         window.seedGraph && window.seedGraph.generate();
+    }
+
+    bindSeeds() {
+        window.seedGraph && window.seedGraph.bind();
     }
 }
 
