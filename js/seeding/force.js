@@ -12,19 +12,14 @@ const radius = require('../constants').globe.radius;
 // TODO: constants
 const EPSILON = 0.000001;
 const maxIterations = 100000;
-const area = 40000;
-
-// const repulsionMultiplier = 0.75;
+let temp = 10000;
 
 class ForceDirected {
     constructor(nodes) {
         this.nodes = nodes;
         // each vertex has two vectors: .position and .display
         this.nodes.forEach(node => node.display = node.position.clone());
-        this.temp = area / 100;
         this.iterations = 0;
-        this.rConstant = Math.sqrt(area / this.nodes.size);
-        this.diffScalar = 1 / (this.rConstant * this.rConstant);
     }
 
     calculateRepulsion() {
@@ -34,16 +29,14 @@ class ForceDirected {
 
                 // diff is the difference vector between the positions of the two vertices
                 let diff = v.position.clone().sub(u.position);
-                let normalDiff = diff.clone().normalize();
-                let scaledDiff = normalDiff.clone().multiplyScalar(this.diffScalar);
-                v.display.add(diff.divide(normalDiff).multiply(scaledDiff));
+                v.display.add(diff.divideScalar(diff.length()).multiplyScalar(v.charge));
             }
         }
     }
 
     calculatePositions() {
         for (let v of this.nodes) {
-            v.position.add(v.display.divide(v.display.normalize()));
+            v.position.add(v.display.divideScalar(v.display.length()));
         }
     }
 
@@ -57,10 +50,10 @@ class ForceDirected {
     }
 
     generate() {
-        if (this.iterations < maxIterations && this.temp > EPSILON) {
+        if (this.iterations < maxIterations && temp > EPSILON) {
             this.calculateRepulsion();
             this.calculatePositions();
-            this.temp *= 1 - this.iterations / maxIterations;
+            temp *= 1 - this.iterations / maxIterations;
             this.iterations++;
             return true;
         }
