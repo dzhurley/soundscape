@@ -13,7 +13,7 @@ class Node extends THREE.Mesh {
     constructor({ name, faces: charge, color: color=0xffffff } = {}) {
         super(
             // TODO: constants
-            new THREE.SphereGeometry(2.5, 25, 25),
+            new THREE.SphereGeometry(1.5, 25, 25),
             new THREE.MeshBasicMaterial({ color })
         );
 

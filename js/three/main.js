@@ -45,6 +45,9 @@ let threes = {
     animate() {
         if (threes.controls) threes.controls.update(1);
         renderer.render(scene, threes.camera);
+        if (!window.stable) {
+            window.stable = window.seedGraph && window.seedGraph.generate();
+        }
         window.requestAnimationFrame(threes.animate);
     }
 };

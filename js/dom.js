@@ -62,10 +62,6 @@ class DOM {
     iterateForce() {
         window.seedGraph && window.seedGraph.generate();
     }
-
-    bindSeeds() {
-        window.seedGraph && window.seedGraph.bind();
-    }
 }
 
 module.exports = new DOM();
