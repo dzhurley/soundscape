@@ -18,34 +18,32 @@ let temp = 10000;
 let repulse = (c, d) => c / d;
 let bind = v => v.setLength(radius);
 
-class ForceDirected {
-    constructor(nodes) {
-        this.nodes = nodes;
-        this.iterations = 0;
-    }
 
-    generate() {
-        if (this.iterations < maxIterations && temp > EPSILON) {
-            for (let v of this.nodes) {
-                for (let u of this.nodes) {
+module.exports = nodes => {
+    let iterations = 0;
+
+    return () => {
+        if (iterations < maxIterations && temp > EPSILON) {
+            for (let v of nodes) {
+                for (let u of nodes) {
                     if (u.name === v.name) continue;
 
                     // diff is the difference vector between the positions of the two vertices
                     let diff = v.position.clone().sub(u.position);
-                    let multiplier = repulse(v.charge, diff.length());
-                    let divided = diff.divideScalar(diff.length());
-                    v.position.add(divided.multiplyScalar(multiplier));
-                    bind(v.position);
+                    if (diff.length() > 3) {
+                        let multiplier = repulse(v.charge, diff.length());
+                        let divided = diff.divideScalar(diff.length());
+                        v.position.add(divided.multiplyScalar(multiplier));
+                        bind(v.position);
+                    }
                 }
             }
 
-            temp *= 1 - this.iterations / maxIterations;
-            this.iterations++;
+            temp *= 1 - iterations / maxIterations;
+            iterations++;
             return false;
         }
         console.log('forces stable');
         return true;
-    }
-}
-
-module.exports = ForceDirected;
+    };
+};

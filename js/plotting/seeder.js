@@ -7,7 +7,7 @@ const h = require('../helpers');
 const globe = require('../three/globe');
 const scene = require('../three/scene');
 
-const ForceDirected = require('../seeding/force');
+const forceSeed = require('../seeding/force');
 
 class Node extends THREE.Mesh {
     constructor({ name, faces: charge, color: color=0xffffff } = {}) {
@@ -50,12 +50,12 @@ function createGraph(data) {
         scene.add(targetNode);
     }
 
-    return new ForceDirected(nodeSet);
+    return forceSeed(nodeSet);
 }
 
 function seed(payload) {
     prepareData(JSON.parse(payload));
-    window.seedGraph = createGraph(ArtistManager.artists);
+    window.forceSeed = createGraph(ArtistManager.artists);
 }
 
 module.exports = { prepareData, seed };
