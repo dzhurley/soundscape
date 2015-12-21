@@ -60,7 +60,7 @@ class DOM {
     }
 
     iterateForce() {
-        window.seedGraph && window.seedGraph.generate();
+        window.forceSeed && window.forceSeed();
     }
 }
 

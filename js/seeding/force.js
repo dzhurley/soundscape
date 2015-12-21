@@ -15,27 +15,27 @@ const maxIterations = 100000;
 let temp = 10000;
 
 // use charge and distance
-let repulse = (c, d) => c / d;
-let bind = v => v.setLength(radius);
-
+let repulse = (charge, distance) => charge / distance;
 
 module.exports = nodes => {
     let iterations = 0;
+
+    function applyDiff(v, u) {
+        // diff is the difference vector between the positions of the two vertices
+        let diff = v.position.clone().sub(u.position);
+        let multiplier = repulse(v.charge, diff.length());
+        let divided = diff.divideScalar(diff.length());
+        v.position.add(divided.multiplyScalar(multiplier));
+        // bind to surface of globe
+        v.position.setLength(radius);
+    }
 
     return () => {
         if (iterations < maxIterations && temp > EPSILON) {
             for (let v of nodes) {
                 for (let u of nodes) {
                     if (u.name === v.name) continue;
-
-                    // diff is the difference vector between the positions of the two vertices
-                    let diff = v.position.clone().sub(u.position);
-                    if (diff.length() > 3) {
-                        let multiplier = repulse(v.charge, diff.length());
-                        let divided = diff.divideScalar(diff.length());
-                        v.position.add(divided.multiplyScalar(multiplier));
-                        bind(v.position);
-                    }
+                    applyDiff(v, u);
                 }
             }
 
