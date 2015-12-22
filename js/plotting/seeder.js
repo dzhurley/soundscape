@@ -20,12 +20,6 @@ class Node extends THREE.Mesh {
         this.name = name;
         this.charge = charge;
     }
-
-    setPosition(theta, phi) {
-        this.position.x = radius * Math.sin(theta) * Math.cos(phi);
-        this.position.y = radius * Math.cos(theta);
-        this.position.z = radius * Math.sin(theta) * Math.sin(phi);
-    }
 }
 
 function prepareData(data) {

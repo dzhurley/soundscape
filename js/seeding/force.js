@@ -14,20 +14,26 @@ const EPSILON = 0.000001;
 const maxIterations = 100000;
 let temp = 10000;
 
-// use charge and distance
-let repulse = (charge, distance) => charge / distance;
+let repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
 
 module.exports = nodes => {
     let iterations = 0;
 
+    // normalize charges between 0 and 50
+    let maxCharge = Math.max(...Array.from(nodes).map(n => n.charge));
+    nodes.forEach(n => n.charge = 50 * (n.charge / maxCharge));
+
     function applyDiff(v, u) {
         // diff is the difference vector between the positions of the two vertices
         let diff = v.position.clone().sub(u.position);
-        let multiplier = repulse(v.charge, diff.length());
-        let divided = diff.divideScalar(diff.length());
-        v.position.add(divided.multiplyScalar(multiplier));
-        // bind to surface of globe
-        v.position.setLength(radius);
+        let length = diff.length();
+
+        if (length <= v.charge) {
+            let multiplier = repulse(v.charge, u.charge, length);
+            v.position.add(diff.multiplyScalar(multiplier));
+            // bind to surface of globe
+            v.position.setLength(radius);
+        }
     }
 
     return () => {
