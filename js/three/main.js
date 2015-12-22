@@ -45,9 +45,6 @@ let threes = {
     animate() {
         if (threes.controls) threes.controls.update(1);
         renderer.render(scene, threes.camera);
-        if (!window.stable) {
-            window.stable = window.forceSeed && window.forceSeed();
-        }
         window.requestAnimationFrame(threes.animate);
     }
 };

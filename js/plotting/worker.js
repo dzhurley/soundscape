@@ -10,6 +10,8 @@
 const ArtistManager = require('../artists');
 const globe = require('../three/globe');
 const facePlotter = require('./faces');
+const { prepareData, seedIndices } = require('./seeder');
+const h = require('../helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
 self.remaining = [];
@@ -91,6 +93,26 @@ function respondWithFaces(event = 'painted') {
     });
 }
 
+function seed(payload) {
+    let data = JSON.parse(payload);
+
+    if (!data.length) {
+        // TODO: find a nicer way
+        console.error('user has no plays');
+        return [];
+    }
+
+    // seed the planet
+    prepareData(data);
+    let seeds = seedIndices().map(s => iterate([s]));
+
+    // set remaining faces to paint
+    let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
+    self.remaining = randos.filter(r => seeds.indexOf(r) < 0);
+
+    respondWithFaces('seeded');
+}
+
 function one() {
     iterate();
     respondWithFaces();
@@ -109,4 +131,4 @@ function all() {
     }
 }
 
-module.exports = { one, batch, all };
+module.exports = { seed, one, batch, all };

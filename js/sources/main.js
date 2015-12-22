@@ -19,14 +19,10 @@
 const h = require('../helpers');
 const Dispatch = require('../dispatch');
 
-let seeder = require('../plotting/seeder');
-
 class Sourcer {
     constructor() {
         this.sources = {};
         Dispatch.on('submitting', this.checkSource.bind(this));
-
-        Dispatch.on('plot.seed', payload => seeder.seed(payload));
     }
 
     addSources(sources) {
@@ -72,7 +68,7 @@ class Sourcer {
             this.artists = JSON.parse(localStorage[username]);
 
             if (this.artists) {
-                Dispatch.emit('plot.seed', JSON.stringify(this.artists));
+                Dispatch.emitOnWorker('plot.seed', JSON.stringify(this.artists));
                 return;
             }
         }
@@ -86,7 +82,7 @@ class Sourcer {
                 let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
                 let stringified = JSON.stringify(h.randomArray(this.artists));
-                Dispatch.emit('plot.seed', stringified);
+                Dispatch.emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }
         };
