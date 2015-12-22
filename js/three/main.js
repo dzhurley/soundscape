@@ -26,9 +26,10 @@ let threes = {
         globe.addToScene();
         stars.addToScene();
 
-        // TODO: flag for optional debugging mode?
+        // TODO: add to labs
         scene.add(new THREE.WireframeHelper(globe));
         // red: x, green: y, blue: z
+        // TODO: add to labs
         scene.add(new THREE.AxisHelper(75));
 
         this.camera.lookAt(scene.position);

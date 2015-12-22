@@ -4,7 +4,7 @@
  * finding the nearest free face from a given face on the mesh
  */
 
-const globe = require('../constants').globe;
+const { globe } = require('../constants');
 const Dispatch = require('../dispatch');
 const THREE = require('three');
 const scene = require('./scene');

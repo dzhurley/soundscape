@@ -1,7 +1,7 @@
 'use strict';
 
 const THREE = require('three');
-const camera = require('../constants').camera;
+const { camera } = require('../constants');
 const renderer = require('./renderer');
 
 class Camera extends THREE.PerspectiveCamera {

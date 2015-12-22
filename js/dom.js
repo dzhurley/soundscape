@@ -23,8 +23,6 @@ class DOM {
         this.sourcesButton = document.getElementById('toggleOverlay');
         this.controlsButton = document.getElementById('toggleControls');
         this.sourcesPrompt = document.getElementById('sources');
-        this.forcesButton = document.getElementById('iterateForce');
-        this.bindButton = document.getElementById('bindSeeds');
     }
 
     bindHandlers() {
@@ -57,10 +55,6 @@ class DOM {
         if (!classes.contains('closed')) {
             this.sourcesPrompt.querySelector('#username').focus();
         }
-    }
-
-    iterateForce() {
-        window.forceSeed && window.forceSeed();
     }
 }
 

@@ -9,7 +9,7 @@
  */
 
 const THREE = require('three');
-const labels = require('./constants').labels;
+const { labels } = require('./constants');
 const Threes = require('./three/main');
 const globe = require('./three/globe');
 const scene = require('./three/scene');
