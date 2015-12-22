@@ -18,6 +18,8 @@ canvas {
     z-index: 1;
 }
 
+ul { list-style: none; }
+
 #hud {
     padding: 10px;
     color: #d7d7d7;
@@ -58,13 +60,18 @@ canvas {
 
 .actions {
     position: absolute;
+    margin: 0;
+    padding: 0 .5rem;
     top: 0;
     right: 0;
     z-index: 2;
     background-color: #272727;
 }
 
-.actions > div {
-    padding: 5px;
-    text-align: right;
+.actions li { padding: 5px; }
+.actions li:not(:last-child) { border-bottom: 1px solid #d7d7d7; }
+
+.actions button {
+    display: block;
+    margin: .5rem 0;
 }
