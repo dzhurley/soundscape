@@ -14,7 +14,7 @@ const Threes = require('./three/main');
 const globe = require('./three/globe');
 const scene = require('./three/scene');
 
-const DOM = require('./dom');
+const { HudContainer } = require('./dom');
 const ArtistManager = require('./artists');
 
 class HUD {
@@ -94,10 +94,10 @@ class HUD {
             b: this.active.b,
             c: this.active.c
         });
-        DOM.hudContainer.innerHTML = isPainted ?
+        HudContainer.innerHTML = isPainted ?
             this.template(data) :
             this.blankTemplate(data);
-        DOM.hudContainer.style.display = 'block';
+        HudContainer.style.display = 'block';
     }
 
     setVerticesFromArtistEdges(artist) {
@@ -131,7 +131,7 @@ class HUD {
         return isNaN(value) ? value : +value;
     }
 
-    // TODO: favor DOM over canvas for tooltips
+    // TODO: favor dom over canvas for tooltips
     makeMark(message) {
         let canvas = document.createElement('canvas');
         canvas.width = canvas.height = 1600;

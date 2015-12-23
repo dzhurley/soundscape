@@ -8,54 +8,50 @@
 const Dispatch = require('./dispatch');
 const Threes = require('./three/main');
 
-class DOM {
-    attachTo(element) {
-        this.findElements();
-        this.container.appendChild(element);
-        this.bindHandlers();
-    }
+const withId = selector => document.getElementById(selector);
+const Container = withId('scape');
+const HudContainer = withId('hud');
 
-    findElements() {
-        // TODO: downsize for less state
-        this.container = document.getElementById('scape');
-        this.hudContainer = document.getElementById('hud');
-        this.sourcesOverlay = document.getElementById('sources-overlay');
-        this.sourcesButton = document.getElementById('toggleOverlay');
-        this.controlsButton = document.getElementById('toggleControls');
-        this.sourcesPrompt = document.getElementById('sources');
-    }
-
-    bindHandlers() {
-        let mainButtons = Array.from(document.querySelectorAll('.main button'));
-        let workerButtons = Array.from(document.querySelectorAll('.worker button'));
-
-        mainButtons.forEach(button => button.addEventListener('click', () => this[button.id]()));
-        workerButtons.forEach(button => this.workerBindings(button));
-
-        this.sourcesPrompt.addEventListener('submit', evt => Dispatch.emit('submitting', evt));
-
-        Dispatch.on('submitted', () => {
-            document.querySelector('#username').value = '';
-            this.sourcesButton.click();
-        });
-    }
-
-    workerBindings(button) {
-        button.addEventListener(
-            'click', () => Dispatch.emitOnWorker.call(Dispatch, `plot.${button.id}`));
-    }
-
+const handlers = {
     toggleControls() {
         if (Threes.controls) Threes.controls.toggleControls();
-    }
+    },
 
     toggleOverlay() {
-        let classes = this.sourcesOverlay.classList;
+        let classes = withId('sources-overlay').classList;
         classes.toggle('closed');
-        if (!classes.contains('closed')) {
-            this.sourcesPrompt.querySelector('#username').focus();
-        }
+        if (!classes.contains('closed')) withId('username').focus();
     }
+};
+
+function bindMainButtons() {
+    let buttons = Array.from(document.querySelectorAll('.main button'));
+    buttons.map(button => button.addEventListener('click', handlers[button.id]));
 }
 
-module.exports = new DOM();
+function bindWorkerButtons() {
+    let buttons = Array.from(document.querySelectorAll('.worker button'));
+    let clickOnWorker = evt => Dispatch.emitOnWorker.call(Dispatch, `plot.${evt.target.id}`);
+    buttons.map(button => button.addEventListener('click', clickOnWorker));
+}
+
+function bindHandlers() {
+    bindMainButtons();
+    bindWorkerButtons();
+
+    withId('sources').addEventListener('submit', evt => Dispatch.emit('submitting', evt));
+
+    Dispatch.on('submitted', () => {
+        withId('username').value = '';
+        withId('toggleOverlay').click();
+    });
+}
+
+module.exports = {
+    Container,
+    HudContainer,
+    attachWebGLement: el => {
+        Container.appendChild(el);
+        bindHandlers();
+    }
+};
