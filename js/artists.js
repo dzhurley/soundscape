@@ -28,13 +28,13 @@
 const h = require('./helpers');
 const THREE = require('./lib/HalfEdgeStructure');
 
-const Dispatch = require('./dispatch');
+const { on } = require('./dispatch');
 
 class ArtistManager {
     constructor() {
         this.artistIndex = 0;
-        Dispatch.on('getArtists', this.getArtists.bind(this));
-        Dispatch.on('updateArtists', this.updateArtists.bind(this));
+        on('getArtists', this.getArtists.bind(this));
+        on('updateArtists', this.updateArtists.bind(this));
     }
 
     artistsLeft() {

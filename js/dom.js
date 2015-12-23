@@ -2,7 +2,7 @@
 
 /* Interface for the DOM around UI event bindings */
 
-const Dispatch = require('./dispatch');
+const { emit, emitOnWorker, on } = require('./dispatch');
 const Threes = require('./three/main');
 
 const withId = selector => document.getElementById(selector);
@@ -28,7 +28,7 @@ function bindMainButtons() {
 
 function bindWorkerButtons() {
     let buttons = Array.from(document.querySelectorAll('.worker button'));
-    let clickOnWorker = evt => Dispatch.emitOnWorker.call(Dispatch, `plot.${evt.target.id}`);
+    let clickOnWorker = evt => emitOnWorker.call(emitOnWorker, `plot.${evt.target.id}`);
     buttons.map(button => button.addEventListener('click', clickOnWorker));
 }
 
@@ -36,9 +36,9 @@ function bindHandlers() {
     bindMainButtons();
     bindWorkerButtons();
 
-    withId('sources').addEventListener('submit', evt => Dispatch.emit('submitting', evt));
+    withId('sources').addEventListener('submit', evt => emit('submitting', evt));
 
-    Dispatch.on('submitted', () => {
+    on('submitted', () => {
         withId('username').value = '';
         withId('toggleOverlay').click();
     });

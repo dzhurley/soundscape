@@ -1,7 +1,7 @@
 'use strict';
 
 /* Manages the seeding of the artists on the globe and batches
- * out further painting based on incoming Dispatch events
+ * out further painting based on incoming events
  *
  * After each cycle through painting more faces, the new faces
  * are sent back to the main thread for update.

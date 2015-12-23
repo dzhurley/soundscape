@@ -17,12 +17,12 @@
  */
 
 const h = require('../helpers');
-const Dispatch = require('../dispatch');
+const { emit, emitOnWorker, on } = require('../dispatch');
 
 class Sourcer {
     constructor() {
         this.sources = {};
-        Dispatch.on('submitting', this.checkSource.bind(this));
+        on('submitting', this.checkSource.bind(this));
     }
 
     addSources(sources) {
@@ -59,7 +59,7 @@ class Sourcer {
         this.activeSource = this.sources[source];
         this.getArtistsForUser(username);
 
-        Dispatch.emit('submitted');
+        emit('submitted');
         this.artists = null;
     }
 
@@ -68,7 +68,7 @@ class Sourcer {
             this.artists = JSON.parse(localStorage[username]);
 
             if (this.artists) {
-                Dispatch.emitOnWorker('plot.seed', JSON.stringify(this.artists));
+                emitOnWorker('plot.seed', JSON.stringify(this.artists));
                 return;
             }
         }
@@ -82,7 +82,7 @@ class Sourcer {
                 let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
                 let stringified = JSON.stringify(h.randomArray(this.artists));
-                Dispatch.emitOnWorker('plot.seed', stringified);
+                emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }
         };

@@ -6,7 +6,7 @@
  */
 
 const THREE = require('three');
-const Dispatch = require('../dispatch');
+const { on } = require('../dispatch');
 
 const camera = require('./camera');
 const light = require('./light');
@@ -35,7 +35,7 @@ let threes = {
         this.camera.lookAt(scene.position);
         this.animate();
 
-        Dispatch.on('submitted', () => {
+        on('submitted', () => {
             globe.resetGlobe();
             if (!this.controls) {
                 this.controls = require('./controls');

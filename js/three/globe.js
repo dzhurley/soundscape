@@ -5,7 +5,7 @@
  */
 
 const { globe } = require('../constants');
-const Dispatch = require('../dispatch');
+const { on } = require('../dispatch');
 const THREE = require('three');
 const scene = require('./scene');
 
@@ -13,9 +13,7 @@ class Globe extends THREE.Mesh {
     constructor(geometry, material) {
         super(geometry, material);
 
-        Dispatch.on('faces.*', payload => {
-            this.updateFaces(JSON.parse(payload.faces));
-        });
+        on('faces.*', payload => this.updateFaces(JSON.parse(payload.faces)));
     }
 
     getFaceIndex(face) {

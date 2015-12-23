@@ -11,27 +11,25 @@
  */
 
 onmessage = function(evt) {
+    let { data: { type, payload } } = evt;
     if (!self.started) {
-        // add Dispatch to WebWorker context for one-time require() and on()
-        self.Dispatch = require('./dispatch');
-        let THREE = require('./lib/HalfEdgeStructure');
-        let globe = require('./three/globe');
-        let plotter = require('./plotting/worker');
+        self.emit = require('./dispatch').emit;
+        self.on = require('./dispatch').on;
+
+        const THREE = require('./lib/HalfEdgeStructure');
+        const globe = require('./three/globe');
+        const plotter = require('./plotting/worker');
 
         self.HEDS = new THREE.HalfEdgeStructure(globe.geometry);
-        self.Dispatch.on('plot.*', (method, payload) => plotter[method](payload));
+        self.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }
 
     // expose namespaced method as first arg to callback
-    if (evt.data.type.includes('.')) {
-        self.Dispatch.emit(evt.data.type,
-                      evt.data.type.split('.')[1],
-                      evt.data.payload);
-    } else {
-        self.Dispatch.emit(evt.data.type, evt.data.payload);
-    }
+    type.includes('.') ?
+        self.emit(type, type.split('.')[1], payload) :
+        self.emit(type, payload);
 
     // TODO: explore transferrable objects for syncing artists
-    self.Dispatch.emit('getArtists');
+    self.emit('getArtists');
 };

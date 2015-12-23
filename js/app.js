@@ -2,13 +2,13 @@
 
 const Worker = require('worker!./worker');
 
-const Dispatch = require('./dispatch');
+const { addWorker } = require('./dispatch');
 const Threes = require('./three/main');
 const Sourcer = require('./sources/main');
 const { Container, attachWebGLement } = require('./dom');
 const HUD = require('./hud');
 
-Dispatch.addWorker(new Worker());
+addWorker(new Worker());
 
 Threes.setScene();
 
