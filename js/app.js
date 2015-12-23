@@ -8,7 +8,7 @@ const Sourcer = require('./sources/main');
 const { Container, attachWebGLement } = require('./dom');
 const HUD = require('./hud');
 
-Dispatch.bindToWorker(new Worker());
+Dispatch.addWorker(new Worker());
 
 Threes.setScene();
 

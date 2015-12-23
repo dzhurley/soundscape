@@ -10,35 +10,26 @@
 const EventEmitter = require('eventemitter2');
 const events = require('./events');
 
-class Dispatch extends EventEmitter {
-    constructor(options = { wildcard: true }) {
-        super(options);
-    }
+const emitter = new EventEmitter({ wildcard: true });
 
-    bindToWorker(worker) {
-        this.worker = worker;
-        this.worker.onmessage = this.onWorkerMessage.bind(this);
-        this.worker.onerror = this.onWorkerError.bind(this);
-    }
+const isValidEvent = event => events.indexOf(event) > -1;
 
-    isValidEvent(event) {
-        return events.indexOf(event) > -1;
-    }
-
-    emitOnWorker(event, data) {
-        if (!this.isValidEvent(event)) return false;
-        this.worker.postMessage({ type: event, payload: data });
-    }
-
-    onWorkerMessage(event) {
-        if (!this.isValidEvent(event.data.type)) return false;
-
-        this.emit(event.data.type, event.data.payload);
-    }
-
-    onWorkerError() {
-        console.error('Worker Error:', arguments);
-    }
+function addWorker(worker) {
+    emitter.worker = worker;
+    emitter.worker.onmessage = event => {
+        let { data: { type, payload } } = event;
+        return isValidEvent(type) ? emitter.emit(type, payload) : false;
+    };
+    emitter.worker.onerror = () => console.error(`Worker Error: ${arguments}`);
 }
 
-module.exports = new Dispatch();
+function emitOnWorker(type, payload) {
+    return isValidEvent(type) ? emitter.worker.postMessage({ type, payload }) : false;
+}
+
+module.exports = {
+    addWorker,
+    emitOnWorker,
+    emit: emitter.emit.bind(emitter),
+    on: emitter.on.bind(emitter)
+};

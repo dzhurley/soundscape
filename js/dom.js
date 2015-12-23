@@ -1,9 +1,6 @@
 'use strict';
 
-/* Interface for the DOM around UI event bindings
- *
- * Button selectors are cached and events are pumped into Dispatch
- */
+/* Interface for the DOM around UI event bindings */
 
 const Dispatch = require('./dispatch');
 const Threes = require('./three/main');
