@@ -3,7 +3,7 @@
 const radius = require('../constants').globe.radius;
 const THREE = require('three');
 const ArtistManager = require('../artists');
-const h = require('../helpers');
+const { equidistantishPointsOnSphere } = require('../helpers');
 const globe = require('../three/globe');
 const scene = require('../three/scene');
 
@@ -37,7 +37,7 @@ function prepareData(data) {
 
 function createGraph(data) {
     let nodeSet = new Set();
-    let points = h.equidistantishPointsOnSphere(data.length);
+    let points = equidistantishPointsOnSphere(data.length);
 
     for (let i in data) {
         let targetNode = new Node(data[i]);
@@ -59,7 +59,7 @@ function forceSeed(payload) {
 // XXX:end force-seeding
 
 function addEquidistantMarks(num) {
-    return h.equidistantishPointsOnSphere(num).map(p => {
+    return equidistantishPointsOnSphere(num).map(p => {
         let mark = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xff0000 }));
         mark.position.set(...p);
         mark.position.multiplyScalar(globe.geometry.parameters.radius + 2);

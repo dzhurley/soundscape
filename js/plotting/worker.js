@@ -11,7 +11,7 @@ const ArtistManager = require('../artists');
 const globe = require('../three/globe');
 const facePlotter = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
-const h = require('../helpers');
+const { randomBoundedArray } = require('../helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
 self.remaining = [];
@@ -107,7 +107,7 @@ function seed(payload) {
     let seeds = seedIndices().map(s => iterate([s]));
 
     // set remaining faces to paint
-    let randos = h.randomBoundedArray(0, globe.geometry.faces.length - 1);
+    let randos = randomBoundedArray(0, globe.geometry.faces.length - 1);
     self.remaining = randos.filter(r => seeds.indexOf(r) < 0);
 
     respondWithFaces('seeded');

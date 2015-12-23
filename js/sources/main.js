@@ -16,7 +16,7 @@
  *     }
  */
 
-const h = require('../helpers');
+const { packUrlParams, randomArray } = require('../helpers');
 const { emit, emitOnWorker, on } = require('../dispatch');
 
 class Sourcer {
@@ -33,7 +33,7 @@ class Sourcer {
 
     sourceUrl(params = {}) {
         params = Object.assign({}, this.activeSource.defaultParams, params);
-        return h.packUrlParams(this.activeSource.baseUrl, params);
+        return packUrlParams(this.activeSource.baseUrl, params);
     }
 
     checkSource(evt) {
@@ -81,7 +81,7 @@ class Sourcer {
             if (request.status >= 200 && request.status < 400) {
                 let data = JSON.parse(request.responseText);
                 this.artists = this.activeSource.parseData(data);
-                let stringified = JSON.stringify(h.randomArray(this.artists));
+                let stringified = JSON.stringify(randomArray(this.artists));
                 emitOnWorker('plot.seed', stringified);
                 localStorage[username] = stringified;
             }

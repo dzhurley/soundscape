@@ -2,7 +2,7 @@
 
 /* Last.fm specific source */
 
-const h = require('../helpers');
+const { normalize } = require('../helpers');
 
 module.exports = {
     baseUrl: 'http://ws.audioscrobbler.com/2.0/',
@@ -26,7 +26,7 @@ module.exports = {
             return {};
         }
 
-        return h.normalize(data.artists.artist.map(artist => ({
+        return normalize(data.artists.artist.map(artist => ({
             name: artist.name,
             playCount: Number.parseInt(artist.playcount, 10)
         })), 'playCount', 'normCount');
