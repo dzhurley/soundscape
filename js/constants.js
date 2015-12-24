@@ -36,9 +36,7 @@ const stars = Object.freeze({
 });
 
 const camera = Object.freeze({
-    initialX: 80,
-    initialY: 80,
-    initialZ: 80,
+    position: { x: 80, y: 80, z: 80 },
 
     fov: 75,
     aspect() {
