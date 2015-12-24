@@ -10,8 +10,8 @@ const withId = selector => document.getElementById(selector);
 const container = withId('scape');
 
 const handlers = {
-    toggleControls() {
-        if (Threes.controls) Threes.controls.toggleControls();
+    toggleControls(evt) {
+        if (Threes.controls) Threes.controls.toggleControls(evt.target.textContent);
     },
 
     toggleOverlay() {

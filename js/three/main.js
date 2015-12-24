@@ -44,7 +44,7 @@ let threes = {
     },
 
     animate() {
-        if (threes.controls) threes.controls.update(1);
+        if (threes.controls) threes.controls.updateControls(1);
         renderer.render(scene, threes.camera);
         window.requestAnimationFrame(threes.animate);
     }
