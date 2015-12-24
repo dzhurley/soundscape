@@ -9,6 +9,15 @@ const scene = require('../three/scene');
 
 const force = require('../seeding/force');
 
+function prepareData(data) {
+    ArtistManager.setArtists({
+        artists: data,
+        totalFaces: globe.geometry.faces.length
+    });
+
+    globe.geometry.faces.map(face => face.data = {});
+}
+
 // XXX:begin force-seeding
 //
 // no current worker-side implementation
@@ -24,15 +33,6 @@ class Node extends THREE.Mesh {
         this.name = name;
         this.charge = charge;
     }
-}
-
-function prepareData(data) {
-    ArtistManager.setArtists({
-        artists: data,
-        totalFaces: globe.geometry.faces.length
-    });
-
-    globe.geometry.faces.map(face => face.data = {});
 }
 
 function createGraph(data) {
@@ -89,7 +89,7 @@ function equidistantFaces(numMarkers) {
 }
 
 function seedIndices() {
-    return equidistantFaces(ArtistManager.artistsLeft()).map(seed => seed.faceIndex);
+    return equidistantFaces(ArtistManager.numArtistsLeft()).map(seed => seed.faceIndex);
 }
 
 module.exports = { prepareData, seedIndices, forceSeed };

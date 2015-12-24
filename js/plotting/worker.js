@@ -119,7 +119,7 @@ function one() {
 }
 
 function batch() {
-    for (let i = 0; i <= ArtistManager.artistsLeft(); i++) {
+    for (let i = 0; i <= ArtistManager.numArtistsLeft(); i++) {
         if (iterate()) break;
     }
     respondWithFaces();

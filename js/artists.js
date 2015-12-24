@@ -25,119 +25,118 @@
  *
  */
 
-const { spacedColor } = require('./helpers');
 const THREE = require('./lib/HalfEdgeStructure');
-
+const { spacedColor } = require('./helpers');
 const { on } = require('./dispatch');
 
-class ArtistManager {
-    constructor() {
-        this.artistIndex = 0;
-        on('getArtists', this.getArtists.bind(this));
-        on('updateArtists', this.updateArtists.bind(this));
-    }
+// TODO: find better state solution (localStorage alongside sources?)
+let artistStore = {
+    index: 0,
+    artists: []
+};
 
-    artistsLeft() {
-        return this.artists.reduce((memo, artist) => memo + (artist.faces ? 1 : 0), 0);
-    }
+// reads
 
-    edgesForArtist(artistName) {
-        let artist = this.artists.filter(artist => artist.name === artistName);
-        return artist.length && artist[0].edges;
-    }
+const artists = () => artistStore.artists;
+const index = () => artistStore.index;
 
-    processArtists(artists) {
-        let totalPlays = artists.reduce((memo, artist) => memo + artist.playCount, 0);
+const numArtistsLeft = () => artists().reduce((m, a) => m + (a.faces ? 1 : 0), 0);
 
-        artists.map((artist, i) => {
-            artist.edges = [];
+const edgesForArtist = n => artists().filter(a => a.name === n).map(a => a.edges).shift();
 
-            // faces available for a given artist to paint
-            artist.faces = Math.floor(artist.playCount * this.totalFaces / totalPlays);
+const nextArtist = () => {
+    let artist;
 
-            // color generated from rank
-            artist.color = new THREE.Color(spacedColor(artists.length, i));
-            artist.color.multiplyScalar(artist.normCount);
-
-            return artist;
-        });
-
-        // don't bother with artists that don't merit faces
-        return artists.filter(artist => artist.faces > 0);
-    }
-
-    getArtists() {
-        postMessage({
-            type: 'updateArtists',
-            payload: {
-                artists: JSON.stringify(this.artists || []),
-                artistIndex: this.artistIndex
+    function findArtist(currentIndex, artists, call=0) {
+        // rollover to beginning of artists
+        if (currentIndex === artists.length) {
+            currentIndex = 0;
+        }
+        artist = artists[currentIndex];
+        if (artist.faces === 0) {
+            if (call === artists.length) {
+                // when we've recursed to confirm every `artist.faces` is 0,
+                // we are done painting and return
+                return [false, currentIndex];
             }
-        });
-    }
-
-    updateArtists(payload) {
-        this.artists = JSON.parse(payload.artists);
-        this.artistIndex = payload.artistIndex;
-    }
-
-    setArtists(payload) {
-        this.totalFaces = payload.totalFaces;
-        this.artists = this.processArtists(payload.artists);
-        this.artistIndex = 0;
-    }
-
-    // TODO: rework in entirety, and most likely move
-    expandArtistEdges(face, artist, edge) {
-        let second;
-        let third;
-
-        // find the other sides of the face that we'll overtake
-        artist.edges.splice(artist.edges.indexOf(edge), 1);
-        if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.b })) {
-            second = { v1: face.a, v2: face.c };
-            third = { v1: face.b, v2: face.c };
-        } else if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.c })) {
-            second = { v1: face.a, v2: face.b };
-            third = { v1: face.b, v2: face.c };
-        } else {
-            second = { v1: face.a, v2: face.b };
-            third = { v1: face.a, v2: face.c };
+            // if there aren't any faces left to paint for this artist,
+            // look towards the next artist and record how far we've recursed
+            currentIndex++;
+            call++;
+            return findArtist(currentIndex, artists, call);
         }
 
-        artist.edges.push(second, third);
-
-        // TODO: handle swapping
+        return [artist, currentIndex + 1];
     }
 
-    nextArtist() {
-        let artist;
+    [artist, artistStore.index] = findArtist(index(), artists());
+    return artist;
+};
 
-        function findArtist(index, artists, call=0) {
-            // rollover to beginning of artists
-            if (index === artists.length) {
-                index = 0;
-            }
-            artist = artists[index];
-            if (artist.faces === 0) {
-                if (call === artists.length) {
-                    // when we've recursed to confirm every `artist.faces` is 0,
-                    // we are done painting and return
-                    return [false, index];
-                }
-                // if there aren't any faces left to paint for this artist,
-                // look towards the next artist and record how far we've recursed
-                index++;
-                call++;
-                return findArtist(index, artists, call);
-            }
+// writes
 
-            return [artist, index + 1];
-        }
+const setArtists = ({ artists, totalFaces }) => {
+    let totalPlays = artists.reduce((m, a) => m + a.playCount, 0);
 
-        [artist, this.artistIndex] = findArtist(this.artistIndex, this.artists);
+    artists.map((artist, i) => {
+        artist.edges = [];
+
+        // faces available for a given artist to paint
+        artist.faces = Math.floor(artist.playCount * totalFaces / totalPlays);
+
+        // color generated from rank
+        artist.color = new THREE.Color(spacedColor(artists.length, i));
+        artist.color.multiplyScalar(artist.normCount);
+
         return artist;
-    }
-}
+    });
 
-module.exports = new ArtistManager();
+    // don't bother with artists that don't merit faces
+    artistStore.artists = artists.filter(artist => artist.faces > 0);
+    artistStore.index = 0;
+};
+
+on('getArtists', () => postMessage({
+    type: 'updateArtists',
+    payload: {
+        artists: JSON.stringify(artists() || []),
+        index: index()
+    }
+}));
+
+on('updateArtists', ({ artists, index }) => {
+    artistStore.artists = JSON.parse(artists);
+    artistStore.index = index;
+});
+
+// TODO: rework in entirety, and most likely move
+const expandArtistEdges = (face, artist, edge) => {
+    let second;
+    let third;
+
+    // find the other sides of the face that we'll overtake
+    artist.edges.splice(artist.edges.indexOf(edge), 1);
+    if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.b })) {
+        second = { v1: face.a, v2: face.c };
+        third = { v1: face.b, v2: face.c };
+    } else if (self.HEDS.isSameEdge(edge, { v1: face.a, v2: face.c })) {
+        second = { v1: face.a, v2: face.b };
+        third = { v1: face.b, v2: face.c };
+    } else {
+        second = { v1: face.a, v2: face.b };
+        third = { v1: face.a, v2: face.c };
+    }
+
+    artist.edges.push(second, third);
+
+    // TODO: handle swapping
+};
+
+module.exports = {
+    artists,
+    numArtistsLeft,
+    edgesForArtist,
+    expandArtistEdges,
+    nextArtist,
+    setArtists
+};
