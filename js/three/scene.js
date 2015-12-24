@@ -1,5 +1,4 @@
 'use strict';
 
-const THREE = require('three');
-
-module.exports = new THREE.Scene();
+const { Scene } = require('three');
+module.exports = new Scene();

@@ -1,12 +1,8 @@
 'use strict';
 
-const THREE = require('three');
+const { WebGLRenderer } = require('three');
 
-class Renderer extends THREE.WebGLRenderer {
-    constructor() {
-        super();
-        this.setSize(window.innerWidth, window.innerHeight);
-    }
-}
+const renderer = new WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-module.exports = new Renderer();
+module.exports = renderer;

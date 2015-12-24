@@ -17,13 +17,13 @@ const labels = Object.freeze({
 const stars = Object.freeze({
     number: 1000,
 
-    initialX() {
+    x() {
         return Math.random() * 2 - 1;
     },
-    initialY() {
+    y() {
         return Math.random() * 2 - 1;
     },
-    initialZ() {
+    z() {
         return Math.random() * 2 - 1;
     },
 

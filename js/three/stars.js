@@ -1,26 +1,24 @@
 'use strict';
 
 const THREE = require('three');
-const Constants = require('../constants');
+const { stars } = require('../constants');
 const scene = require('./scene');
 
-let stars = [];
+let { number, x, y, z, positionMultiplier, scaleMultiplier } = stars;
+let field = [];
 let star;
 
-for (let i = 0; i < Constants.stars.number; ++i) {
+for (let i = 0; i < number; ++i) {
     star = new THREE.Sprite(new THREE.SpriteMaterial());
-    star.position.x = Constants.stars.initialX();
-    star.position.y = Constants.stars.initialY();
-    star.position.z = Constants.stars.initialZ();
-
+    star.position.set(x(), y(), z());
     star.position.normalize();
-    star.position.multiplyScalar(Constants.stars.positionMultiplier());
-    star.scale.multiplyScalar(Constants.stars.scaleMultiplier());
-    stars.push(star);
+    star.position.multiplyScalar(positionMultiplier());
+    star.scale.multiplyScalar(scaleMultiplier());
+    field.push(star);
 }
 
 module.exports = {
-    addToScene() {
-        stars.map(star => scene.add(star));
+    addStars() {
+        field.map(star => scene.add(star));
     }
 };

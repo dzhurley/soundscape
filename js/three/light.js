@@ -1,13 +1,11 @@
 'use strict';
 
-const THREE = require('three');
-const color = require('../constants').light.color;
+const { AmbientLight } = require('three');
+const { light } = require('../constants');
 const scene = require('./scene');
 
-class Light extends THREE.AmbientLight {
-    addToScene() {
-        scene.add(this);
+module.exports = {
+    addLight() {
+        scene.add(new AmbientLight(light.color));
     }
-}
-
-module.exports = new Light(color);
+};

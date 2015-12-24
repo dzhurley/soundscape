@@ -9,22 +9,22 @@ const THREE = require('three');
 const { on } = require('../dispatch');
 
 const camera = require('./camera');
-const light = require('./light');
+const { addLight } = require('./light');
 const renderer = require('./renderer');
 const scene = require('./scene');
 
 const globe = require('./globe');
-const stars = require('./stars');
+const { addStars } = require('./stars');
 
 let threes = {
     camera,
     renderer,
 
     setScene() {
-        light.addToScene();
+        addLight();
+        addStars();
 
         globe.addToScene();
-        stars.addToScene();
 
         // TODO: add to labs
         scene.add(new THREE.WireframeHelper(globe));
