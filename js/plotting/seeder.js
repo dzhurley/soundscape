@@ -2,7 +2,7 @@
 
 const radius = require('../constants').globe.radius;
 const THREE = require('three');
-const ArtistManager = require('../artists');
+const { artists, numArtistsLeft, setArtists } = require('../artists');
 const { equidistantishPointsOnSphere } = require('../helpers');
 const globe = require('../three/globe');
 const scene = require('../three/scene');
@@ -10,7 +10,7 @@ const scene = require('../three/scene');
 const force = require('../seeding/force');
 
 function prepareData(data) {
-    ArtistManager.setArtists({
+    setArtists({
         artists: data,
         totalFaces: globe.geometry.faces.length
     });
@@ -53,7 +53,7 @@ function createGraph(data) {
 
 function forceSeed(payload) {
     prepareData(JSON.parse(payload));
-    window.forceSeed = createGraph(ArtistManager.artists);
+    window.forceSeed = createGraph(artists());
 }
 
 // XXX:end force-seeding
@@ -89,7 +89,7 @@ function equidistantFaces(numMarkers) {
 }
 
 function seedIndices() {
-    return equidistantFaces(ArtistManager.numArtistsLeft()).map(seed => seed.faceIndex);
+    return equidistantFaces(numArtistsLeft()).map(seed => seed.faceIndex);
 }
 
 module.exports = { prepareData, seedIndices, forceSeed };

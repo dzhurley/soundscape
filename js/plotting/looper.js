@@ -7,7 +7,7 @@
  *
  */
 
-const ArtistManager = require('../artists');
+const { nextArtist } = require('../artists');
 const facePlotter = require('./faces');
 
 class Looper {
@@ -27,7 +27,7 @@ class Looper {
         let remainingIndex;
 
         // choose random face for each face to paint
-        artist = ArtistManager.nextArtist();
+        artist = nextArtist();
         if (!artist) {
             // no more faces left for any artist to paint
             return true;

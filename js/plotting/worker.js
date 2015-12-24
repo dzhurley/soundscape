@@ -7,7 +7,7 @@
  * are sent back to the main thread for update.
  */
 
-const ArtistManager = require('../artists');
+const { nextArtist, numArtistsLeft } = require('../artists');
 const globe = require('../three/globe');
 const facePlotter = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
@@ -32,7 +32,7 @@ function runIteration(remaining) {
     let remainingIndex;
 
     // choose random face for each face to paint
-    artist = ArtistManager.nextArtist();
+    artist = nextArtist();
     if (!artist) {
         // no more faces left for any artist to paint
         return true;
@@ -119,7 +119,7 @@ function one() {
 }
 
 function batch() {
-    for (let i = 0; i <= ArtistManager.numArtistsLeft(); i++) {
+    for (let i = 0; i <= numArtistsLeft(); i++) {
         if (iterate()) break;
     }
     respondWithFaces();

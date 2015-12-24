@@ -8,7 +8,7 @@
  * work to Swapper.
  */
 
-const ArtistManager = require('../artists');
+const { expandArtistEdges } = require('../artists');
 const globe = require('../three/globe');
 const swapper = require('./swapper');
 
@@ -61,7 +61,7 @@ class FacePlotter {
 
             if (!Array.isArray(faceOrSwap)) {
                 // found valid face, stop looking for more
-                ArtistManager.expandArtistEdges(faceOrSwap, artist, edge);
+                expandArtistEdges(faceOrSwap, artist, edge);
                 return {
                     face: faceOrSwap,
                     index: this.faces().indexOf(faceOrSwap)

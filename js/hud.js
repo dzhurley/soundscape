@@ -14,7 +14,7 @@ const { camera } = require('./three/main');
 const globe = require('./three/globe');
 const scene = require('./three/scene');
 
-const ArtistManager = require('./artists');
+const { edgesForArtist } = require('./artists');
 
 // if the value is a string, return it, otherwise return the number as an integer
 const getMarkProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
@@ -30,7 +30,7 @@ function render({ artist=null, plays=null, a, b, c }) {
 }
 
 function setVerticesFromArtistEdges(artist) {
-    let edges = ArtistManager.edgesForArtist(artist);
+    let edges = edgesForArtist(artist);
     addVertexMarkers(globe.uniqueVerticesForEdges(edges));
 }
 
