@@ -10,168 +10,119 @@
 
 const THREE = require('three');
 const { labels } = require('./constants');
-const Threes = require('./three/main');
+const { camera } = require('./three/main');
 const globe = require('./three/globe');
 const scene = require('./three/scene');
 
-const { HudContainer } = require('./dom');
 const ArtistManager = require('./artists');
 
-class HUD {
-    template({ artist, plays, a, b, c }) {
-        return `<span>${artist}, played ${plays} time(s)</span>
-                <span>face.a = ${a}</span>
-                <span>face.b = ${b}</span>
-                <span>face.c = ${c}</span>`;
+// if the value is a string, return it, otherwise return the number as an integer
+const getMarkProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
+
+function render({ artist=null, plays=null, a, b, c }) {
+    let template = `<span>face.a = ${a}</span>
+                    <span>face.b = ${b}</span>
+                    <span>face.c = ${c}</span>`;
+    if (artist && plays) {
+        template = `<span>${artist}, played ${plays} time(s)</span>` + template;
     }
-
-    blankTemplate({ a, b, c }) {
-        return `<span>face.a = ${a}</span>
-                <span>face.b = ${b}</span>
-                <span>face.c = ${c}</span>`;
-    }
-
-    constructor() {
-        this.active = null;
-        this.showing = false;
-        this.activeMarkers = [];
-        this.mouse = { x: 0, y: 0 };
-        this.globe = globe;
-    }
-
-    attachTo(element) {
-        element.addEventListener('click', evt => {
-            if (evt.target.nodeName === 'BUTTON') {
-                return false;
-            }
-            this.updateMouse(evt);
-            this.updateActive();
-        });
-    }
-
-    updateMouse(evt) {
-        this.mouse.x = evt.clientX / window.innerWidth * 2 - 1;
-        this.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
-    }
-
-    getIntersects() {
-        let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
-        vector.unproject(Threes.camera);
-        let position = Threes.camera.position;
-        let ray = new THREE.Raycaster(position, vector.sub(position).normalize());
-        return ray.intersectObject(this.globe);
-    }
-
-    updateActive() {
-        let intersects = this.getIntersects();
-        if (intersects.length === 0) {
-            this.active = null;
-            return;
-        }
-
-        let face = intersects[0].face;
-        let isPainted = face.data && face.data.artist;
-
-        if (face !== this.active) {
-            this.active = face;
-
-            this.removeMarkers();
-
-            if (isPainted) {
-                this.setVerticesFromArtistEdges(this.active.data.artist);
-
-                this.globe.geometry.faces.filter(
-                    face => face.data.artist === this.active.data.artist
-                ).map(face => this.addFaceMarkers(face));
-            } else {
-                this.addVertexMarkers([face.a, face.b, face.c]);
-                this.addFaceMarkers(face);
-            }
-        }
-
-        let data = Object.assign({}, this.active.data, {
-            a: this.active.a,
-            b: this.active.b,
-            c: this.active.c
-        });
-        HudContainer.innerHTML = isPainted ?
-            this.template(data) :
-            this.blankTemplate(data);
-        HudContainer.style.display = 'block';
-    }
-
-    setVerticesFromArtistEdges(artist) {
-        let edges = ArtistManager.edgesForArtist(artist);
-        let vertices = this.globe.uniqueVerticesForEdges(edges);
-        this.addVertexMarkers(vertices);
-    }
-
-    addVertexMarkers(vertices) {
-        let mark, vertex;
-        vertices.forEach(index => {
-            mark = this.makeMark(JSON.stringify(index));
-            vertex = this.globe.geometry.vertices[index];
-            mark.position.copy(vertex.clone().multiplyScalar(1.005));
-            this.activeMarkers.push(mark);
-            scene.add(mark);
-        });
-    }
-
-    addFaceMarkers(face) {
-        let mark = this.makeMark(this.globe.geometry.faces.indexOf(face));
-        mark.position.copy(this.globe.faceCentroid(face).multiplyScalar(1.005));
-        this.activeMarkers.push(mark);
-        scene.add(mark);
-    }
-
-    getMarkProp(key) {
-        let value = labels[key];
-        // if the value is a string, return it, otherwise return
-        // the number as an integer
-        return isNaN(value) ? value : +value;
-    }
-
-    // TODO: favor dom over canvas for tooltips
-    makeMark(message) {
-        let canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 1600;
-        let context = canvas.getContext('2d');
-
-        let backgroundColor = this.getMarkProp('backgroundColor');
-        let color = this.getMarkProp('color');
-        let fontface = this.getMarkProp('fontface');
-        let fontsize = this.getMarkProp('fontsize');
-
-        context.font = `${fontsize}px ${fontface}`;
-
-        let textWidth = context.measureText(message).width;
-        if (textWidth > canvas.width) {
-            canvas.width = canvas.height = textWidth;
-            context = canvas.getContext('2d');
-            context.font = `${fontsize}px ${fontface}`;
-        }
-
-        context.fillStyle = backgroundColor;
-        context.fillRect(
-            canvas.width * 0.25,
-            canvas.height / 2 - fontsize,
-            canvas.width * 0.5,
-            canvas.height / 3
-        );
-
-        context.fillStyle = color;
-        context.textAlign = 'center';
-        context.fillText(message, canvas.width / 2, canvas.height / 2);
-
-        let texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
-        return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
-    }
-
-    removeMarkers() {
-        this.activeMarkers.forEach(mark => scene.remove(mark));
-        this.activeMarkers = [];
-    }
+    return template;
 }
 
-module.exports = new HUD();
+function setVerticesFromArtistEdges(artist) {
+    let edges = ArtistManager.edgesForArtist(artist);
+    addVertexMarkers(globe.uniqueVerticesForEdges(edges));
+}
+
+function addVertexMarkers(vertices) {
+    let mark, vertex;
+    vertices.map(index => {
+        mark = makeMark(JSON.stringify(index));
+        vertex = globe.geometry.vertices[index];
+        mark.position.copy(vertex.clone().multiplyScalar(1.005));
+        scene.add(mark);
+    });
+}
+
+function addFaceMarkers(face) {
+    let mark = makeMark(globe.geometry.faces.indexOf(face));
+    mark.position.copy(globe.faceCentroid(face).multiplyScalar(1.005));
+    scene.add(mark);
+}
+
+// TODO: favor dom over canvas for tooltips
+// TODO: constants
+function makeMark(message) {
+    let canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1600;
+    let context = canvas.getContext('2d');
+
+    let fontface = getMarkProp('fontface');
+    let fontsize = getMarkProp('fontsize');
+
+    context.font = `${fontsize}px ${fontface}`;
+
+    let textWidth = context.measureText(message).width;
+    if (textWidth > canvas.width) {
+        canvas.width = canvas.height = textWidth;
+        context = canvas.getContext('2d');
+        context.font = `${fontsize}px ${fontface}`;
+    }
+
+    context.fillStyle = getMarkProp('backgroundColor');
+    context.fillRect(canvas.width * 0.25,
+                     canvas.height / 2 - fontsize,
+                     canvas.width * 0.5,
+                     canvas.height / 3);
+
+    context.fillStyle = getMarkProp('color');
+    context.textAlign = 'center';
+    context.fillText(message, canvas.width / 2, canvas.height / 2);
+
+    let map = new THREE.Texture(canvas);
+    map.needsUpdate = true;
+    return new THREE.Sprite(new THREE.SpriteMaterial({ map, name: 'marker' }));
+}
+
+function getIntersects(x, y) {
+    let vector = new THREE.Vector3(x, y, 1).unproject(camera);
+    let ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    return ray.intersectObject(globe);
+}
+
+function removeMarkers() {
+    scene.children
+        .filter(c => c.material && c.material.name === 'marker')
+        .map(c => scene.remove(c));
+}
+
+function update(evt) {
+    let intersects = getIntersects(evt.clientX / window.innerWidth * 2 - 1,
+                                   -(evt.clientY / window.innerHeight) * 2 + 1);
+
+    if (!intersects.length) return false;
+
+    let face = intersects[0].face;
+    let isPainted = face.data && face.data.artist;
+
+    removeMarkers();
+
+    if (isPainted) {
+        setVerticesFromArtistEdges(face.data.artist);
+        globe.geometry.faces
+            .filter(f => f.data.artist === face.data.artist)
+            .map(f => addFaceMarkers(f));
+    } else {
+        addVertexMarkers([face.a, face.b, face.c]);
+        addFaceMarkers(face);
+    }
+
+    let data = Object.assign({}, face.data, { a: face.a, b: face.b, c: face.c });
+    document.getElementById('hud').innerHTML = render(data);
+}
+
+module.exports = {
+    bindHandlers(element) {
+        element.addEventListener('click', update);
+    }
+};

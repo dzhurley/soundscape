@@ -8,7 +8,7 @@ THREE = require('../lib/OrbitControls');
 
 const Constants = require('../constants');
 const Threes = require('./main');
-const { Container } = require('../dom');
+const { container } = require('../dom');
 
 class Controls {
     constructor(label = 'Orbital') {
@@ -21,12 +21,12 @@ class Controls {
     }
 
     setupFly() {
-        this.active = new THREE.FlyControls(Threes.camera, Container);
-        Object.assign(this.active, Constants.flyControls, { domElement: Container });
+        this.active = new THREE.FlyControls(Threes.camera, container);
+        Object.assign(this.active, Constants.flyControls, { domElement: container });
     }
 
     setupOrbital() {
-        this.active = new THREE.OrbitControls(Threes.camera, Container);
+        this.active = new THREE.OrbitControls(Threes.camera, container);
         Object.assign(this.active, Constants.orbitalControls);
     }
 

@@ -4,10 +4,10 @@
 
 const { emit, emitOnWorker, on } = require('./dispatch');
 const Threes = require('./three/main');
+const HUD = require('./hud');
 
 const withId = selector => document.getElementById(selector);
-const Container = withId('scape');
-const HudContainer = withId('hud');
+const container = withId('scape');
 
 const handlers = {
     toggleControls() {
@@ -45,10 +45,10 @@ function bindHandlers() {
 }
 
 module.exports = {
-    Container,
-    HudContainer,
+    container,
     attachWebGLement: el => {
-        Container.appendChild(el);
+        container.appendChild(el);
         bindHandlers();
+        HUD.bindHandlers(container);
     }
 };
