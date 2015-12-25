@@ -38,7 +38,7 @@ const addVertexMarkers = vs => vs.map(index => {
 
 function addFaceMarkers(face) {
     let mark = makeMark(faces().indexOf(face));
-    mark.position.copy(faceCentroid(face).multiplyScalar(1.005));
+    mark.position.copy(faceCentroid(globe, face).multiplyScalar(1.005));
     scene.add(mark);
 }
 
