@@ -8,7 +8,7 @@
  */
 
 const { nextArtist, numArtistsLeft } = require('../artists');
-const globe = require('../three/globe');
+const { faces } = require('../three/globe');
 const facePlotter = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
@@ -89,7 +89,7 @@ function respondWithFaces(event = 'painted') {
     // TODO: send back progress
     postMessage({
         type: `faces.${event}`,
-        payload: { faces: JSON.stringify(getNewFaces(globe.geometry.faces)) }
+        payload: { faces: JSON.stringify(getNewFaces(faces())) }
     });
 }
 
@@ -107,7 +107,7 @@ function seed(payload) {
     let seeds = seedIndices().map(s => iterate([s]));
 
     // set remaining faces to paint
-    let randos = randomBoundedArray(0, globe.geometry.faces.length - 1);
+    let randos = randomBoundedArray(0, faces().length - 1);
     self.remaining = randos.filter(r => seeds.indexOf(r) < 0);
 
     respondWithFaces('seeded');

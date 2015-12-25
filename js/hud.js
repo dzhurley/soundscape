@@ -11,9 +11,9 @@
 const THREE = require('three');
 const { labels } = require('./constants');
 const { camera } = require('./three/main');
-const globe = require('./three/globe');
+const { faceCentroid } = require('./helpers');
+const { faces, globe, uniqueVerticesForEdges, vertices } = require('./three/globe');
 const scene = require('./three/scene');
-
 const { edgesForArtist } = require('./artists');
 
 // if the value is a string, return it, otherwise return the number as an integer
@@ -29,24 +29,16 @@ function render({ artist=null, plays=null, a, b, c }) {
     return template;
 }
 
-function setVerticesFromArtistEdges(artist) {
-    let edges = edgesForArtist(artist);
-    addVertexMarkers(globe.uniqueVerticesForEdges(edges));
-}
-
-function addVertexMarkers(vertices) {
-    let mark, vertex;
-    vertices.map(index => {
-        mark = makeMark(JSON.stringify(index));
-        vertex = globe.geometry.vertices[index];
-        mark.position.copy(vertex.clone().multiplyScalar(1.005));
-        scene.add(mark);
-    });
-}
+const addVertexMarkers = vs => vs.map(index => {
+    let mark = makeMark(JSON.stringify(index));
+    let vertex = vertices()[index];
+    mark.position.copy(vertex.clone().multiplyScalar(1.005));
+    scene.add(mark);
+});
 
 function addFaceMarkers(face) {
-    let mark = makeMark(globe.geometry.faces.indexOf(face));
-    mark.position.copy(globe.faceCentroid(face).multiplyScalar(1.005));
+    let mark = makeMark(faces().indexOf(face));
+    mark.position.copy(faceCentroid(face).multiplyScalar(1.005));
     scene.add(mark);
 }
 
@@ -108,10 +100,8 @@ function update(evt) {
     removeMarkers();
 
     if (isPainted) {
-        setVerticesFromArtistEdges(face.data.artist);
-        globe.geometry.faces
-            .filter(f => f.data.artist === face.data.artist)
-            .map(f => addFaceMarkers(f));
+        addVertexMarkers(uniqueVerticesForEdges(edgesForArtist(face.data.artist)));
+        faces().filter(f => f.data.artist === face.data.artist).map(addFaceMarkers);
     } else {
         addVertexMarkers([face.a, face.b, face.c]);
         addFaceMarkers(face);

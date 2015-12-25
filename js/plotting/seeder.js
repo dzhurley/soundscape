@@ -4,7 +4,7 @@ const radius = require('../constants').globe.radius;
 const THREE = require('three');
 const { artists, numArtistsLeft, setArtists } = require('../artists');
 const { equidistantishPointsOnSphere } = require('../helpers');
-const globe = require('../three/globe');
+const { faces, globe, position } = require('../three/globe');
 const scene = require('../three/scene');
 
 const force = require('../seeding/force');
@@ -12,10 +12,10 @@ const force = require('../seeding/force');
 function prepareData(data) {
     setArtists({
         artists: data,
-        totalFaces: globe.geometry.faces.length
+        totalFaces: faces().length
     });
 
-    globe.geometry.faces.map(face => face.data = {});
+    faces().map(face => face.data = {});
 }
 
 // XXX:begin force-seeding
@@ -62,7 +62,7 @@ function addEquidistantMarks(num) {
     return equidistantishPointsOnSphere(num).map(p => {
         let mark = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xff0000 }));
         mark.position.set(...p);
-        mark.position.multiplyScalar(globe.geometry.parameters.radius + 2);
+        mark.position.multiplyScalar(radius + 2);
         scene.add(mark);
         return mark;
     });
@@ -77,7 +77,7 @@ function equidistantFaces(numMarkers) {
     // use the mark's vector as a ray to find the closest face
     // via its intersection
     markers.map(m => {
-        caster.set(globe.position, m.position.normalize());
+        caster.set(position, m.position.normalize());
         intersectingFaces.push(caster.intersectObject(globe));
     });
 

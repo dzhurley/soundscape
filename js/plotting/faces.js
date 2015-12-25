@@ -9,18 +9,14 @@
  */
 
 const { expandArtistEdges } = require('../artists');
-const globe = require('../three/globe');
+const { faces } = require('../three/globe');
 const swapper = require('./swapper');
 
 class FacePlotter {
-    faces() {
-        return globe.geometry.faces;
-    }
-
     validFace(artist, edge) {
         let swappers = [];
 
-        let face = this.faces().filter(f => {
+        let face = faces().filter(f => {
             let valid = false;
 
             if (edge.v1 === f.a) {
@@ -64,7 +60,7 @@ class FacePlotter {
                 expandArtistEdges(faceOrSwap, artist, edge);
                 return {
                     face: faceOrSwap,
-                    index: this.faces().indexOf(faceOrSwap)
+                    index: faces().indexOf(faceOrSwap)
                 };
             }
 
@@ -85,13 +81,13 @@ class FacePlotter {
             return {
                 // TODO: bad, do something better to return face states
                 face: true,
-                index: this.faces().indexOf(faceOrSwap)
+                index: faces().indexOf(faceOrSwap)
             };
         }
     }
 
     nextFace(artist, rando) {
-        let face = this.faces()[rando];
+        let face = faces()[rando];
         let paintedInfo = { artist };
 
         if (face.data.artist) {
@@ -102,7 +98,7 @@ class FacePlotter {
             artist.edges.push({ v1: face.a, v2: face.b },
                               { v1: face.b, v2: face.c },
                               { v1: face.a, v2: face.c });
-            return { face, index: this.faces().indexOf(face) };
+            return { face, index: faces().indexOf(face) };
         }
 
         // artist has been painted somewhere else

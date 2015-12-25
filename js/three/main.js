@@ -13,7 +13,7 @@ const { addLight } = require('./light');
 const renderer = require('./renderer');
 const scene = require('./scene');
 
-const globe = require('./globe');
+const { addGlobe, globe, resetGlobe } = require('./globe');
 const { addStars } = require('./stars');
 
 let threes = {
@@ -23,8 +23,7 @@ let threes = {
     setScene() {
         addLight();
         addStars();
-
-        globe.addToScene();
+        addGlobe();
 
         // TODO: add to labs
         scene.add(new THREE.WireframeHelper(globe));
@@ -36,7 +35,7 @@ let threes = {
         this.animate();
 
         on('submitted', () => {
-            globe.resetGlobe();
+            resetGlobe();
             if (!this.controls) {
                 this.controls = require('./controls');
             }

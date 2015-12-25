@@ -1,5 +1,7 @@
 'use strict';
 
+const { Vector3 } = require('three');
+
 // internal
 
 function boundedArray(min = 0, max = 0) {
@@ -54,6 +56,15 @@ function equidistantishPointsOnSphere(numPoints) {
         ]);
     }
     return points;
+}
+
+// save deprecated face.centroid
+function faceCentroid(object, face) {
+    return new Vector3()
+        .add(object.geometry.vertices[face.a])
+        .add(object.geometry.vertices[face.b])
+        .add(object.geometry.vertices[face.c])
+        .divideScalar(3);
 }
 
 function normalize(data, key, saveAs) {
@@ -124,6 +135,7 @@ function spacedColor(numOfSteps, step) {
 
 module.exports = {
     equidistantishPointsOnSphere,
+    faceCentroid,
     normalize,
     packUrlParams,
     randomArray,
