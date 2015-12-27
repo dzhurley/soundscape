@@ -8,7 +8,7 @@ const { equidistantishPointsOnSphere } = require('../helpers');
 const { faces, globe, position } = require('../three/globe');
 const scene = require('../three/scene');
 
-const force = require('../seeding/force');
+const { startForce } = require('../seeding/force');
 
 let { globe: { radius }, node: { geometry, material } } = constants;
 
@@ -46,12 +46,12 @@ const createGraph = data => {
         scene.add(targetNode);
     }
 
-    return force(nodeSet);
+    startForce(nodeSet);
 };
 
 const forceSeed = payload => {
     prepareData(JSON.parse(payload));
-    window.forceSeed = createGraph(artists());
+    createGraph(artists());
 };
 
 // XXX:end force-seeding

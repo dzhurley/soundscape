@@ -14,42 +14,46 @@ const EPSILON = 0.000001;
 const maxIterations = 100000;
 let temp = 10000;
 
-let repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
+let iterations = 0;
+let nodes;
 
-module.exports = nodes => {
-    let iterations = 0;
+const repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
 
+const applyDiff = (v, u) => {
+    // diff is the difference vector between the positions of the two vertices
+    let diff = v.position.clone().sub(u.position);
+    let length = diff.length();
+
+    if (length <= v.charge) {
+        let multiplier = repulse(v.charge, u.charge, length);
+        v.position.add(diff.multiplyScalar(multiplier));
+        // bind to surface of globe
+        v.position.setLength(radius);
+    }
+};
+
+const iterateForce = () => {
+    if (iterations < maxIterations && temp > EPSILON) {
+        for (let v of nodes) {
+            for (let u of nodes) {
+                if (u.name === v.name) continue;
+                applyDiff(v, u);
+            }
+        }
+
+        temp *= 1 - iterations / maxIterations;
+        iterations++;
+        return false;
+    }
+    console.log('forces stable');
+    return true;
+};
+
+const startForce = nodes => {
     // normalize charges between 0 and 50
     let maxCharge = Math.max(...Array.from(nodes).map(n => n.charge));
     nodes.forEach(n => n.charge = 50 * (n.charge / maxCharge));
-
-    function applyDiff(v, u) {
-        // diff is the difference vector between the positions of the two vertices
-        let diff = v.position.clone().sub(u.position);
-        let length = diff.length();
-
-        if (length <= v.charge) {
-            let multiplier = repulse(v.charge, u.charge, length);
-            v.position.add(diff.multiplyScalar(multiplier));
-            // bind to surface of globe
-            v.position.setLength(radius);
-        }
-    }
-
-    return () => {
-        if (iterations < maxIterations && temp > EPSILON) {
-            for (let v of nodes) {
-                for (let u of nodes) {
-                    if (u.name === v.name) continue;
-                    applyDiff(v, u);
-                }
-            }
-
-            temp *= 1 - iterations / maxIterations;
-            iterations++;
-            return false;
-        }
-        console.log('forces stable');
-        return true;
-    };
+    window.iterateForce = iterateForce;
 };
+
+module.exports = { startForce, iterateForce };

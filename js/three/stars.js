@@ -4,7 +4,7 @@ const { Sprite, SpriteMaterial } = require('three');
 const { stars } = require('../constants');
 const scene = require('./scene');
 
-let { number, x, y, z, positionMultiplier, scaleMultiplier } = stars;
+const { number, x, y, z, positionMultiplier, scaleMultiplier } = stars;
 let field = [];
 let star;
 
@@ -17,8 +17,6 @@ for (let i = 0; i < number; ++i) {
     field.push(star);
 }
 
-module.exports = {
-    addStars() {
-        field.map(star => scene.add(star));
-    }
-};
+const addStars = () => field.map(star => scene.add(star));
+
+module.exports = { addStars };

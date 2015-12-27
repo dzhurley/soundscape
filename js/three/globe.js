@@ -29,6 +29,8 @@ const globe = new Mesh(
 const faces = () => globe.geometry.faces;
 const vertices = () => globe.geometry.vertices;
 
+const addGlobe = () => scene.add(globe);
+
 const resetGlobe = () => {
     // zero face values for fresh paint
     globe.geometry.faces.map(f => {
@@ -85,20 +87,18 @@ const findClosestFreeFace = startFace => {
     return findClosestFace(globe.geometry.faces.filter(f => !f.data.artist), startFace);
 };
 
+const markForUpdate = () => globe.geometry.colorsNeedUpdate = true;
+
 on('faces.*', ({ faces }) => updateFaces(JSON.parse(faces)));
 
 module.exports = {
     // extension
-    addGlobe() {
-        scene.add(globe);
-    },
+    addGlobe,
     uniqueVerticesForEdges,
     findClosestFreeFace,
     findClosestFace,
     resetGlobe,
-    markForUpdate() {
-        globe.geometry.colorsNeedUpdate = true;
-    },
+    markForUpdate,
 
     // TODO: better accessors
     globe,

@@ -4,8 +4,6 @@ const { AmbientLight } = require('three');
 const { light } = require('../constants');
 const scene = require('./scene');
 
-module.exports = {
-    addLight() {
-        scene.add(new AmbientLight(light.color));
-    }
-};
+const addLight = () => scene.add(new AmbientLight(light.color));
+
+module.exports = { addLight };

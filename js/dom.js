@@ -42,11 +42,10 @@ function bindHandlers() {
     });
 }
 
-module.exports = {
-    container,
-    attachWebGLement: el => {
-        container.appendChild(el);
-        bindHandlers();
-        HUD.bindHandlers(container);
-    }
+const attachWebGLement = el => {
+    container.appendChild(el);
+    bindHandlers();
+    HUD.bindHandlers(container);
 };
+
+module.exports = { attachWebGLement, container };

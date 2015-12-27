@@ -30,10 +30,10 @@ const toggleControls = label => {
     document.getElementById('toggleControls').textContent = label;
 };
 
+const updateControls = i => controls && controls.update(i);
+
 let controls;
 setups.setupOrbital(getCamera());
 on('toggleControls', toggleControls);
 
-module.exports = {
-    updateControls: i => controls && controls.update(i)
-};
+module.exports = { updateControls };

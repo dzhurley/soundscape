@@ -12,6 +12,8 @@ window.addEventListener('resize', () => {
     perspectiveCamera.updateProjectionMatrix();
 });
 
+const getCamera = () => perspectiveCamera;
+
 const replaceCamera = (newPosition=position, newRotation=null) => {
     perspectiveCamera = new PerspectiveCamera(fov, aspect(), near, far);
     perspectiveCamera.position.set(newPosition.x, newPosition.y, newPosition.z);
@@ -21,7 +23,4 @@ const replaceCamera = (newPosition=position, newRotation=null) => {
 
 let perspectiveCamera = replaceCamera();
 
-module.exports = {
-    getCamera: () => perspectiveCamera,
-    replaceCamera
-};
+module.exports = { getCamera, replaceCamera };

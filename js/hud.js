@@ -113,8 +113,6 @@ function update(evt) {
     document.getElementById('hud').innerHTML = render(data);
 }
 
-module.exports = {
-    bindHandlers(element) {
-        element.addEventListener('click', update);
-    }
-};
+const bindHandlers = element => element.addEventListener('click', update);
+
+module.exports = { bindHandlers };
