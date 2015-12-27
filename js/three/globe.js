@@ -20,18 +20,22 @@ const globe = new Mesh(
 
 // read
 
-const faces = () => globe.geometry.faces;
-const vertices = () => globe.geometry.vertices;
+const geometry = () => globe.geometry;
+const position = () => globe.position;
+const faces = () => geometry().faces;
+const vertices = () => geometry().vertices;
+
+const markForUpdate = () => globe.geometry.colorsNeedUpdate = true;
 
 const addGlobe = () => scene.add(globe);
 
 const resetGlobe = () => {
     // zero face values for fresh paint
-    globe.geometry.faces.map(f => {
+    faces().map(f => {
         f.data = {};
         f.color.setHex(0xFFFFFF);
     });
-    globe.geometry.colorsNeedUpdate = true;
+    markForUpdate();
 };
 
 // TODO: use heds
@@ -43,7 +47,7 @@ const uniqueVerticesForEdges = edges => {
 };
 
 const updateFaces = newFaces => {
-    let oldFaces = globe.geometry.faces;
+    let oldFaces = faces();
 
     let indices = newFaces.map(face => {
         let index = parseInt(Object.keys(face)[0], 10);
@@ -53,7 +57,7 @@ const updateFaces = newFaces => {
     });
     console.log('painting new faces:', indices);
 
-    globe.geometry.colorsNeedUpdate = true;
+    markForUpdate();
 };
 
 // TODO: move to swapper?
@@ -78,10 +82,8 @@ const findClosestFace = (candidates, target) => {
 
 // TODO: move to swapper?
 const findClosestFreeFace = startFace => {
-    return findClosestFace(globe.geometry.faces.filter(f => !f.data.artist), startFace);
+    return findClosestFace(faces().filter(f => !f.data.artist), startFace);
 };
-
-const markForUpdate = () => globe.geometry.colorsNeedUpdate = true;
 
 on('faces.*', ({ faces }) => updateFaces(JSON.parse(faces)));
 
@@ -94,10 +96,10 @@ module.exports = {
     resetGlobe,
     markForUpdate,
 
-    // TODO: better accessors
+    // object
     globe,
-    geometry: globe.geometry,
-    position: globe.position,
+    geometry,
+    position,
     faces,
     vertices
 };

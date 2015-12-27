@@ -71,7 +71,7 @@ const equidistantFaces = numMarkers => {
     // use the mark's vector as a ray to find the closest face
     // via its intersection
     markers.map(m => {
-        caster.set(position, m.position.normalize());
+        caster.set(position(), m.position.normalize());
         intersectingFaces.push(caster.intersectObject(globe));
     });
 

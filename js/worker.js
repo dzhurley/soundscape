@@ -20,7 +20,7 @@ onmessage = evt => {
         const { geometry } = require('./three/globe');
         const plotter = require('./plotting/worker');
 
-        self.HEDS = new HalfEdgeStructure(geometry);
+        self.HEDS = new HalfEdgeStructure(geometry());
         self.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }
