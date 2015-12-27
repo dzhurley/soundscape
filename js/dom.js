@@ -3,7 +3,6 @@
 /* Interface for the DOM around UI event bindings */
 
 const { emit, emitOnWorker, on } = require('./dispatch');
-const Threes = require('./three/main');
 const HUD = require('./hud');
 
 const withId = selector => document.getElementById(selector);
@@ -11,9 +10,8 @@ const container = withId('scape');
 
 const handlers = {
     toggleControls(evt) {
-        if (Threes.controls) Threes.controls.toggleControls(evt.target.textContent);
+        emit('toggleControls', evt.target.textContent);
     },
-
     toggleOverlay() {
         let classes = withId('sources-overlay').classList;
         classes.toggle('closed');

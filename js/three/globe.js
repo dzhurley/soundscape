@@ -50,6 +50,7 @@ const updateFaces = newFaces => {
         let index = parseInt(Object.keys(face)[0], 10);
         oldFaces[index].color.copy(face[index].color);
         oldFaces[index].data = face[index].data;
+        return index;
     });
     console.log('painting new faces:', indices);
 

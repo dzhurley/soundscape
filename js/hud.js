@@ -10,7 +10,7 @@
 
 const THREE = require('three');
 const { labels } = require('./constants');
-const { camera } = require('./three/main');
+const { getCamera } = require('./three/camera');
 const { faceCentroid } = require('./helpers');
 const { faces, globe, uniqueVerticesForEdges, vertices } = require('./three/globe');
 const scene = require('./three/scene');
@@ -77,8 +77,8 @@ function makeMark(message) {
 }
 
 function getIntersects(x, y) {
-    let vector = new THREE.Vector3(x, y, 1).unproject(camera);
-    let ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    let vector = new THREE.Vector3(x, y, 1).unproject(getCamera());
+    let ray = new THREE.Raycaster(getCamera().position, vector.sub(getCamera().position).normalize());
     return ray.intersectObject(globe);
 }
 

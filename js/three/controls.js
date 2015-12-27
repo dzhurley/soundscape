@@ -6,42 +6,34 @@
 let THREE = require('../lib/FlyControls');
 THREE = require('../lib/OrbitControls');
 
-const { camera, flyControls, orbitalControls } = require('../constants');
-const Threes = require('./main');
+const { flyControls, orbitalControls } = require('../constants');
+const { on } = require('../dispatch');
+const { getCamera, replaceCamera } = require('./camera');
 const { container } = require('../dom');
 
 const setups = {
-    setupFly() {
-        controls = new THREE.FlyControls(Threes.camera, container);
+    setupFly(cam) {
+        controls = new THREE.FlyControls(cam, container);
         Object.assign(controls, flyControls, { domElement: container });
     },
 
-    setupOrbital() {
-        controls = new THREE.OrbitControls(Threes.camera, container);
+    setupOrbital(cam) {
+        controls = new THREE.OrbitControls(cam, container);
         Object.assign(controls, orbitalControls);
     }
 };
 
 const toggleControls = label => {
-    let prevCamera = Threes.camera;
-
-    // TODO: use './camera' instead of THREE.PerspectiveCamera to preserve
-    // resize event handler on window
-    let { fov, aspect, near, far } = camera;
-    Threes.camera = new THREE.PerspectiveCamera(fov, aspect(), near, far);
-    Threes.camera.position.copy(prevCamera.position);
-    Threes.camera.rotation.copy(prevCamera.rotation);
-
-    setups[`setup${label}`]();
+    setups[`setup${label}`](replaceCamera(getCamera().position, getCamera().rotation));
     // TODO: constants
     label = label === 'Orbital' ? 'Fly' : 'Orbital';
     document.getElementById('toggleControls').textContent = label;
 };
 
 let controls;
-setups.setupOrbital();
+setups.setupOrbital(getCamera());
+on('toggleControls', toggleControls);
 
 module.exports = {
-    toggleControls,
-    updateControls: i => controls.update(i)
+    updateControls: i => controls && controls.update(i)
 };

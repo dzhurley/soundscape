@@ -6,6 +6,9 @@ module.exports = [
     // on POST to data source
     'submitted',
 
+    // ui event
+    'toggleControls',
+
     // first call from worker to sync artists
     'getArtists',
     // subsequent calls from worker to sync artists

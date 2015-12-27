@@ -23,13 +23,11 @@ function addWorker(worker) {
     emitter.worker.onerror = () => console.error(`Worker Error: ${arguments}`);
 }
 
+const emit = (type, ...args) => isValidEvent(type) ? emitter.emit(type, ...args) : false;
+const on = (type, fn) => isValidEvent(type) ? emitter.on(type, fn) : false;
+
 function emitOnWorker(type, payload) {
     return isValidEvent(type) ? emitter.worker.postMessage({ type, payload }) : false;
 }
 
-module.exports = {
-    addWorker,
-    emitOnWorker,
-    emit: emitter.emit.bind(emitter),
-    on: emitter.on.bind(emitter)
-};
+module.exports = { addWorker, emit, emitOnWorker, on };
