@@ -3,7 +3,7 @@
 const { Mesh, Raycaster, Sprite, SpriteMaterial } = require('three');
 
 const constants = require('../constants');
-const { artists, numArtistsLeft, setArtists } = require('../artists');
+const { artists, artistsLeft, setArtists } = require('../artists');
 const { equidistantishPointsOnSphere } = require('../helpers');
 const { faces, globe, position } = require('../three/globe');
 const scene = require('../three/scene');
@@ -13,11 +13,7 @@ const { startForce } = require('../seeding/force');
 let { globe: { radius }, node: { geometry, material } } = constants;
 
 const prepareData = data => {
-    setArtists({
-        artists: data,
-        totalFaces: faces().length
-    });
-
+    setArtists(data);
     faces().map(face => face.data = {});
 };
 
@@ -86,6 +82,6 @@ const equidistantFaces = numMarkers => {
     return intersectingFaces.map(hit => hit[0]);
 };
 
-const seedIndices = () => equidistantFaces(numArtistsLeft()).map(seed => seed.faceIndex);
+const seedIndices = () => equidistantFaces(artistsLeft().length).map(seed => seed.faceIndex);
 
 module.exports = { prepareData, seedIndices, forceSeed };

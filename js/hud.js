@@ -20,7 +20,7 @@ const { edgesForArtist } = require('./artists');
 // if the value is a string, return it, otherwise return the number as an integer
 const getMarkProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
 
-function render({ artist=null, plays=null, a, b, c }) {
+const render = ({ artist=null, plays=null, a, b, c }) => {
     let template = `<span>face.a = ${a}</span>
                     <span>face.b = ${b}</span>
                     <span>face.c = ${c}</span>`;
@@ -28,24 +28,23 @@ function render({ artist=null, plays=null, a, b, c }) {
         template = `<span>${artist}, played ${plays} time(s)</span>` + template;
     }
     return template;
-}
+};
 
 const addVertexMarkers = vs => vs.map(index => {
     let mark = makeMark(JSON.stringify(index));
-    let vertex = vertices()[index];
-    mark.position.copy(vertex.clone().multiplyScalar(1.005));
+    mark.position.copy(vertices()[index].clone().multiplyScalar(1.005));
     scene.add(mark);
 });
 
-function addFaceMarkers(face) {
+const addFaceMarkers = face => {
     let mark = makeMark(faces().indexOf(face));
     mark.position.copy(faceCentroid(globe, face).multiplyScalar(1.005));
     scene.add(mark);
-}
+};
 
 // TODO: favor dom over canvas for tooltips
 // TODO: constants
-function makeMark(message) {
+const makeMark = message => {
     let canvas = document.createElement('canvas');
     canvas.width = canvas.height = 1600;
     let context = canvas.getContext('2d');
@@ -75,22 +74,20 @@ function makeMark(message) {
     let map = new Texture(canvas);
     map.needsUpdate = true;
     return new Sprite(new SpriteMaterial({ map, name: 'marker' }));
-}
+};
 
-function getIntersects(x, y) {
+const getIntersects = (x, y) => {
     let cam = getCamera();
     let vector = new Vector3(x, y, 1).unproject(cam);
     let ray = new Raycaster(cam.position, vector.sub(cam.position).normalize());
     return ray.intersectObject(globe);
-}
+};
 
-function removeMarkers() {
-    scene.children
-        .filter(c => c.material && c.material.name === 'marker')
-        .map(c => scene.remove(c));
-}
+const removeMarkers = () => scene.children
+                                .filter(c => c.material && c.material.name === 'marker')
+                                .map(c => scene.remove(c));
 
-function update(evt) {
+const update = evt => {
     let intersects = getIntersects(evt.clientX / window.innerWidth * 2 - 1,
                                    -(evt.clientY / window.innerHeight) * 2 + 1);
 
@@ -111,7 +108,7 @@ function update(evt) {
 
     let data = Object.assign({}, face.data, { a: face.a, b: face.b, c: face.c });
     document.getElementById('hud').innerHTML = render(data);
-}
+};
 
 const bindHandlers = element => element.addEventListener('click', update);
 

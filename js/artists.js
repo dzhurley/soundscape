@@ -28,6 +28,7 @@
 const { Color } = require('./lib/HalfEdgeStructure');
 const { spacedColor } = require('./helpers');
 const { on } = require('./dispatch');
+const { faces } = require('./three/globe');
 
 // TODO: find better state solution (localStorage alongside sources?)
 let artistStore = {
@@ -35,78 +36,62 @@ let artistStore = {
     artists: []
 };
 
+const accessStore = key => val => val ? artistStore[key] = val : artistStore[key];
+const artists = accessStore('artists');
+const index = accessStore('index');
+
 // reads
 
-const artists = () => artistStore.artists;
-const index = () => artistStore.index;
-
-const numArtistsLeft = () => artists().reduce((m, a) => m + (a.faces ? 1 : 0), 0);
+const artistsLeft = () => artists().filter(a => a.faces > 0);
 
 const edgesForArtist = n => artists().filter(a => a.name === n).map(a => a.edges).shift();
 
 const nextArtist = () => {
-    let artist;
+    // rearrange artists so we start at next index() and wrap through the rest
+    const sorted = [...artists().slice(index()), ...artists().slice(0, index())];
+    const match = sorted.find(a => a.faces > 0);
 
-    function findArtist(currentIndex, artists, call=0) {
-        // rollover to beginning of artists
-        if (currentIndex === artists.length) {
-            currentIndex = 0;
-        }
-        artist = artists[currentIndex];
-        if (artist.faces === 0) {
-            if (call === artists.length) {
-                // when we've recursed to confirm every `artist.faces` is 0,
-                // we are done painting and return
-                return [false, currentIndex];
-            }
-            // if there aren't any faces left to paint for this artist,
-            // look towards the next artist and record how far we've recursed
-            currentIndex++;
-            call++;
-            return findArtist(currentIndex, artists, call);
-        }
-
-        return [artist, currentIndex + 1];
-    }
-
-    [artist, artistStore.index] = findArtist(index(), artists());
-    return artist;
+    // update index() and return artist if they exist
+    const matchedIndex = artists().indexOf(match);
+    index(matchedIndex < sorted.length ? matchedIndex + 1 : 0);
+    return matchedIndex > -1 ? match : false;
 };
 
 // writes
 
-const setArtists = ({ artists, totalFaces }) => {
-    let totalPlays = artists.reduce((m, a) => m + a.playCount, 0);
+const setArtists = data => {
+    const totalPlays = data.reduce((m, a) => m + a.playCount, 0);
+    const totalFaces = faces().length;
 
-    artists.map((artist, i) => {
+    data.map((artist, i) => {
         artist.edges = [];
 
         // faces available for a given artist to paint
         artist.faces = Math.floor(artist.playCount * totalFaces / totalPlays);
 
         // color generated from rank
-        artist.color = new Color(spacedColor(artists.length, i));
+        artist.color = new Color(spacedColor(data.length, i));
         artist.color.multiplyScalar(artist.normCount);
 
         return artist;
     });
 
     // don't bother with artists that don't merit faces
-    artistStore.artists = artists.filter(artist => artist.faces > 0);
-    artistStore.index = 0;
+    artists(data.filter(artist => artist.faces > 0));
+    index(0);
 };
 
 on('getArtists', () => postMessage({
     type: 'updateArtists',
     payload: {
-        artists: JSON.stringify(artists() || []),
-        index: index()
+        newArtists: JSON.stringify(artists() || []),
+        newIndex: index()
     }
 }));
 
-on('updateArtists', ({ artists, index }) => {
-    artistStore.artists = JSON.parse(artists);
-    artistStore.index = index;
+on('updateArtists', ({ newArtists, newIndex }) => {
+    artists(JSON.parse(newArtists));
+    index(newIndex);
 });
 
 // TODO: rework in entirety, and most likely move
@@ -134,7 +119,7 @@ const expandArtistEdges = (face, artist, edge) => {
 
 module.exports = {
     artists,
-    numArtistsLeft,
+    artistsLeft,
     edgesForArtist,
     expandArtistEdges,
     nextArtist,

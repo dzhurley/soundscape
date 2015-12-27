@@ -7,7 +7,7 @@
  * are sent back to the main thread for update.
  */
 
-const { nextArtist, numArtistsLeft } = require('../artists');
+const { nextArtist, artistsLeft } = require('../artists');
 const { faces } = require('../three/globe');
 const facePlotter = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
@@ -119,7 +119,7 @@ const one = () => {
 };
 
 const batch = () => {
-    for (let i = 0; i <= numArtistsLeft(); i++) {
+    for (let i = 0; i <= artistsLeft().length; i++) {
         if (iterate()) break;
     }
     respondWithFaces();

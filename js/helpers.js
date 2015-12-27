@@ -4,48 +4,44 @@ const { Vector3 } = require('three');
 
 // internal
 
-function boundedArray(min = 0, max = 0) {
-    // enumerates numbers between `min` and `max` inclusive
-    // and returns the array
-
+const boundedArray = (min = 0, max = 0) => {
+    // enumerates numbers between `min` and `max` inclusive and returns the array
     let bounded = [];
     for (let i = min; i <= max; ++i) {
         bounded.push(i);
     }
-
     return bounded;
-}
+};
 
-function evenlySpacedInRange(min, max, num) {
+const evenlySpacedInRange = (min, max, num) => {
     // see linspace (port of numpy method)
     // https://github.com/sloisel/numeric/blob/master/src/numeric.js
     if (num < 2) return num === 1 ? [min] : [];
 
     let results = Array(num);
-    num--;
-    for (let i = num; i >= 0; i--) {
+    for (let i = --num; i >= 0; i--) {
         results[i] = (i * max + (num - i) * min) / num;
     }
     return results;
-}
+};
 
 // external
 
-function equidistantishPointsOnSphere(numPoints) {
+const equidistantishPointsOnSphere = numPoints => {
     // Find points in terms of x, y, z that are roughly equidistant from
     // each other on a sphere. This applies Vogel's method, adapted from
     // http://blog.marmakoide.org/?p=1
 
     const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-    let thetas = boundedArray(0, numPoints - 1).map(n => n * goldenAngle);
+    const thetas = boundedArray(0, numPoints - 1).map(n => n * goldenAngle);
 
-    let zs = evenlySpacedInRange(
+    const zs = evenlySpacedInRange(
         1 - 1.0 / numPoints,
         1.0 / numPoints - 1,
         numPoints
     );
 
-    let radii = zs.map(z => Math.sqrt(1 - z * z));
+    const radii = zs.map(z => Math.sqrt(1 - z * z));
 
     let points = [];
     for (let i = 0; i < numPoints; i++) {
@@ -56,18 +52,18 @@ function equidistantishPointsOnSphere(numPoints) {
         ]);
     }
     return points;
-}
+};
 
 // save deprecated face.centroid
-function faceCentroid(object, face) {
+const faceCentroid = (object, face) => {
     return new Vector3()
         .add(object.geometry.vertices[face.a])
         .add(object.geometry.vertices[face.b])
         .add(object.geometry.vertices[face.c])
         .divideScalar(3);
-}
+};
 
-function normalize(data, key, saveAs) {
+const normalize = (data, key, saveAs) => {
     // normalizes values in `data` at `data[key]` and optionally saves
     // them on each item as `data[saveAs]`, returning `data` when saving
     // and Array of normalized values when not
@@ -84,19 +80,19 @@ function normalize(data, key, saveAs) {
         return data;
     }
     return data.map(datum => (datum[key] - min) / denom);
-}
+};
 
-function packUrlParams(base, params) {
+const packUrlParams = (base, params) => {
     // pack key/values into encoded url params, delimited by '&'
     let encodedPairs = Object.keys(params).map(
         key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
     );
     return `${base}?${encodedPairs.join('&')}`;
-}
+};
 
-function randomArray(array) {
+const randomArray = array => {
     // pulled from underscore.js
-    let length = array.length;
+    const length = array.length;
     let shuffled = Array(length);
     for (let i = 0, rand; i < length; i++) {
         rand = Math.floor(Math.random() * i);
@@ -104,13 +100,11 @@ function randomArray(array) {
         shuffled[rand] = array[i];
     }
     return shuffled;
-}
+};
 
-function randomBoundedArray(min, max) {
-    return randomArray(boundedArray(min, max));
-}
+const randomBoundedArray = (min, max) => randomArray(boundedArray(min, max));
 
-function spacedColor(numOfSteps, step) {
+const spacedColor = (numOfSteps, step) => {
     // http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html
     let r, g, b;
     let h = step / numOfSteps;
@@ -131,7 +125,7 @@ function spacedColor(numOfSteps, step) {
     let second = ('00' + (~~(g * 255)).toString(16)).slice(-2);
     let third = ('00' + (~~(b * 255)).toString(16)).slice(-2);
     return `#${first}${second}${third}`;
-}
+};
 
 module.exports = {
     equidistantishPointsOnSphere,

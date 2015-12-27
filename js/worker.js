@@ -10,7 +10,7 @@
  * use in all the plotting module's workings.
  */
 
-onmessage = function(evt) {
+onmessage = evt => {
     let { data: { type, payload } } = evt;
     if (!self.started) {
         self.emit = require('./dispatch').emit;

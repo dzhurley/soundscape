@@ -14,20 +14,20 @@ const emitter = new EventEmitter({ wildcard: true });
 
 const isValidEvent = event => events.indexOf(event) > -1;
 
-function addWorker(worker) {
+const addWorker = worker => {
     emitter.worker = worker;
     emitter.worker.onmessage = event => {
         let { data: { type, payload } } = event;
         return isValidEvent(type) ? emitter.emit(type, payload) : false;
     };
     emitter.worker.onerror = () => console.error(`Worker Error: ${arguments}`);
-}
+};
 
 const emit = (type, ...args) => isValidEvent(type) ? emitter.emit(type, ...args) : false;
 const on = (type, fn) => isValidEvent(type) ? emitter.on(type, fn) : false;
 
-function emitOnWorker(type, payload) {
-    return isValidEvent(type) ? emitter.worker.postMessage({ type, payload }) : false;
-}
+const emitOnWorker = (type, payload) => isValidEvent(type) ?
+    emitter.worker.postMessage({ type, payload }) :
+    false;
 
 module.exports = { addWorker, emit, emitOnWorker, on };

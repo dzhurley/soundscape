@@ -19,18 +19,18 @@ const handlers = {
     }
 };
 
-function bindMainButtons() {
+const bindMainButtons = () => {
     let buttons = Array.from(document.querySelectorAll('.main button'));
     buttons.map(button => button.addEventListener('click', handlers[button.id]));
-}
+};
 
-function bindWorkerButtons() {
+const bindWorkerButtons = () => {
     let buttons = Array.from(document.querySelectorAll('.worker button'));
     let clickOnWorker = evt => emitOnWorker.call(emitOnWorker, `plot.${evt.target.id}`);
     buttons.map(button => button.addEventListener('click', clickOnWorker));
-}
+};
 
-function bindHandlers() {
+const bindHandlers = () => {
     bindMainButtons();
     bindWorkerButtons();
 
@@ -40,7 +40,7 @@ function bindHandlers() {
         withId('username').value = '';
         withId('toggleOverlay').click();
     });
-}
+};
 
 const attachWebGLement = el => {
     container.appendChild(el);
