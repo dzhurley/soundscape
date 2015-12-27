@@ -25,7 +25,7 @@
  *
  */
 
-const THREE = require('./lib/HalfEdgeStructure');
+const { Color } = require('./lib/HalfEdgeStructure');
 const { spacedColor } = require('./helpers');
 const { on } = require('./dispatch');
 
@@ -85,7 +85,7 @@ const setArtists = ({ artists, totalFaces }) => {
         artist.faces = Math.floor(artist.playCount * totalFaces / totalPlays);
 
         // color generated from rank
-        artist.color = new THREE.Color(spacedColor(artists.length, i));
+        artist.color = new Color(spacedColor(artists.length, i));
         artist.color.multiplyScalar(artist.normCount);
 
         return artist;

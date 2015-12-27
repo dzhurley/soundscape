@@ -16,11 +16,11 @@ onmessage = function(evt) {
         self.emit = require('./dispatch').emit;
         self.on = require('./dispatch').on;
 
-        const THREE = require('./lib/HalfEdgeStructure');
+        const { HalfEdgeStructure } = require('./lib/HalfEdgeStructure');
         const { geometry } = require('./three/globe');
         const plotter = require('./plotting/worker');
 
-        self.HEDS = new THREE.HalfEdgeStructure(geometry);
+        self.HEDS = new HalfEdgeStructure(geometry);
         self.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }

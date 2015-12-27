@@ -8,7 +8,8 @@
  * indices for debugging purposes.
  */
 
-const THREE = require('three');
+const { Raycaster, Sprite, SpriteMaterial, Texture, Vector3 } = require('three');
+
 const { labels } = require('./constants');
 const { getCamera } = require('./three/camera');
 const { faceCentroid } = require('./helpers');
@@ -71,14 +72,15 @@ function makeMark(message) {
     context.textAlign = 'center';
     context.fillText(message, canvas.width / 2, canvas.height / 2);
 
-    let map = new THREE.Texture(canvas);
+    let map = new Texture(canvas);
     map.needsUpdate = true;
-    return new THREE.Sprite(new THREE.SpriteMaterial({ map, name: 'marker' }));
+    return new Sprite(new SpriteMaterial({ map, name: 'marker' }));
 }
 
 function getIntersects(x, y) {
-    let vector = new THREE.Vector3(x, y, 1).unproject(getCamera());
-    let ray = new THREE.Raycaster(getCamera().position, vector.sub(getCamera().position).normalize());
+    let cam = getCamera();
+    let vector = new Vector3(x, y, 1).unproject(cam);
+    let ray = new Raycaster(cam.position, vector.sub(cam.position).normalize());
     return ray.intersectObject(globe);
 }
 

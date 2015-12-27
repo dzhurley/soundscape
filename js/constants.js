@@ -1,6 +1,7 @@
 'use strict';
 
 // used on both app and worker side to create some sense of coherence
+const { MeshBasicMaterial, SphereGeometry } = require('three');
 
 const globe = Object.freeze({
     radius: 50,
@@ -12,6 +13,11 @@ const labels = Object.freeze({
     'color': '#d7d7d7',
     'fontface': 'Inconsolata',
     'fontsize': '300'
+});
+
+const node = Object.freeze({
+    geometry: new SphereGeometry(1.5, 25, 25),
+    material: new MeshBasicMaterial()
 });
 
 const stars = Object.freeze({
@@ -68,6 +74,7 @@ module.exports = Object.freeze({
     globe,
     labels,
     light,
+    node,
     orbitalControls,
     stars
 });

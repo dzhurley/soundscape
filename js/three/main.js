@@ -5,7 +5,7 @@
  * This also manages the rebinding of fly/orbital controls
  */
 
-const THREE = require('three');
+const { AxisHelper, WireframeHelper } = require('three');
 const { on } = require('../dispatch');
 
 const { getCamera } = require('./camera');
@@ -23,10 +23,10 @@ const setScene = () => {
     addGlobe();
 
     // TODO: add to labs
-    scene.add(new THREE.WireframeHelper(globe));
+    scene.add(new WireframeHelper(globe));
     // red: x, green: y, blue: z
     // TODO: add to labs
-    scene.add(new THREE.AxisHelper(75));
+    scene.add(new AxisHelper(75));
 
     on('submitted', resetGlobe);
 

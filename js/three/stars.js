@@ -1,6 +1,6 @@
 'use strict';
 
-const THREE = require('three');
+const { Sprite, SpriteMaterial } = require('three');
 const { stars } = require('../constants');
 const scene = require('./scene');
 
@@ -9,7 +9,7 @@ let field = [];
 let star;
 
 for (let i = 0; i < number; ++i) {
-    star = new THREE.Sprite(new THREE.SpriteMaterial());
+    star = new Sprite(new SpriteMaterial());
     star.position.set(x(), y(), z());
     star.position.normalize();
     star.position.multiplyScalar(positionMultiplier());
