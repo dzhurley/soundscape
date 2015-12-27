@@ -5,23 +5,17 @@
  */
 
 const { Mesh, MeshLambertMaterial, SphereGeometry } = require('three');
-const { DoubleSide, FaceColors, FlatShading } = require('three');
 
 const constants = require('../constants');
 const { on } = require('../dispatch');
 const scene = require('./scene');
 const { faceCentroid } = require('../helpers');
 
-const { globe: { radius, widthAndHeight } } = constants;
+const { globe: { radius, widthAndHeight, shading, side, vertexColors } } = constants;
 
-// TODO: constants?
 const globe = new Mesh(
     new SphereGeometry(radius, widthAndHeight, widthAndHeight),
-    new MeshLambertMaterial({
-        shading: FlatShading,
-        side: DoubleSide,
-        vertexColors: FaceColors
-    })
+    new MeshLambertMaterial({ shading, side, vertexColors })
 );
 
 // read
@@ -40,7 +34,7 @@ const resetGlobe = () => {
     globe.geometry.colorsNeedUpdate = true;
 };
 
-// TODO: belongs here? use heds?
+// TODO: use heds
 const uniqueVerticesForEdges = edges => {
     return edges
         .map(e => [e.v1, e.v2])

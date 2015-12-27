@@ -1,15 +1,27 @@
 'use strict';
 
 // used on both app and worker side to create some sense of coherence
+
 const { MeshBasicMaterial, SphereGeometry } = require('three');
+const { DoubleSide, FaceColors, FlatShading } = require('three');
 
 const sources = [
     'lastfm'
 ];
 
+const force = Object.freeze({
+    epsilon: 0.000001,
+    maxIterations: 100000,
+    initialTemp: 10000
+});
+
 const globe = Object.freeze({
     radius: 50,
-    widthAndHeight: 50
+    widthAndHeight: 50,
+
+    shading: FlatShading,
+    side: DoubleSide,
+    vertexColors: FaceColors
 });
 
 const labels = Object.freeze({
@@ -75,6 +87,7 @@ const orbitalControls = Object.freeze({
 module.exports = Object.freeze({
     camera,
     flyControls,
+    force,
     globe,
     labels,
     light,

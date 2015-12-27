@@ -43,7 +43,6 @@ const addFaceMarkers = face => {
 };
 
 // TODO: favor dom over canvas for tooltips
-// TODO: constants
 const makeMark = message => {
     let canvas = document.createElement('canvas');
     canvas.width = canvas.height = 1600;

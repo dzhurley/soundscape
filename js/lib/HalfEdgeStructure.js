@@ -3,7 +3,7 @@
  *
  * An implementation of a Half-Edge Data Structure for Three.js geometries.
  *
- * TODO: remove dependency on browserify
+ * TODO: remove dependency on webpack
  *
  * For more information on this structure:
  * http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml

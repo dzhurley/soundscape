@@ -7,13 +7,10 @@
   the JUNG implementation.
  */
 
-const radius = require('../constants').globe.radius;
+const { globe: { radius } } = require('../constants');
+const { force: { epsilon, maxIterations, initialTemp } } = require('../constants');
 
-// TODO: constants
-const EPSILON = 0.000001;
-const maxIterations = 100000;
-let temp = 10000;
-
+let temp = initialTemp;
 let iterations = 0;
 let nodes;
 
@@ -33,7 +30,7 @@ const applyDiff = (v, u) => {
 };
 
 const iterateForce = () => {
-    if (iterations < maxIterations && temp > EPSILON) {
+    if (iterations < maxIterations && temp > epsilon) {
         for (let v of nodes) {
             for (let u of nodes) {
                 if (u.name === v.name) continue;
