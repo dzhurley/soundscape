@@ -8,7 +8,7 @@
  */
 
 const { nextArtist } = require('../artists');
-const facePlotter = require('./faces');
+const { nextFace } = require('./faces');
 
 class Looper {
     setNewFace(face, artist) {
@@ -32,7 +32,7 @@ class Looper {
             // no more faces left for any artist to paint
             return true;
         }
-        faceInfo = facePlotter.nextFace(artist, rando);
+        faceInfo = nextFace(artist, rando);
 
         if (faceInfo.face) {
             remainingIndex = remaining.indexOf(faceInfo.index);

@@ -16,16 +16,16 @@ const { randomBoundedArray } = require('../helpers');
 // WebWorker-wide list of remaining face indices yet to be painted
 self.remaining = [];
 
-function setNewFace(face, artist) {
+const setNewFace = (face, artist) => {
     // TODO: doesn't belong here
     face.color.set(artist.color);
     face.data.artist = artist.name;
     face.data.plays = artist.playCount;
     face.data.pending = true;
     artist.faces--;
-}
+};
 
-function runIteration(remaining) {
+const runIteration = remaining => {
     let rando = remaining[0];
     let artist;
     let faceInfo;
@@ -49,9 +49,9 @@ function runIteration(remaining) {
         }
     }
     return false;
-}
+};
 
-function iterate(remaining = self.remaining) {
+const iterate = (remaining = self.remaining) => {
     let startingLength = remaining.length;
     let iterationResult = runIteration(remaining);
     if (startingLength === remaining.length) {
@@ -60,9 +60,9 @@ function iterate(remaining = self.remaining) {
     }
     console.log('remaining', remaining.length);
     return iterationResult;
-}
+};
 
-function getNewFaces(faces) {
+const getNewFaces = faces => {
     let newFaces = faces.map(face => {
         let indexedFace = null;
 
@@ -83,17 +83,17 @@ function getNewFaces(faces) {
     self.remaining.filter(f => Object.keys(newFaces).indexOf('' + f) < 0);
 
     return newFaces;
-}
+};
 
-function respondWithFaces(event = 'painted') {
+const respondWithFaces = (event = 'painted') => {
     // TODO: send back progress
     postMessage({
         type: `faces.${event}`,
         payload: { faces: JSON.stringify(getNewFaces(faces())) }
     });
-}
+};
 
-function seed(payload) {
+const seed = payload => {
     let data = JSON.parse(payload);
 
     if (!data.length) {
@@ -111,24 +111,24 @@ function seed(payload) {
     self.remaining = randos.filter(r => seeds.indexOf(r) < 0);
 
     respondWithFaces('seeded');
-}
+};
 
-function one() {
+const one = () => {
     iterate();
     respondWithFaces();
-}
+};
 
-function batch() {
+const batch = () => {
     for (let i = 0; i <= numArtistsLeft(); i++) {
         if (iterate()) break;
     }
     respondWithFaces();
-}
+};
 
-function all() {
+const all = () => {
     for (let i = 0; i < self.remaining.length; i++) {
         if (batch()) break;
     }
-}
+};
 
 module.exports = { seed, one, batch, all };
