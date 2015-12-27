@@ -3,6 +3,10 @@
 // used on both app and worker side to create some sense of coherence
 const { MeshBasicMaterial, SphereGeometry } = require('three');
 
+const sources = [
+    'lastfm'
+];
+
 const globe = Object.freeze({
     radius: 50,
     widthAndHeight: 50
@@ -76,5 +80,6 @@ module.exports = Object.freeze({
     light,
     node,
     orbitalControls,
+    sources,
     stars
 });
