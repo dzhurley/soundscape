@@ -10,32 +10,30 @@
 
 const { findClosestFace, findClosestFreeFace, markForUpdate } = require('../three/globe');
 
-class Swapper {
-    handleSwappers(startFace) {
-        let goal = findClosestFreeFace(startFace);
-        let currentFace = startFace;
-        let candidates = [];
-        let path = [currentFace];
+const handleSwappers = startFace => {
+    let goal = findClosestFreeFace(startFace);
+    let currentFace = startFace;
+    let candidates = [];
+    let path = [currentFace];
 
-        while (currentFace !== goal) {
-            candidates = self.HEDS.adjacentFaces(currentFace);
-            currentFace = findClosestFace(candidates, goal);
-            path.push(currentFace);
-        }
-
-        let prevFace;
-        path.reverse().forEach((face, index) => {
-            prevFace = path[index + 1];
-            if (prevFace) {
-                // TODO: account for edge info, see expandArtistEdges
-                face.data = Object.assign({}, prevFace.data);
-                face.color.copy(prevFace.color);
-            }
-        });
-
-        markForUpdate();
-        return goal;
+    while (currentFace !== goal) {
+        candidates = self.HEDS.adjacentFaces(currentFace);
+        currentFace = findClosestFace(candidates, goal);
+        path.push(currentFace);
     }
-}
 
-module.exports = new Swapper();
+    let prevFace;
+    path.reverse().forEach((face, index) => {
+        prevFace = path[index + 1];
+        if (prevFace) {
+            // TODO: account for edge info, see expandArtistEdges
+            face.data = Object.assign({}, prevFace.data);
+            face.color.copy(prevFace.color);
+        }
+    });
+
+    markForUpdate();
+    return goal;
+};
+
+module.exports = { handleSwappers };

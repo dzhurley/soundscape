@@ -10,7 +10,7 @@
 
 const { expandArtistEdges } = require('../artists');
 const { faces } = require('../three/globe');
-const swapper = require('./swapper');
+const { handleSwappers } = require('./swapper');
 
 const validFace = (artist, edge) => {
     let swappers = [];
@@ -68,7 +68,7 @@ const findAdjacentFace = artist => {
         // handle expanding out to the closest free face out of band
         console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
 
-        swapper.handleSwappers(faceOrSwap[0]);
+        handleSwappers(faceOrSwap[0]);
 
         return {
             // TODO: bad, do something better to return face states
