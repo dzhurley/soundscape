@@ -20,7 +20,7 @@ const addWorker = worker => {
         let { data: { type, payload } } = event;
         return isValidEvent(type) ? emitter.emit(type, payload) : false;
     };
-    emitter.worker.onerror = () => console.error(`Worker Error: ${arguments}`);
+    emitter.worker.onerror = err => console.error(`Worker Error: ${err.message}`);
 };
 
 const emit = (type, ...args) => isValidEvent(type) ? emitter.emit(type, ...args) : false;
