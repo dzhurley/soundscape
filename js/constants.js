@@ -5,9 +5,28 @@
 const { MeshBasicMaterial, SphereGeometry } = require('three');
 const { DoubleSide, FaceColors, FlatShading } = require('three');
 
-const sources = [
-    'lastfm'
-];
+const camera = Object.freeze({
+    position: { x: 80, y: 80, z: 80 },
+
+    fov: 75,
+    aspect() {
+        // needs to be callable as constants are used in workers, which don't have window
+        return window.innerWidth / window.innerHeight;
+    },
+    near: 0.1,
+    far: 1000
+});
+
+const experiments = Object.freeze({
+    'force-seeding': true
+});
+
+const flyControls = Object.freeze({
+    autoForward: false,
+    dragToLook: true,
+    movementSpeed: 1,
+    rollSpeed: 0.03
+});
 
 const force = Object.freeze({
     epsilon: 0.000001,
@@ -31,10 +50,22 @@ const labels = Object.freeze({
     'fontsize': '300'
 });
 
+const light = Object.freeze({ color: 0xf0f0f0 });
+
 const node = Object.freeze({
     geometry: new SphereGeometry(1.5, 25, 25),
     material: new MeshBasicMaterial()
 });
+
+const orbitalControls = Object.freeze({
+    zoomSpeed: 0.2,
+    rotateSpeed: 0.5,
+    noKeys: true
+});
+
+const sources = [
+    'lastfm'
+];
 
 const stars = Object.freeze({
     number: 1000,
@@ -57,35 +88,9 @@ const stars = Object.freeze({
     }
 });
 
-const camera = Object.freeze({
-    position: { x: 80, y: 80, z: 80 },
-
-    fov: 75,
-    aspect() {
-        // needs to be callable as constants are used in workers, which don't have window
-        return window.innerWidth / window.innerHeight;
-    },
-    near: 0.1,
-    far: 1000
-});
-
-const light = Object.freeze({ color: 0xf0f0f0 });
-
-const flyControls = Object.freeze({
-    autoForward: false,
-    dragToLook: true,
-    movementSpeed: 1,
-    rollSpeed: 0.03
-});
-
-const orbitalControls = Object.freeze({
-    zoomSpeed: 0.2,
-    rotateSpeed: 0.5,
-    noKeys: true
-});
-
 module.exports = Object.freeze({
     camera,
+    experiments,
     flyControls,
     force,
     globe,

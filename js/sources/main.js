@@ -18,18 +18,23 @@
 
 const { packUrlParams, randomArray } = require('../helpers');
 const { emit, emitOnWorker, on } = require('../dispatch');
+const { isActive } = require('../labs');
+
+const { forceSeed } = require('../plotting/seeder');
 
 // TODO: find better state solution (localStorage?)
 let registered = {};
 
 const registerSources = sources => sources.map(src => registered[src] = require(`./${src}`));
 
+const seed = d => isActive('force-seeding') ? forceSeed(d) : emitOnWorker('plot.seed', d);
+
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
-        let artists = JSON.parse(localStorage[username]);
+        let data = localStorage[username];
 
-        if (artists) {
-            emitOnWorker('plot.seed', JSON.stringify(artists));
+        if (data) {
+            seed(data);
             emit('submitted');
             return;
         }
@@ -44,7 +49,7 @@ const getArtists = (source, username) => {
             let artists = source.parseData(JSON.parse(request.responseText));
             let stringified = JSON.stringify(randomArray(artists));
             localStorage[username] = stringified;
-            emitOnWorker('plot.seed', stringified);
+            seed(stringified);
             emit('submitted');
         }
     };
