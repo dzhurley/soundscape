@@ -12,7 +12,7 @@ const { force: { epsilon, maxIterations, initialTemp } } = require('../constants
 
 let temp = initialTemp;
 let iterations = 0;
-let nodes;
+let nodes = new Set();
 
 const repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
 
@@ -46,11 +46,11 @@ const iterateForce = () => {
     return true;
 };
 
-const startForce = nodes => {
+const startForce = ns => {
     // normalize charges between 0 and 50
-    let maxCharge = Math.max(...Array.from(nodes).map(n => n.charge));
-    nodes.forEach(n => n.charge = 50 * (n.charge / maxCharge));
-    window.iterateForce = iterateForce;
+    let maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
+    ns.forEach(n => n.charge = 50 * (n.charge / maxCharge));
+    nodes = ns;
 };
 
 module.exports = { startForce, iterateForce };

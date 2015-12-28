@@ -7,6 +7,7 @@
 
 const { AxisHelper, WireframeHelper } = require('three');
 const { on } = require('../dispatch');
+const { isActive } = require('../labs');
 
 const { getCamera } = require('./camera');
 const { addLight } = require('./light');
@@ -16,6 +17,8 @@ const { updateControls } = require('./controls');
 
 const { addGlobe, globe, resetGlobe } = require('./globe');
 const { addStars } = require('./stars');
+
+const { iterateForce } = require('../seeding/force');
 
 const setScene = () => {
     addLight();
@@ -36,6 +39,7 @@ const setScene = () => {
 
 const animate = () => {
     updateControls(1);
+    if (isActive('force-seeding') && !window.seeded) window.seeded = iterateForce();
     renderer.render(scene, getCamera());
     window.requestAnimationFrame(animate);
 };
