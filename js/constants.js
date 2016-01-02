@@ -44,17 +44,19 @@ const globe = Object.freeze({
 });
 
 const labels = Object.freeze({
-    'backgroundColor': '#272727',
-    'color': '#d7d7d7',
-    'fontface': 'Inconsolata',
-    'fontsize': '300'
+    backgroundColor: '#272727',
+    color: '#d7d7d7',
+    fontface: 'Inconsolata',
+    fontsize: '300'
 });
 
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
     geometry: new SphereGeometry(1.5, 25, 25),
-    material: new MeshBasicMaterial()
+    material(color) {
+        return new MeshBasicMaterial({ color });
+    }
 });
 
 const orbitalControls = Object.freeze({

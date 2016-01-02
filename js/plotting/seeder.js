@@ -21,9 +21,8 @@ const prepareData = data => {
 //
 // no current worker-side implementation
 
-const createNode = ({ name, faces: charge, color: color=0xffffff } = {}) => {
-    let node = new Mesh(geometry, material);
-    node.material.color = color;
+const createNode = ({ name, faces: charge, color } = {}) => {
+    let node = new Mesh(geometry, material(color));
     node.name = name;
     node.charge = charge;
     return node;
@@ -54,7 +53,7 @@ const forceSeed = payload => {
 
 const addEquidistantMarks = num => {
     return equidistantishPointsOnSphere(num).map(p => {
-        let mark = new Sprite(new SpriteMaterial({ color: 0xff0000 }));
+        let mark = new Sprite(new SpriteMaterial());
         mark.position.set(...p);
         mark.position.multiplyScalar(radius + 2);
         scene.add(mark);
