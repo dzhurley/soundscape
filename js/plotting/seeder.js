@@ -17,7 +17,7 @@ const prepareData = data => {
     faces().map(face => face.data = {});
 };
 
-// XXX:begin force-seeding
+// XXX:begin forceSeeding
 //
 // no current worker-side implementation
 
@@ -49,7 +49,7 @@ const forceSeed = payload => {
     createGraph(artists());
 };
 
-// XXX:end force-seeding
+// XXX:end forceSeeding
 
 const addEquidistantMarks = num => {
     return equidistantishPointsOnSphere(num).map(p => {

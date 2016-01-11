@@ -27,7 +27,7 @@ let registered = {};
 
 const registerSources = sources => sources.map(src => registered[src] = require(`./${src}`));
 
-const seed = d => isActive('force-seeding') ? forceSeed(d) : emitOnWorker('plot.seed', d);
+const seed = d => isActive('forceSeeding') ? forceSeed(d) : emitOnWorker('plot.seed', d);
 
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {

@@ -17,8 +17,12 @@ const camera = Object.freeze({
     far: 1000
 });
 
+const devTools = Object.freeze({
+    iterateControl: true
+});
+
 const experiments = Object.freeze({
-    'force-seeding': true
+    forceSeeding: true
 });
 
 const flyControls = Object.freeze({
@@ -92,6 +96,7 @@ const stars = Object.freeze({
 
 module.exports = Object.freeze({
     camera,
+    devTools,
     experiments,
     flyControls,
     force,

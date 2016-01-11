@@ -25,7 +25,6 @@ const setups = {
 
 const toggleControls = label => {
     setups[`setup${label}`](replaceCamera(getCamera().position, getCamera().rotation));
-    // TODO: constants
     label = label === 'Orbital' ? 'Fly' : 'Orbital';
     document.getElementById('toggleControls').textContent = label;
 };

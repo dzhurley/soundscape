@@ -1,11 +1,14 @@
 'use strict';
 
-const { experiments } = require('./constants');
+const { devTools, experiments } = require('./constants');
 
-let activeExperiments = Object.assign({}, experiments);
+let active = window.active = {
+    devTools: Object.assign({}, devTools),
+    experiments: Object.assign({}, experiments)
+};
 
-const activate = ex => activeExperiments[ex] = true;
-const deactivate = ex => activeExperiments[ex] = false;
-const isActive = ex => activeExperiments[ex];
+const activate = (ex, key) => active[key][ex] = true;
+const deactivate = (ex, key) => active[key][ex] = false;
+const isActive = (ex, key) => active[key][ex];
 
 module.exports = { activate, deactivate, isActive };

@@ -25,10 +25,8 @@ const setScene = () => {
     addStars();
     addGlobe();
 
-    // TODO: add to labs
     scene.add(new WireframeHelper(globe));
     // red: x, green: y, blue: z
-    // TODO: add to labs
     scene.add(new AxisHelper(75));
 
     on('submitted', resetGlobe);
@@ -39,7 +37,7 @@ const setScene = () => {
 
 const animate = () => {
     updateControls(1);
-    if (isActive('force-seeding') && !window.seeded) window.seeded = iterateForce();
+    if (isActive('forceSeeding') && !window.seeded) window.seeded = iterateForce();
     renderer.render(scene, getCamera());
     window.requestAnimationFrame(animate);
 };
