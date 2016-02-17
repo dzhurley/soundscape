@@ -27,15 +27,17 @@ let registered = {};
 
 const registerSources = sources => sources.map(src => registered[src] = require(`./${src}`));
 
-const seed = d => isActive('forceSeeding') ? forceSeed(d) : emitOnWorker('plot.seed', d);
+const seed = d => isActive('forceSeeding', 'experiments') ?
+    forceSeed(d) :
+    emitOnWorker('plot.seed', d);
 
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
         let data = localStorage[username];
 
         if (data) {
-            seed(data);
             emit('submitted');
+            seed(data);
             return;
         }
     }
@@ -49,8 +51,8 @@ const getArtists = (source, username) => {
             let artists = source.parseData(JSON.parse(request.responseText));
             let stringified = JSON.stringify(randomArray(artists));
             localStorage[username] = stringified;
-            seed(stringified);
             emit('submitted');
+            seed(stringified);
         }
     };
 

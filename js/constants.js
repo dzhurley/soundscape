@@ -18,11 +18,17 @@ const camera = Object.freeze({
 });
 
 const devTools = Object.freeze({
-    iterateControl: true
+    iterateControl: {
+        trigger: '',
+        value: true
+    }
 });
 
 const experiments = Object.freeze({
-    forceSeeding: true
+    forceSeeding: {
+        trigger: 'submitted',
+        value: false
+    }
 });
 
 const flyControls = Object.freeze({

@@ -37,7 +37,7 @@ const setScene = () => {
 
 const animate = () => {
     updateControls(1);
-    if (isActive('forceSeeding') && !window.seeded) window.seeded = iterateForce();
+    if (isActive('forceSeeding', 'experiments') && !window.seeded) window.seeded = iterateForce();
     renderer.render(scene, getCamera());
     window.requestAnimationFrame(animate);
 };
