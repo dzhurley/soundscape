@@ -4,6 +4,7 @@
 
 const { emit, emitOnWorker, on } = require('./dispatch');
 const HUD = require('./hud');
+const { currentLabs, isActive } = require('./labs');
 
 const withId = selector => document.getElementById(selector);
 const container = withId('scape');
@@ -13,7 +14,7 @@ const handlers = {
         emit('toggleControls', evt.target.textContent);
     },
     toggleOverlay() {
-        let classes = withId('sources-overlay').classList;
+        let classes = withId('sourcesOverlay').classList;
         classes.toggle('closed');
         if (!classes.contains('closed')) withId('username').focus();
     }
@@ -24,15 +25,25 @@ const bindMainButtons = () => {
     buttons.map(button => button.addEventListener('click', handlers[button.id]));
 };
 
-const bindWorkerButtons = () => {
+const bindIterateButtons = () => {
     let buttons = Array.from(document.querySelectorAll('.worker button'));
     let clickOnWorker = evt => emitOnWorker.call(emitOnWorker, `plot.${evt.target.id}`);
     buttons.map(button => button.addEventListener('click', clickOnWorker));
 };
 
+const bindLabs = () => {
+    let labs = currentLabs();
+    withId('labs').innerHTML = Object.keys(labs).reduce((m, type) => {
+        let keyed = Object.keys(labs[type]).reduce((m, key) => {
+            return m + `<button id="${key}" class="${isActive(key, type)}">${key}</button>`;
+        }, '');
+        return m + `<section id="${type}">${keyed}</section>`;
+    }, '');
+};
+
 const bindHandlers = () => {
     bindMainButtons();
-    bindWorkerButtons();
+    bindIterateButtons();
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
 
@@ -44,6 +55,7 @@ const bindHandlers = () => {
 
 const attachWebGLement = el => {
     container.appendChild(el);
+    bindLabs();
     bindHandlers();
     HUD.bindHandlers(container);
 };

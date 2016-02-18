@@ -17,20 +17,6 @@ const camera = Object.freeze({
     far: 1000
 });
 
-const devTools = Object.freeze({
-    iterateControl: {
-        trigger: '',
-        value: true
-    }
-});
-
-const experiments = Object.freeze({
-    forceSeeding: {
-        trigger: 'submitted',
-        value: false
-    }
-});
-
 const flyControls = Object.freeze({
     autoForward: false,
     dragToLook: true,
@@ -102,8 +88,6 @@ const stars = Object.freeze({
 
 module.exports = Object.freeze({
     camera,
-    devTools,
-    experiments,
     flyControls,
     force,
     globe,
