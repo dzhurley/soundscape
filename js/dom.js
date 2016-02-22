@@ -9,35 +9,15 @@ const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 const withId = s => document.getElementById(s);
 const container = withId('scape');
 
-const handlers = {
-    toggleControls(evt) {
-        emit('toggleControls', evt.target.textContent);
-    },
-    toggleOverlay() {
-        let classes = withId('sourcesOverlay').classList;
-        classes.toggle('closed');
-        if (!classes.contains('closed')) withId('username').focus();
-    },
-
-    one() {
-        emitOnWorker('plot.one');
-    },
-    batch() {
-        emitOnWorker('plot.batch');
-    },
-    all() {
-        emitOnWorker('plot.all');
-    }
-};
-
-const updateLabDOMStateForButton = button => {
-    const domUpdates = {
+const handleLabUpdate = button => {
+    const labUpdates = {
         iterateControl(state) {
+            updateLabButtonState(button);
             let buttons = Array.from(document.querySelectorAll('[data-lab=iterateControl]'));
             buttons.map(b => b.style.display = state ? 'inline-block' : 'none');
         }
     };
-    button.id in domUpdates && domUpdates[button.id](button.dataset.active === 'true');
+    button.id in labUpdates && labUpdates[button.id](button.dataset.active === 'true');
 };
 
 const updateLabButtonState = b => Object.assign(b.dataset, {
@@ -62,12 +42,11 @@ const bindLabs = () => {
 
     let buttons = Array.from(withId('labs').querySelectorAll('button'));
 
-    buttons.map(updateLabDOMStateForButton);
+    buttons.map(handleLabUpdate);
 
     buttons.map(b => b.addEventListener('click', e => {
         toggleLab(e.target.id, e.target.parentElement.id);
-        updateLabButtonState(e.target);
-        updateLabDOMStateForButton(e.target);
+        handleLabUpdate(e.target);
     }));
 
     // listen for events that match trigger buttons to update from pending to active
@@ -76,7 +55,26 @@ const bindLabs = () => {
 
 const bindHandlers = () => {
     let buttons = Array.from(withId('actions').querySelectorAll('button'));
-    buttons.map(button => button.addEventListener('click', handlers[button.id]));
+    buttons.map(button => button.addEventListener('click', {
+        toggleControls(evt) {
+            emit('toggleControls', evt.target.textContent);
+        },
+        toggleOverlay() {
+            let classes = withId('sourcesOverlay').classList;
+            classes.toggle('closed');
+            if (!classes.contains('closed')) withId('username').focus();
+        },
+
+        one() {
+            emitOnWorker('plot.one');
+        },
+        batch() {
+            emitOnWorker('plot.batch');
+        },
+        all() {
+            emitOnWorker('plot.all');
+        }
+    }[button.id]));
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
 
