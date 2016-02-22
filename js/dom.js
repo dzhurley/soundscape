@@ -2,20 +2,49 @@
 
 /* Interface for the DOM around UI event bindings */
 
-const { emit, on, once } = require('./dispatch');
+const { emit, emitOnWorker, on, once } = require('./dispatch');
 const HUD = require('./hud');
 const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 
 const withId = s => document.getElementById(s);
 const container = withId('scape');
 
-const updateLabButtonState = button => {
-    Object.assign(button.dataset, {
-        inactive: !isActive(button.id, button.parentElement.id),
-        pending: isPending(button.id, button.parentElement.id),
-        active: isActive(button.id, button.parentElement.id)
-    });
+const handlers = {
+    toggleControls(evt) {
+        emit('toggleControls', evt.target.textContent);
+    },
+    toggleOverlay() {
+        let classes = withId('sourcesOverlay').classList;
+        classes.toggle('closed');
+        if (!classes.contains('closed')) withId('username').focus();
+    },
+
+    one() {
+        emitOnWorker('plot.one');
+    },
+    batch() {
+        emitOnWorker('plot.batch');
+    },
+    all() {
+        emitOnWorker('plot.all');
+    }
 };
+
+const updateLabDOMStateForButton = button => {
+    const domUpdates = {
+        iterateControl(state) {
+            let buttons = Array.from(document.querySelectorAll('[data-lab=iterateControl]'));
+            buttons.map(b => b.style.display = state ? 'inline-block' : 'none');
+        }
+    };
+    button.id in domUpdates && domUpdates[button.id](button.dataset.active === 'true');
+};
+
+const updateLabButtonState = b => Object.assign(b.dataset, {
+    inactive: !isActive(b.id, b.parentElement.id),
+    pending: isPending(b.id, b.parentElement.id),
+    active: isActive(b.id, b.parentElement.id)
+});
 
 const bindLabs = () => {
     let labs = currentLabs();
@@ -32,9 +61,13 @@ const bindLabs = () => {
     }, '');
 
     let buttons = Array.from(withId('labs').querySelectorAll('button'));
+
+    buttons.map(updateLabDOMStateForButton);
+
     buttons.map(b => b.addEventListener('click', e => {
         toggleLab(e.target.id, e.target.parentElement.id);
         updateLabButtonState(e.target);
+        updateLabDOMStateForButton(e.target);
     }));
 
     // listen for events that match trigger buttons to update from pending to active
@@ -43,17 +76,7 @@ const bindLabs = () => {
 
 const bindHandlers = () => {
     let buttons = Array.from(withId('actions').querySelectorAll('button'));
-    buttons.map(button => button.addEventListener('click', {
-        toggleControls(evt) {
-            emit('toggleControls', evt.target.textContent);
-        },
-        toggleOverlay() {
-            let classes = withId('sourcesOverlay').classList;
-            classes.toggle('closed');
-            if (!classes.contains('closed')) withId('username').focus();
-        }
-    }[button.id]));
-
+    buttons.map(button => button.addEventListener('click', handlers[button.id]));
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
 

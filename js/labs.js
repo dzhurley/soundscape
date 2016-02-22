@@ -26,7 +26,6 @@ events.map(e => once(e, () => {
     triggered[e] = true;
 
     // notify matching labs that event has triggered
-    // TODO: currently only in main thread, is that enough?
     Object.keys(labs).map(t => {
         Object.keys(labs[t])
             .filter(k => labs[t][k].trigger === e)

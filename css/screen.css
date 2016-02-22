@@ -71,6 +71,8 @@ ul { list-style: none; }
     margin: 1rem .5rem;
 }
 
+#actions button[data-lab] { display: none; }
+
 #labs {
     position: absolute;
     bottom: 0;

@@ -17,10 +17,6 @@ const prepareData = data => {
     faces().map(face => face.data = {});
 };
 
-// XXX:begin forceSeeding
-//
-// no current worker-side implementation
-
 const createNode = ({ name, faces: charge, color } = {}) => {
     let node = new Mesh(geometry, material(color));
     node.name = name;
@@ -48,8 +44,6 @@ const forceSeed = payload => {
     prepareData(JSON.parse(payload));
     createGraph(artists());
 };
-
-// XXX:end forceSeeding
 
 const addEquidistantMarks = num => {
     return equidistantishPointsOnSphere(num).map(p => {
