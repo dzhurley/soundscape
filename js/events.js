@@ -14,6 +14,9 @@ module.exports = [
     // subsequent calls from worker to sync artists
     'updateArtists',
 
+    // a lab's trigger was emitted
+    'triggered',
+
     // passed from ui into worker to kick off plotting strategies
     'plot.*',
     'plot.seed',

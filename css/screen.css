@@ -58,20 +58,32 @@ ul { list-style: none; }
 }
 #sources button { visibility: hidden; }
 
-.actions {
+#actions {
     position: absolute;
-    margin: 0;
-    padding: 0 .5rem;
     top: 0;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+}
+
+#actions button { 
+    display: inline-block;
+    margin: 1rem .5rem;
+}
+
+#labs {
+    position: absolute;
+    bottom: 0;
     right: 0;
     z-index: 2;
+    text-align: center;
     background-color: #272727;
 }
 
-.actions li { padding: 5px; }
-.actions li:not(:last-child) { border-bottom: 1px solid #d7d7d7; }
+#labs section:first-child { border-bottom: 1px solid #d7d7d7; }
 
-.actions button {
-    display: block;
-    margin: .5rem 0;
-}
+#labs button { margin: 1rem; }
+
+#labs button[data-inactive=true] { background-color: red; }
+#labs button[data-pending=true] { background-color: yellow; }
+#labs button[data-active=true] { background-color: green; }
