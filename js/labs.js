@@ -3,20 +3,20 @@
 const events = require('./events');
 const { emit, once } = require('./dispatch');
 
-let labs = {
-    devTools: {
-        iterateControl: {
-            trigger: '',
-            value: true
-        }
+let labs = [
+    {
+        name: 'forceSeeding',
+        trigger: 'submitted',
+        value: false
     },
-    experiments: {
-        forceSeeding: {
-            trigger: 'submitted',
-            value: false
-        }
+    {
+        name: 'iterateControl',
+        trigger: '',
+        value: true
     }
-};
+];
+
+const labForName = name => labs.find(l => l.name === name);
 
 // keep history of when events have been triggered
 // TODO: move to events.js?
@@ -24,33 +24,27 @@ let triggered = {};
 events.map(e => triggered[e] = false);
 events.map(e => once(e, () => {
     triggered[e] = true;
-
     // notify matching labs that event has triggered
-    Object.keys(labs).map(t => {
-        Object.keys(labs[t])
-            .filter(k => labs[t][k].trigger === e)
-            .map(l => emit('triggered', l));
-    });
+    labs.filter(l => l.trigger === e).map(l => emit('triggered', l));
 }));
 
 // use event history to check lab status if needed
-const isActive = (key, type) => {
-    let lab = labs[type][key];
+const isActive = name => {
+    let lab = labForName(name);
     return lab.trigger && lab.value ? triggered[lab.trigger] : lab.value;
 };
 
 // trigger hasn't fired yet
-const isPending = (key, type) => labs[type][key].value && !triggered[labs[type][key].trigger];
+const isPending = name => {
+    let lab = labForName(name);
+    return lab.value && (!!lab.trigger && !triggered[lab.trigger]);
+};
 
 // still bound by trigger if present, returns lab
-const activate = (key, type) => labs[type][key].value = true;
+const activate = name => labForName(name).value = true;
+const deactivate = name => labForName(name).value = false;
+const toggleLab = name => isActive(name) || isPending(name) ? deactivate(name) : activate(name);
 
-const deactivate = (key, type) => labs[type][key].value = false;
-
-const toggleLab = (key, type) => isActive(key, type) || isPending(key, type) ?
-    deactivate(key, type) :
-    activate(key, type);
-
-const currentLabs = () => Object.assign({}, labs);
+const currentLabs = () => Array.from(labs);
 
 module.exports = { activate, currentLabs, deactivate, isActive, isPending, toggleLab };

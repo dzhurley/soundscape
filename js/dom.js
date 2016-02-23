@@ -10,14 +10,16 @@ const withId = s => document.getElementById(s);
 const container = withId('scape');
 
 const handleLabUpdate = button => {
-    const labUpdates = {
-        iterateControl(state) {
-            updateLabButtonState(button);
+    const updates = {
+        iterateControl(active) {
             let buttons = Array.from(document.querySelectorAll('[data-lab=iterateControl]'));
-            buttons.map(b => b.style.display = state ? 'inline-block' : 'none');
+            buttons.map(b => b.style.display = active ? 'inline-block' : 'none');
         }
     };
-    button.id in labUpdates && labUpdates[button.id](button.dataset.active === 'true');
+
+    updateLabButtonState(button);
+    const { dataset: { active } } = button;
+    if (button.id in updates) updates[button.id](active === 'true');
 };
 
 const updateLabButtonState = b => Object.assign(b.dataset, {
@@ -27,34 +29,32 @@ const updateLabButtonState = b => Object.assign(b.dataset, {
 });
 
 const bindLabs = () => {
-    let labs = currentLabs();
-    withId('labs').innerHTML = Object.keys(labs).reduce((m, type) => {
-        let keyed = Object.keys(labs[type]).reduce((m, key) => {
-            return m + `<button id="${key}"
-                                data-inactive="${!isActive(key, type)}"
-                                data-pending="${isPending(key, type)}"
-                                data-active="${isActive(key, type)}">
-                            ${key}
-                        </button>`;
-        }, '');
-        return m + `<section id="${type}">${keyed}</section>`;
+    withId('labs').innerHTML = currentLabs().reduce((m, l) => {
+        return m + `<button id="${l.name}"
+                            data-inactive="${!isActive(l.name)}"
+                            data-pending="${isPending(l.name)}"
+                            data-active="${isActive(l.name)}">
+                        ${l.name}
+                    </button>`;
     }, '');
 
     let buttons = Array.from(withId('labs').querySelectorAll('button'));
 
+    // set initial button state
     buttons.map(handleLabUpdate);
-
     buttons.map(b => b.addEventListener('click', e => {
         toggleLab(e.target.id, e.target.parentElement.id);
         handleLabUpdate(e.target);
     }));
+    // listen for events that match trigger labs to update buttons
+    buttons.map(b => once('triggered', lab => {
+        if (b.id === lab.name) updateLabButtonState(b);
+    }));
 
-    // listen for events that match trigger buttons to update from pending to active
-    buttons.map(b => once(`triggered`, lab => b.id === lab && updateLabButtonState(b)));
 };
 
-const bindHandlers = () => {
-    let buttons = Array.from(withId('actions').querySelectorAll('button'));
+const bindClicks = buttons => {
+    // bind selected click handlers that match existing button.id values
     buttons.map(button => button.addEventListener('click', {
         toggleControls(evt) {
             emit('toggleControls', evt.target.textContent);
@@ -75,6 +75,10 @@ const bindHandlers = () => {
             emitOnWorker('plot.all');
         }
     }[button.id]));
+};
+
+const bindHandlers = () => {
+    bindClicks(Array.from(withId('actions').querySelectorAll('button')));
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
 

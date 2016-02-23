@@ -82,8 +82,6 @@ ul { list-style: none; }
     background-color: #272727;
 }
 
-#labs section:first-child { border-bottom: 1px solid #d7d7d7; }
-
 #labs button { margin: 1rem; }
 
 #labs button[data-inactive=true] { background-color: red; }
