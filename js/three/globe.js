@@ -30,12 +30,14 @@ const markForUpdate = () => globe.geometry.colorsNeedUpdate = true;
 const addGlobe = () => scene.add(globe);
 
 const resetGlobe = () => {
-    // zero face values for fresh paint
     faces().map(f => {
         f.data = {};
         f.color.setHex(0xFFFFFF);
     });
     markForUpdate();
+
+    // forceSeeding specific
+    scene.children.filter(c => c.charge).map(c => scene.remove(c));
 };
 
 // TODO: use heds

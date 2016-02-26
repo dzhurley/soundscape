@@ -47,11 +47,13 @@ const labels = Object.freeze({
 const labs = [
     Object.freeze({
         name: 'forceSeeding',
+        reset: true,
         trigger: 'submitted',
         value: false
     }),
     Object.freeze({
         name: 'iterateControl',
+        reset: true,
         trigger: '',
         value: true
     })

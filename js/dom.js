@@ -2,7 +2,7 @@
 
 /* Interface for the DOM around UI event bindings */
 
-const { emit, emitOnWorker, on, once } = require('./dispatch');
+const { emit, emitOnWorker, on } = require('./dispatch');
 const HUD = require('./hud');
 const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 
@@ -47,7 +47,7 @@ const bindLabs = () => {
         handleLabUpdate(e.target);
     }));
     // listen for events that match trigger labs to update buttons
-    buttons.map(b => once('triggered', lab => {
+    buttons.map(b => on('triggered', lab => {
         if (b.id === lab.name) updateLabButtonState(b);
     }));
 

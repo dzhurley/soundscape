@@ -16,6 +16,8 @@ module.exports = [
 
     // a lab's trigger was emitted
     'triggered',
+    // a lab that requires reset was toggled
+    'labReset',
 
     // passed from ui into worker to kick off plotting strategies
     'plot.*',

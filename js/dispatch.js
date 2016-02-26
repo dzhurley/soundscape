@@ -25,10 +25,9 @@ const addWorker = worker => {
 
 const emit = (type, ...args) => isValidEvent(type) ? emitter.emit(type, ...args) : false;
 const on = (type, fn) => isValidEvent(type) ? emitter.on(type, fn) : false;
-const once = (type, fn) => isValidEvent(type) ? emitter.once(type, fn) : false;
 
 const emitOnWorker = (type, payload) => isValidEvent(type) ?
     emitter.worker.postMessage({ type, payload }) :
     false;
 
-module.exports = { addWorker, emit, emitOnWorker, on, once };
+module.exports = { addWorker, emit, emitOnWorker, on };
