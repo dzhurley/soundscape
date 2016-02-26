@@ -47,7 +47,7 @@ const bindLabs = () => {
         handleLabUpdate(e.target);
     }));
     // listen for events that match trigger labs to update buttons
-    buttons.map(b => on('triggered', lab => {
+    buttons.map(b => on('lab.trigger', lab => {
         if (b.id === lab.name) updateLabButtonState(b);
     }));
 

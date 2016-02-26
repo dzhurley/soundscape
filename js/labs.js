@@ -5,7 +5,7 @@ const events = require('./events');
 const { emit, on } = require('./dispatch');
 
 // take frozen values from constants and store locally as mutable array
-let labStore = window.labStore = labs.map(lab => Object.assign({}, lab));
+let labStore = labs.map(lab => Object.assign({}, lab));
 
 const labForName = name => labStore.find(l => l.name === name);
 
@@ -16,12 +16,12 @@ const resetTriggered = () => events.map(e => triggered[e] = false);
 
 // start false on init and reset
 resetTriggered();
-on('labReset', resetTriggered);
+on('lab.reset', resetTriggered);
 
 // notify matching labs that event has triggered
 events.map(e => on(e, () => {
     triggered[e] = true;
-    labStore.filter(l => l.trigger === e).map(l => emit('triggered', l));
+    labStore.filter(l => l.trigger === e).map(l => emit('lab.trigger', l));
 }));
 
 // use event history to check lab status if needed
@@ -40,7 +40,7 @@ const isPending = name => {
 const setLab = value => name => {
     let lab = labForName(name);
     lab.value = value;
-    lab.reset && emit('labReset');
+    lab.reset && emit('lab.reset');
 };
 const activate = setLab(true);
 const deactivate = setLab(false);

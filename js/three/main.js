@@ -30,7 +30,7 @@ const setScene = () => {
     scene.add(new AxisHelper(75));
 
     on('submitted', resetGlobe);
-    on('labReset', resetGlobe);
+    on('lab.reset', resetGlobe);
 
     getCamera().lookAt(scene.position);
     animate();
