@@ -7,7 +7,6 @@ const { DoubleSide, FaceColors, FlatShading } = require('three');
 
 const camera = Object.freeze({
     position: { x: 80, y: 80, z: 80 },
-
     fov: 75,
     aspect() {
         // needs to be callable as constants are used in workers, which don't have window
@@ -33,7 +32,6 @@ const force = Object.freeze({
 const globe = Object.freeze({
     radius: 50,
     widthAndHeight: 50,
-
     shading: FlatShading,
     side: DoubleSide,
     vertexColors: FaceColors
@@ -45,6 +43,19 @@ const labels = Object.freeze({
     fontface: 'Inconsolata',
     fontsize: '300'
 });
+
+const labs = [
+    Object.freeze({
+        name: 'forceSeeding',
+        trigger: 'submitted',
+        value: false
+    }),
+    Object.freeze({
+        name: 'iterateControl',
+        trigger: '',
+        value: true
+    })
+];
 
 const light = Object.freeze({ color: 0xf0f0f0 });
 
@@ -67,7 +78,6 @@ const sources = [
 
 const stars = Object.freeze({
     number: 1000,
-
     x() {
         return Math.random() * 2 - 1;
     },
@@ -77,7 +87,6 @@ const stars = Object.freeze({
     z() {
         return Math.random() * 2 - 1;
     },
-
     positionMultiplier() {
         return Math.random() * 100 + 200;
     },
@@ -92,6 +101,7 @@ module.exports = Object.freeze({
     force,
     globe,
     labels,
+    labs,
     light,
     node,
     orbitalControls,

@@ -1,22 +1,13 @@
 'use strict';
 
+const { labs } = require('./constants');
 const events = require('./events');
 const { emit, once } = require('./dispatch');
 
-let labs = [
-    {
-        name: 'forceSeeding',
-        trigger: 'submitted',
-        value: false
-    },
-    {
-        name: 'iterateControl',
-        trigger: '',
-        value: true
-    }
-];
+// take frozen values from constants and store locally as mutable array
+let labStore = labs.map(lab => Object.assign({}, lab));
 
-const labForName = name => labs.find(l => l.name === name);
+const labForName = name => labStore.find(l => l.name === name);
 
 // keep history of when events have been triggered
 // TODO: move to events.js?
@@ -25,7 +16,7 @@ events.map(e => triggered[e] = false);
 events.map(e => once(e, () => {
     triggered[e] = true;
     // notify matching labs that event has triggered
-    labs.filter(l => l.trigger === e).map(l => emit('triggered', l));
+    labStore.filter(l => l.trigger === e).map(l => emit('triggered', l));
 }));
 
 // use event history to check lab status if needed
@@ -45,6 +36,6 @@ const activate = name => labForName(name).value = true;
 const deactivate = name => labForName(name).value = false;
 const toggleLab = name => isActive(name) || isPending(name) ? deactivate(name) : activate(name);
 
-const currentLabs = () => Array.from(labs);
+const currentLabs = () => Array.from(labStore);
 
 module.exports = { activate, currentLabs, deactivate, isActive, isPending, toggleLab };
