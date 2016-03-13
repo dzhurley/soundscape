@@ -12,7 +12,7 @@
     <section id="scape"></section>
     <section id="hud">Face Data</section>
 
-    <section id="sources-overlay">
+    <section id="sourcesOverlay">
       <form id="sources">
         <select id="source">
           <option value="lastfm">last.fm</option>
@@ -23,17 +23,15 @@
       </form>
     </section>
 
-    <ul class="actions">
-      <li class="worker">
-        <button id="one">One</button>
-        <button id="batch">Batch</button>
-        <button id="all">All</button>
-      </li>
-      <li class="main">
-        <button id="toggleControls">Fly</button>
-        <button id="toggleOverlay">Form</button>
-      </li>
-    </ul>
+    <section id="actions">
+      <button id="toggleControls">Fly</button>
+      <button id="toggleOverlay">Form</button>
+      <button id="one" data-lab="iterateControl">One</button>
+      <button id="batch" data-lab="iterateControl">Batch</button>
+      <button id="all" data-lab="iterateControl">All</button>
+    </section>
+
+    <section id="labs"></section>
 
     <script src="app.js"></script>
   </body>
