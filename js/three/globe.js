@@ -7,7 +7,8 @@
 const { Mesh, MeshLambertMaterial, SphereGeometry } = require('three');
 
 const constants = require('../constants');
-const { on } = require('../dispatch');
+const { emitOnWorker, on } = require('../dispatch');
+const { isActive } = require('../labs');
 const scene = require('./scene');
 const { faceCentroid } = require('../helpers');
 
@@ -87,7 +88,11 @@ const findClosestFreeFace = startFace => {
     return findClosestFace(faces().filter(f => !f.data.artist), startFace);
 };
 
-on('faces.*', ({ faces }) => updateFaces(JSON.parse(faces)));
+on('faces.seeded', ({ faces }) => {
+    updateFaces(JSON.parse(faces));
+    if (!isActive('iterateControl')) emitOnWorker('plot.all');
+});
+on('faces.painted', ({ faces }) => updateFaces(JSON.parse(faces)));
 
 module.exports = {
     // extension

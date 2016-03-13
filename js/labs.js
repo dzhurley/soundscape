@@ -1,8 +1,16 @@
 'use strict';
 
+/*  Lab format:
+ *
+ *  - name: identifier for lab
+ *  - reset: whether toggling the lab should force the globe to reset
+ *  - trigger: an option event to wait for when enabling the lab (see events.js)
+ *  - value: on or off boolean state
+ */
+
 const { labs } = require('./constants');
 const events = require('./events');
-const { emit, on } = require('./dispatch');
+const { emit, on, stopMainWorker } = require('./dispatch');
 
 // take frozen values from constants and store locally as mutable array
 let labStore = labs.map(lab => Object.assign({}, lab));
@@ -16,7 +24,10 @@ const resetTriggered = () => events.map(e => triggered[e] = false);
 
 // start false on init and reset
 resetTriggered();
-on('lab.reset', resetTriggered);
+on('lab.reset', () => {
+    resetTriggered();
+    stopMainWorker();
+});
 
 // notify matching labs that event has triggered
 events.map(e => on(e, () => {
@@ -40,8 +51,9 @@ const isPending = name => {
 const setLab = value => name => {
     let lab = labForName(name);
     lab.value = value;
-    lab.reset && emit('lab.reset');
+    if (lab.reset) emit('lab.reset', lab);
 };
+
 const activate = setLab(true);
 const deactivate = setLab(false);
 
