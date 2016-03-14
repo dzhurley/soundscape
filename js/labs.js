@@ -51,6 +51,7 @@ const isPending = name => {
 const setLab = value => name => {
     let lab = labForName(name);
     lab.value = value;
+    emit(`lab.${name}`, value);
     if (lab.reset) emit('lab.reset', lab);
 };
 

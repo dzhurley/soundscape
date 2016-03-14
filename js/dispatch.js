@@ -12,7 +12,12 @@ const events = require('./events');
 
 const emitter = new EventEmitter({ wildcard: true });
 
-const isValidEvent = event => events.indexOf(event) > -1;
+const isValidEvent = event => events.some(e => {
+    if (event === e) return true;
+    // allow for event `dude.sweet` to match on `dude.*`
+    const [space, specific] = e.split('.');
+    return space === event.split('.')[0] && specific === '*';
+});
 
 const setMainWorker = worker => {
     emitter.worker = worker;

@@ -20,15 +20,25 @@ const { addStars } = require('./stars');
 
 const { iterateForce } = require('../seeding/force');
 
+// TODO: helpers.js?
+const childWithPrototype = o => scene.children.find(c => c.constructor.prototype === o.prototype);
+const toggleChild = child => state => state ? scene.add(child) : scene.remove(child);
+
+const bindHelpers = () => {
+    // red: x, green: y, blue: z
+    if (isActive('AxisHelper')) scene.add(new AxisHelper(75));
+    if (isActive('WireframeHelper')) scene.add(new WireframeHelper(globe));
+
+    on('lab.AxisHelper', toggleChild(childWithPrototype(AxisHelper)));
+    on('lab.WireframeHelper', toggleChild(childWithPrototype(WireframeHelper)));
+};
+
 const setScene = () => {
     addLight();
     addStars();
     addGlobe();
 
-    scene.add(new WireframeHelper(globe));
-    // red: x, green: y, blue: z
-    scene.add(new AxisHelper(75));
-
+    bindHelpers();
     on('submitted', resetGlobe);
     on('lab.reset', resetGlobe);
 

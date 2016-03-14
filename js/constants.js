@@ -46,6 +46,18 @@ const labels = Object.freeze({
 
 const labs = [
     Object.freeze({
+        name: 'WireframeHelper',
+        reset: false,
+        trigger: '',
+        value: true
+    }),
+    Object.freeze({
+        name: 'AxisHelper',
+        reset: false,
+        trigger: '',
+        value: true
+    }),
+    Object.freeze({
         name: 'forceSeeding',
         reset: true,
         trigger: 'submitted',
