@@ -137,9 +137,12 @@ HalfEdgeStructure.prototype = {
                 face.edge.next.next.pair];
     },
 
-    isSameEdge: function(first, second) {
-        return first.v1 === second.v1 && first.v2 === second.v2 ||
-            first.v1 === second.v2 && first.v2 === second.v1;
+    pairForEdge: function(edge) {
+        return edge.pair;
+    },
+
+    restForFirst: function(edge) {
+        return [edge.next, edge.next.next];
     }
 };
 

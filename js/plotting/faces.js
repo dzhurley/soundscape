@@ -9,7 +9,6 @@
  */
 
 const { randomArray } = require('../helpers');
-const { expandArtistEdges } = require('../artists');
 const { findClosestFace, findClosestFreeFace, markForUpdate, faces } = require('../three/globe');
 
 const handleSwappers = startFace => {
@@ -43,6 +42,13 @@ const handleSwappers = startFace => {
     return goal;
 };
 
+const expandArtistEdges = (artist, edge) => {
+    // remove this edge
+    artist.edges.splice(artist.edges.indexOf(edge), 1);
+    // find the other two outer edges where we're expanding to and add them
+    artist.edges.push(...self.HEDS.restForFirst(edge).map(self.HEDS.pairForEdge));
+};
+
 const findAdjacentFace = artist => {
     // use random `artist.edges` to find an adjacent unpainted `face`
     const randomEdges = randomArray(artist.edges);
@@ -54,7 +60,7 @@ const findAdjacentFace = artist => {
 
     if (match) {
         const face = self.HEDS.faceForEdge(match);
-        expandArtistEdges(face, artist, match);
+        expandArtistEdges(artist, match);
         return { face, index: faces().indexOf(face) };
     }
 
