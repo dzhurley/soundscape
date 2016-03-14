@@ -9,7 +9,7 @@
 
 const { nextArtist, artistsLeft } = require('../artists');
 const { faces } = require('../three/globe');
-const facePlotter = require('./faces');
+const { nextFace } = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
 
@@ -37,7 +37,7 @@ const runIteration = remaining => {
         // no more faces left for any artist to paint
         return true;
     }
-    faceInfo = facePlotter.nextFace(artist, rando);
+    faceInfo = nextFace(artist, rando);
 
     if (faceInfo.face) {
         remainingIndex = remaining.indexOf(faceInfo.index);

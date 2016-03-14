@@ -9,11 +9,6 @@ module.exports = [
     // ui event
     'toggleControls',
 
-    // first call from worker to sync artists
-    'getArtists',
-    // subsequent calls from worker to sync artists
-    'updateArtists',
-
     'lab.*',
     // a lab's trigger was emitted
     'lab.trigger',

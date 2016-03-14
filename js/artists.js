@@ -5,7 +5,7 @@
  * Artists are annotated with app-specific data as follows:
  * {
  *      color: THREE.Color,
- *      edges: [{v1:0, v2:0}, ...],
+ *      outerBoundaryEdges: [HalfEdge, HalfEdge, ...],
  *      faces: 0,  // count of faces remaining for artist
  *      name: '',
  *      playCount: 0
@@ -19,7 +19,6 @@
  *      color: THREE.Color,
  *      faces: [faceIndex, faceIndex, ...],
  *      name: '',
- *      outerBoundaryEdges: [HalfEdge, HalfEdge, ...],
  *      plays: 0
  * }
  *
@@ -27,7 +26,6 @@
 
 const { Color } = require('./lib/HalfEdgeStructure');
 const { spacedColor } = require('./helpers');
-const { on } = require('./dispatch');
 const { faces } = require('./three/globe');
 
 // TODO: find better state solution (localStorage alongside sources?)
@@ -43,8 +41,6 @@ const index = accessStore('index');
 // reads
 
 const artistsLeft = () => artists().filter(a => a.faces > 0);
-
-const edgesForArtist = n => artists().filter(a => a.name === n).map(a => a.edges).shift();
 
 const nextArtist = () => {
     // rearrange artists so we start at next index() and wrap through the rest
@@ -81,20 +77,7 @@ const setArtists = data => {
     index(0);
 };
 
-on('getArtists', () => postMessage({
-    type: 'updateArtists',
-    payload: {
-        newArtists: JSON.stringify(artists() || []),
-        newIndex: index()
-    }
-}));
-
-on('updateArtists', ({ newArtists, newIndex }) => {
-    artists(JSON.parse(newArtists));
-    index(newIndex);
-});
-
-// TODO: rework in entirety, and most likely move
+// TODO: rework in entirety, use HEDS, and most likely move
 const expandArtistEdges = (face, artist, edge) => {
     let second;
     let third;
@@ -120,7 +103,6 @@ const expandArtistEdges = (face, artist, edge) => {
 module.exports = {
     artists,
     artistsLeft,
-    edgesForArtist,
     expandArtistEdges,
     nextArtist,
     setArtists

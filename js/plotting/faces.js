@@ -8,74 +8,64 @@
  * work to Swapper.
  */
 
+const { randomArray } = require('../helpers');
 const { expandArtistEdges } = require('../artists');
-const { faces } = require('../three/globe');
-const { handleSwappers } = require('./swapper');
+const { findClosestFace, findClosestFreeFace, markForUpdate, faces } = require('../three/globe');
 
-const validFace = (artist, edge) => {
-    let swappers = [];
+const handleSwappers = startFace => {
+    // Handle case where no free adjacent faces were found to paint.
+    // We find an edge-wise path from the face that needs to swap to
+    // the nearest free face, then travel back along the path and swap
+    // each face with its predecessor until we've bubbled the entire
+    // path out.
+    let goal = findClosestFreeFace(startFace);
+    let currentFace = startFace;
+    let candidates = [];
+    let path = [currentFace];
 
-    let face = faces().filter(f => {
-        let valid = false;
+    while (currentFace !== goal) {
+        candidates = self.HEDS.adjacentFaces(currentFace);
+        currentFace = findClosestFace(candidates, goal);
+        path.push(currentFace);
+    }
 
-        if (edge.v1 === f.a) {
-            valid = edge.v2 === f.b || edge.v2 === f.c;
-        } else if (edge.v1 === f.b) {
-            valid = edge.v2 === f.a || edge.v2 === f.c;
-        } else if (edge.v1 === f.c) {
-            valid = edge.v2 === f.a || edge.v2 === f.b;
+    let prevFace;
+    path.reverse().forEach((face, index) => {
+        prevFace = path[index + 1];
+        if (prevFace) {
+            // TODO: account for edge info, see expandArtistEdges
+            face.data = Object.assign({}, prevFace.data);
+            face.color.copy(prevFace.color);
         }
-
-        if (valid && f.data.artist) {
-            // if it's adjacent but taken, remember it in case we
-            // don't find a free face so we can swap in place
-            swappers.push(f);
-            return false;
-        }
-        return valid;
     });
 
-    // make sure one of the candidates isn't for the same artist
-    return face.length === 1 ? face[0] : swappers.filter(f => f.data.artist !== artist.name);
+    markForUpdate();
+    return goal;
 };
 
 const findAdjacentFace = artist => {
     // use random `artist.edges` to find an adjacent unpainted `face`
-    let edges = Array.from(artist.edges);
-    let edge;
-    let faceOrSwap;
+    const randomEdges = randomArray(artist.edges);
+    const match = randomEdges.find(edge => {
+        const face = self.HEDS.faceForEdge(edge);
+        // only match if it's a free face
+        return face && !face.data.artist;
+    });
 
-    while (edges.length) {
-        edge = edges[Math.floor(Math.random() * edges.length)];
-        faceOrSwap = validFace(artist, edge);
-
-        if (!Array.isArray(faceOrSwap)) {
-            // found valid face, stop looking for more
-            expandArtistEdges(faceOrSwap, artist, edge);
-            return {
-                face: faceOrSwap,
-                index: faces().indexOf(faceOrSwap)
-            };
-        }
-
-        if (edges.length) {
-            // we found a boundary with another artist, but there are more
-            // edges available to check, retry with another random edge
-            edges.splice(edges.indexOf(edge), 1);
-            if (edges.length) continue;
-        }
-
-        // handle expanding out to the closest free face out of band
-        console.warn('handling swap for', JSON.stringify(faceOrSwap[0].data));
-
-        handleSwappers(faceOrSwap[0]);
-
-        return {
-            // TODO: bad, do something better to return face states
-            face: true,
-            index: faces().indexOf(faceOrSwap)
-        };
+    if (match) {
+        const face = self.HEDS.faceForEdge(match);
+        expandArtistEdges(face, artist, match);
+        return { face, index: faces().indexOf(face) };
     }
+
+    const randomFace = self.HEDS.faceForEdge(randomEdges[0]);
+    console.log(`handling swappers for ${randomFace}`);
+    handleSwappers(randomFace);
+    return {
+        // TODO: bad, do something better to return face states
+        face: true,
+        index: faces().indexOf(randomFace)
+    };
 };
 
 const nextFace = (artist, rando) => {
@@ -85,11 +75,7 @@ const nextFace = (artist, rando) => {
     if (face.data.artist) return { face: false };
 
     if (!artist.edges.length) {
-        artist.edges.push(
-            { v1: face.a, v2: face.b },
-            { v1: face.b, v2: face.c },
-            { v1: face.a, v2: face.c }
-        );
+        artist.edges.push(...self.HEDS.outerEdgesForFace(face));
         return { face, index: faces().indexOf(face) };
     }
 

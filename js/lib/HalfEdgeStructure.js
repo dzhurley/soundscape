@@ -98,10 +98,6 @@ HalfEdgeStructure.prototype = {
         return this.keyForEdge(faceEdges[index + 1]);
     },
 
-    edgeForVertices: function(first, second) {
-        return this.edges[this.keyForEdge(first, second)];
-    },
-
     adjacentFaces: function(face) {
         return [
             face.edge.pair.face,
@@ -116,9 +112,8 @@ HalfEdgeStructure.prototype = {
                 face.edge.next.next];
     },
 
-    facesForEdge: function(edge) {
-        var halfEdge = this.edges[this.keyForEdge(edge)];
-        return [halfEdge.face, halfEdge.pair.face];
+    faceForEdge: function(edge) {
+        return edge.face;
     },
 
     facesForVertex: function(vertex) {
@@ -136,13 +131,13 @@ HalfEdgeStructure.prototype = {
         return faces;
     },
 
-    verticesForEdge: function(edge) {
-        return [this.geometry.vertices[edge.v1],
-                this.geometry.vertices[edge.v2]];
+    outerEdgesForFace: function(face) {
+        return [face.edge.pair,
+                face.edge.next.pair,
+                face.edge.next.next.pair];
     },
 
     isSameEdge: function(first, second) {
-        // TODO: rework calling code to use HalfEdgeStructure methods
         return first.v1 === second.v1 && first.v2 === second.v2 ||
             first.v1 === second.v2 && first.v2 === second.v1;
     }

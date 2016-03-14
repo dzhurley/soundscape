@@ -41,14 +41,6 @@ const resetGlobe = () => {
     scene.children.filter(c => c.charge).map(c => scene.remove(c));
 };
 
-// TODO: use heds
-const uniqueVerticesForEdges = edges => {
-    return edges
-        .map(e => [e.v1, e.v2])
-        .reduce((a, b) => a.concat(b))
-        .filter((e, i, es) => es.indexOf(e) === i);
-};
-
 const updateFaces = newFaces => {
     let oldFaces = faces();
 
@@ -63,7 +55,7 @@ const updateFaces = newFaces => {
     markForUpdate();
 };
 
-// TODO: move to swapper?
+// TODO: move to faces?
 // compute the distance between each one of the candidates and the target
 // to find the closest candidate
 const findClosestFace = (candidates, target) => {
@@ -83,7 +75,7 @@ const findClosestFace = (candidates, target) => {
     return closest;
 };
 
-// TODO: move to swapper?
+// TODO: move to faces?
 const findClosestFreeFace = startFace => {
     return findClosestFace(faces().filter(f => !f.data.artist), startFace);
 };
@@ -97,7 +89,6 @@ on('faces.painted', ({ faces }) => updateFaces(JSON.parse(faces)));
 module.exports = {
     // extension
     addGlobe,
-    uniqueVerticesForEdges,
     findClosestFreeFace,
     findClosestFace,
     resetGlobe,

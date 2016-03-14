@@ -127,6 +127,8 @@ const spacedColor = (numOfSteps, step) => {
     return `#${first}${second}${third}`;
 };
 
+const withId = s => document.getElementById(s);
+
 module.exports = {
     equidistantishPointsOnSphere,
     faceCentroid,
@@ -134,5 +136,6 @@ module.exports = {
     packUrlParams,
     randomArray,
     randomBoundedArray,
-    spacedColor
+    spacedColor,
+    withId
 };

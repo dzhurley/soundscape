@@ -2,11 +2,11 @@
 
 /* Interface for the DOM around UI event bindings */
 
+const { withId } = require('./helpers');
 const { emit, emitOnWorker, on } = require('./dispatch');
 const HUD = require('./hud');
 const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 
-const withId = s => document.getElementById(s);
 const container = withId('scape');
 
 const handleLabUpdate = button => {

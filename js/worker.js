@@ -29,7 +29,4 @@ onmessage = evt => {
     type.includes('.') ?
         self.emit(type, type.split('.')[1], payload) :
         self.emit(type, payload);
-
-    // TODO: explore transferrable objects for syncing artists
-    self.emit('getArtists');
 };
