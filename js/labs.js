@@ -9,7 +9,7 @@
  */
 
 const { labs } = require('./constants');
-const events = require('./events');
+const { events } = require('./constants');
 const { emit, on, stopMainWorker } = require('./dispatch');
 
 // take frozen values from constants and store locally as mutable array
@@ -62,4 +62,11 @@ const toggleLab = name => isActive(name) || isPending(name) ? deactivate(name) :
 
 const currentLabs = () => Array.from(labStore);
 
-module.exports = { activate, currentLabs, deactivate, isActive, isPending, toggleLab };
+module.exports = {
+    activate,
+    currentLabs,
+    deactivate,
+    isActive,
+    isPending,
+    toggleLab
+};

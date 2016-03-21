@@ -1,7 +1,5 @@
 'use strict';
 
-// used on both app and worker side to create some sense of coherence
-
 const { MeshBasicMaterial, SphereGeometry } = require('three');
 const { DoubleSide, FaceColors, FlatShading } = require('three');
 
@@ -16,6 +14,34 @@ const camera = Object.freeze({
     far: 1000
 });
 
+const events = Object.freeze([
+        // on form submission
+    'submitting',
+    // on POST to data source
+    'submitted',
+
+    // ui event
+    'toggleControls',
+
+    'lab.*',
+    // a lab's trigger was emitted
+    'lab.trigger',
+    // a lab that requires reset was toggled
+    'lab.reset',
+
+    // passed from ui into worker to kick off plotting strategies
+    'plot.*',
+    'plot.seed',
+    'plot.one',
+    'plot.batch',
+    'plot.all',
+
+    // returned from worker to main thread for scene updates
+    'faces.*',
+    'faces.seeded',
+    'faces.painted'
+]);
+
 const flyControls = Object.freeze({
     autoForward: false,
     dragToLook: true,
@@ -25,11 +51,14 @@ const flyControls = Object.freeze({
 
 const force = Object.freeze({
     epsilon: 0.000001,
+    normalMax: 50,
     maxIterations: 100000,
     initialTemp: 10000
 });
 
 const globe = Object.freeze({
+    axisSize: 75,
+    defaultFaceColor: 0xFFFFFF,
     radius: 50,
     widthAndHeight: 50,
     shading: FlatShading,
@@ -39,9 +68,11 @@ const globe = Object.freeze({
 
 const labels = Object.freeze({
     backgroundColor: '#272727',
+    canvasHeightWidth: 1600,
     color: '#d7d7d7',
     fontface: 'Inconsolata',
-    fontsize: '300'
+    fontsize: '300',
+    radius: 1.005
 });
 
 const labs = [
@@ -111,6 +142,7 @@ const stars = Object.freeze({
 
 module.exports = Object.freeze({
     camera,
+    events,
     flyControls,
     force,
     globe,

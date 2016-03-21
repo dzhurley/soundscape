@@ -12,7 +12,16 @@ const { isActive } = require('../labs');
 const scene = require('./scene');
 const { faceCentroid } = require('../helpers');
 
-const { globe: { radius, widthAndHeight, shading, side, vertexColors } } = constants;
+const {
+    globe: {
+        defaultFaceColor,
+        radius,
+        widthAndHeight,
+        shading,
+        side,
+        vertexColors
+    }
+} = constants;
 
 const globe = new Mesh(
     new SphereGeometry(radius, widthAndHeight, widthAndHeight),
@@ -33,7 +42,7 @@ const addGlobe = () => scene.add(globe);
 const resetGlobe = () => {
     faces().map(f => {
         f.data = {};
-        f.color.setHex(0xFFFFFF);
+        f.color.setHex(defaultFaceColor);
     });
     markForUpdate();
 

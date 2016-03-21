@@ -9,6 +9,12 @@ const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 
 const container = withId('scape');
 
+const updateLabButtonState = b => Object.assign(b.dataset, {
+    inactive: !isActive(b.id, b.parentElement.id),
+    pending: isPending(b.id, b.parentElement.id),
+    active: isActive(b.id, b.parentElement.id)
+});
+
 const handleLabUpdate = button => {
     const updates = {
         iterateControl(active) {
@@ -21,12 +27,6 @@ const handleLabUpdate = button => {
     const { dataset: { active } } = button;
     if (button.id in updates) updates[button.id](active === 'true');
 };
-
-const updateLabButtonState = b => Object.assign(b.dataset, {
-    inactive: !isActive(b.id, b.parentElement.id),
-    pending: isPending(b.id, b.parentElement.id),
-    active: isActive(b.id, b.parentElement.id)
-});
 
 const bindLabs = () => {
     withId('labs').innerHTML = currentLabs().reduce((m, l) => {
@@ -46,11 +46,11 @@ const bindLabs = () => {
         toggleLab(e.target.id, e.target.parentElement.id);
         handleLabUpdate(e.target);
     }));
+
     // listen for events that match trigger labs to update buttons
     buttons.map(b => on('lab.trigger', lab => {
         if (b.id === lab.name) updateLabButtonState(b);
     }));
-
 };
 
 const bindClicks = buttons => {

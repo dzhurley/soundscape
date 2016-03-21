@@ -17,7 +17,7 @@ const { faces, globe, vertices } = require('./three/globe');
 const scene = require('./three/scene');
 
 // if the value is a string, return it, otherwise return the number as an integer
-const getMarkProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
+const labelProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
 
 const render = ({ artist=null, plays=null, a, b, c }) => {
     let template = `<span>face.a = ${a}</span>
@@ -31,24 +31,24 @@ const render = ({ artist=null, plays=null, a, b, c }) => {
 
 const addVertexMarkers = vs => vs.map(index => {
     const mark = makeMark(JSON.stringify(index));
-    mark.position.copy(vertices()[index].clone().multiplyScalar(1.005));
+    mark.position.copy(vertices()[index].clone().multiplyScalar(labelProp('radius')));
     scene.add(mark);
 });
 
 const addFaceMarkers = face => {
     const mark = makeMark(faces().indexOf(face));
-    mark.position.copy(faceCentroid(globe, face).multiplyScalar(1.005));
+    mark.position.copy(faceCentroid(globe, face).multiplyScalar(labelProp('radius')));
     scene.add(mark);
 };
 
 // TODO: favor dom over canvas for tooltips
 const makeMark = message => {
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 1600;
+    canvas.width = canvas.height = labelProp('canvasHeightWidth');
     let context = canvas.getContext('2d');
 
-    const fontface = getMarkProp('fontface');
-    const fontsize = getMarkProp('fontsize');
+    const fontface = labelProp('fontface');
+    const fontsize = labelProp('fontsize');
 
     context.font = `${fontsize}px ${fontface}`;
 
@@ -59,13 +59,13 @@ const makeMark = message => {
         context.font = `${fontsize}px ${fontface}`;
     }
 
-    context.fillStyle = getMarkProp('backgroundColor');
+    context.fillStyle = labelProp('backgroundColor');
     context.fillRect(canvas.width * 0.25,
                      canvas.height / 2 - fontsize,
                      canvas.width * 0.5,
                      canvas.height / 3);
 
-    context.fillStyle = getMarkProp('color');
+    context.fillStyle = labelProp('color');
     context.textAlign = 'center';
     context.fillText(message, canvas.width / 2, canvas.height / 2);
 

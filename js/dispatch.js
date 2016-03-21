@@ -8,7 +8,7 @@
  */
 
 const EventEmitter = require('eventemitter2');
-const events = require('./events');
+const { events } = require('./constants');
 
 const emitter = new EventEmitter({ wildcard: true });
 

@@ -6,6 +6,7 @@
  */
 
 const { AxisHelper, WireframeHelper } = require('three');
+const { globe: { axisSize } } = require('../constants');
 const { on } = require('../dispatch');
 const { isActive } = require('../labs');
 
@@ -26,7 +27,7 @@ const toggleChild = child => state => state ? scene.add(child) : scene.remove(ch
 
 const bindHelpers = () => {
     // red: x, green: y, blue: z
-    if (isActive('AxisHelper')) scene.add(new AxisHelper(75));
+    if (isActive('AxisHelper')) scene.add(new AxisHelper(axisSize));
     if (isActive('WireframeHelper')) scene.add(new WireframeHelper(globe));
 
     on('lab.AxisHelper', toggleChild(childWithPrototype(AxisHelper)));

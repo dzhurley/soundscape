@@ -7,7 +7,7 @@
   the JUNG implementation.
  */
 
-const { globe: { radius } } = require('../constants');
+const { globe: { radius }, normalMax } = require('../constants');
 const { force: { epsilon, maxIterations, initialTemp } } = require('../constants');
 
 let temp = initialTemp;
@@ -47,9 +47,9 @@ const iterateForce = () => {
 };
 
 const startForce = ns => {
-    // normalize charges between 0 and 50
+    // normalize charges between 0 and normalMax
     let maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
-    ns.forEach(n => n.charge = 50 * (n.charge / maxCharge));
+    ns.forEach(n => n.charge = normalMax * (n.charge / maxCharge));
     nodes = ns;
 };
 
