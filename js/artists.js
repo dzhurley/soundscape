@@ -4,28 +4,24 @@
  *
  * Artists are annotated with app-specific data as follows:
  * {
- *      color: THREE.Color,
- *      outerBoundaryEdges: [HalfEdge, HalfEdge, ...],
- *      faces: 0,  // count of faces remaining for artist
+ *      // from source
  *      name: '',
- *      playCount: 0
- * }
+ *      playCount: 0,
  *
- * This helps manage interactions with edges of artist territories
- * and synchronizing artist state between main and worker threads.
- *
- * TODO: rework to following format:
- * {
+ *      // annotations
  *      color: THREE.Color,
+ *      faceLimit: 0
  *      faces: [faceIndex, faceIndex, ...],
- *      name: '',
- *      plays: 0
  * }
+ *
+ * Aside from forceSeeding, artists are strictly used in the plotting
+ * worker and need no communication or syncing with the main thread.
  *
  */
 
+// TODO: fold all three.js and local plugins into separate, singular module
 const { Color } = require('./lib/HalfEdgeStructure');
-const { spacedColor } = require('./helpers');
+const { normalizeAgainst, spacedColor } = require('./helpers');
 const { faces } = require('./three/globe');
 
 // TODO: find better state solution (localStorage alongside sources?)
@@ -42,6 +38,7 @@ const index = accessStore('index');
 
 const artistsLeft = () => artists().filter(a => a.faces > 0);
 
+// TODO: rework as generator
 const nextArtist = () => {
     // rearrange artists so we start at next index() and wrap through the rest
     const sorted = [...artists().slice(index()), ...artists().slice(0, index())];
@@ -59,21 +56,16 @@ const setArtists = data => {
     const totalPlays = data.reduce((m, a) => m + a.playCount, 0);
     const totalFaces = faces().length;
 
-    data.map((artist, i) => {
-        artist.edges = [];
+    const normCount = normalizeAgainst(data.map(d => d.playCount));
 
-        // faces available for a given artist to paint
-        artist.faces = Math.floor(artist.playCount * totalFaces / totalPlays);
-
-        // color generated from rank
-        artist.color = new Color(spacedColor(data.length, i));
-        artist.color.multiplyScalar(artist.normCount);
-
-        return artist;
-    });
+    data.map((artist, i) => Object.assign(artist, {
+        faces: [],
+        faceLimit: Math.floor(artist.playCount * totalFaces / totalPlays),
+        color: new Color(spacedColor(data.length, i)).multiplyScalar(normCount(artist))
+    }));
 
     // don't bother with artists that don't merit faces
-    artists(data.filter(artist => artist.faces > 0));
+    artists(data.filter(artist => artist.faceLimit > 0));
     index(0);
 };
 

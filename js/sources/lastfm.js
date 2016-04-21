@@ -2,8 +2,6 @@
 
 /* Last.fm specific source */
 
-const { normalize } = require('../helpers');
-
 const baseUrl = 'http://ws.audioscrobbler.com/2.0/';
 
 const defaultParams = Object.freeze({
@@ -23,10 +21,10 @@ const parseData = (data = {}) => {
         return {};
     }
 
-    return normalize(data.artists.artist.map(artist => ({
+    return data.artists.artist.map(artist => ({
         name: artist.name,
         playCount: Number.parseInt(artist.playcount, 10)
-    })), 'playCount', 'normCount');
+    }));
 };
 
 module.exports = { baseUrl, defaultParams, paramsForUser, parseData };

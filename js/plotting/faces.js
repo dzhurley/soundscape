@@ -6,17 +6,41 @@
  * edges of the existing faces for the artist and try to grow its
  * region. If no edge can immediately be painted, we offload swapping
  * work to Swapper.
+ *
  */
 
-const { randomArray } = require('../helpers');
-const { findClosestFace, findClosestFreeFace, markForUpdate, faces } = require('../three/globe');
+const { faceCentroid, randomArray } = require('../helpers');
+const { faces, globe, markForUpdate } = require('../three/globe');
 
+// compute the distance between each one of the candidates and the target
+// to find the closest candidate
+const findClosestFace = (candidates, target) => {
+    let closest, newDistance, lastDistance, targetCentroid;
+    for (let i = 0; i < candidates.length; i++) {
+        let faceVector = faceCentroid(globe, candidates[i]).normalize();
+        targetCentroid = faceCentroid(globe, target).normalize();
+        newDistance = targetCentroid.distanceTo(faceVector);
+        if (!closest) {
+            closest = candidates[i];
+            lastDistance = newDistance;
+        } else if (newDistance < lastDistance) {
+            closest = candidates[i];
+            lastDistance = newDistance;
+        }
+    }
+    return closest;
+};
+
+const findClosestFreeFace = startFace => {
+    return findClosestFace(faces().filter(f => !f.data.artist), startFace);
+};
+
+// Handle case where no free adjacent faces were found to paint.
+// We find an edge-wise path from the face that needs to swap to
+// the nearest free face, then travel back along the path and swap
+// each face with its predecessor until we've bubbled the entire
+// path out.
 const handleSwappers = startFace => {
-    // Handle case where no free adjacent faces were found to paint.
-    // We find an edge-wise path from the face that needs to swap to
-    // the nearest free face, then travel back along the path and swap
-    // each face with its predecessor until we've bubbled the entire
-    // path out.
     let goal = findClosestFreeFace(startFace);
     let currentFace = startFace;
     let candidates = [];

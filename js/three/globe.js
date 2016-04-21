@@ -10,7 +10,6 @@ const constants = require('../constants');
 const { emitOnWorker, on } = require('../dispatch');
 const { isActive } = require('../labs');
 const scene = require('./scene');
-const { faceCentroid } = require('../helpers');
 
 const {
     globe: {
@@ -64,31 +63,6 @@ const updateFaces = newFaces => {
     markForUpdate();
 };
 
-// TODO: move to faces?
-// compute the distance between each one of the candidates and the target
-// to find the closest candidate
-const findClosestFace = (candidates, target) => {
-    let closest, newDistance, lastDistance, targetCentroid;
-    for (let i = 0; i < candidates.length; i++) {
-        let faceVector = faceCentroid(globe, candidates[i]).normalize();
-        targetCentroid = faceCentroid(globe, target).normalize();
-        newDistance = targetCentroid.distanceTo(faceVector);
-        if (!closest) {
-            closest = candidates[i];
-            lastDistance = newDistance;
-        } else if (newDistance < lastDistance) {
-            closest = candidates[i];
-            lastDistance = newDistance;
-        }
-    }
-    return closest;
-};
-
-// TODO: move to faces?
-const findClosestFreeFace = startFace => {
-    return findClosestFace(faces().filter(f => !f.data.artist), startFace);
-};
-
 on('faces.seeded', ({ faces }) => {
     updateFaces(JSON.parse(faces));
     if (!isActive('iterateControl')) emitOnWorker('plot.all');
@@ -98,8 +72,6 @@ on('faces.painted', ({ faces }) => updateFaces(JSON.parse(faces)));
 module.exports = {
     // extension
     addGlobe,
-    findClosestFreeFace,
-    findClosestFace,
     resetGlobe,
     markForUpdate,
 

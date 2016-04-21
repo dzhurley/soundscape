@@ -63,23 +63,11 @@ const faceCentroid = (object, face) => {
         .divideScalar(3);
 };
 
-const normalize = (data, key, saveAs) => {
-    // normalizes values in `data` at `data[key]` and optionally saves
-    // them on each item as `data[saveAs]`, returning `data` when saving
-    // and Array of normalized values when not
-
-    let counts = data.map(datum => datum[key]);
-    let max = Math.max(...counts);
-    let min = Math.min(...counts);
-    let denom = max - min;
-
-    if (saveAs) {
-        data.forEach(datum => {
-            datum[saveAs] = (datum[key] - min) / denom;
-        });
-        return data;
-    }
-    return data.map(datum => (datum[key] - min) / denom);
+const normalizeAgainst = values => {
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const denom = max - min;
+    return item => (item - min) / denom;
 };
 
 const packUrlParams = (base, params) => {
@@ -132,7 +120,7 @@ const withId = s => document.getElementById(s);
 module.exports = {
     equidistantishPointsOnSphere,
     faceCentroid,
-    normalize,
+    normalizeAgainst,
     packUrlParams,
     randomArray,
     randomBoundedArray,
