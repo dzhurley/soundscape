@@ -10,7 +10,7 @@
  */
 
 const { faceCentroid, randomArray } = require('../helpers');
-const { faces, globe, markForUpdate } = require('../three/globe');
+const { faces, globe } = require('../three/globe');
 
 // compute the distance between each one of the candidates and the target
 // to find the closest candidate
@@ -61,7 +61,6 @@ const handleSwappers = startFace => {
         }
     });
 
-    markForUpdate();
     return goal;
 };
 

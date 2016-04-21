@@ -64,34 +64,23 @@ const iterate = (remaining = self.remaining) => {
     return iterationResult;
 };
 
-const getNewFaces = faces => {
-    let newFaces = faces.map(face => {
-        let indexedFace = null;
-
+const respondWithFaces = (event = 'painted') => {
+    const newFaces = faces().reduce((indexed, face) => {
         if (face.data.pending) {
-            let index = faces.indexOf(face).toString();
-            indexedFace = {};
-            indexedFace[index] = {
-                color: face.color,
-                data: face.data
+            const { color, data } = face;
+            const indexedFace = {
+                [faces().indexOf(face).toString()]: { color, data }
             };
             delete face.data.pending;
+            indexed.push(indexedFace);
         }
+        return indexed;
+    }, []);
 
-        return indexedFace;
-    }).filter(face => !!face);
-
-    // remove the newly painted face indices from the remaining list
-    self.remaining.filter(f => Object.keys(newFaces).indexOf('' + f) < 0);
-
-    return newFaces;
-};
-
-const respondWithFaces = (event = 'painted') => {
     // TODO: send back progress
     postMessage({
         type: `faces.${event}`,
-        payload: { faces: JSON.stringify(getNewFaces(faces())) }
+        payload: { faces: JSON.stringify(newFaces) }
     });
 };
 
