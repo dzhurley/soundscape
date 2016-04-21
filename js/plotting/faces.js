@@ -73,7 +73,7 @@ const isBorderFace = test => {
     }, false);
 };
 
-const findAdjacentFace = artist => {
+const findAdjacentFaces = artist => {
     const borderFaces = randomArray(artist.faces.filter(isBorderFace));
 
     let match;
@@ -86,21 +86,23 @@ const findAdjacentFace = artist => {
     if (!match) {
         console.log(`handle artist.faces swappers`);
         handleSwappers(borderFaces[0]);
+        // TODO
+        return [];
     }
-    return { face: match, index: faces().indexOf(match) };
+    return [match];
 };
 
-const nextFace = (artist, rando) => {
+const nextFaces = (artist, rando) => {
     let face = faces()[rando];
 
     // the face is already painted, we're done
-    if (face.data.artist) return { face: false };
+    if (face.data.artist) return [];
 
     // we're the first
-    if (!artist.faces.length) return { face, index: faces().indexOf(face) };
+    if (!artist.faces.length) return [face];
 
     // artist has been painted somewhere else
-    return findAdjacentFace(artist);
+    return findAdjacentFaces(artist);
 };
 
-module.exports = { nextFace };
+module.exports = { nextFaces };

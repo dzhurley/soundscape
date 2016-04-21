@@ -9,7 +9,7 @@
 
 const { nextArtist, artistsLeft } = require('../artists');
 const { faces } = require('../three/globe');
-const { nextFace } = require('./faces');
+const { nextFaces } = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
 
@@ -18,7 +18,7 @@ const { randomBoundedArray } = require('../helpers');
 self.remaining = [];
 
 // TODO: doesn't belong here
-const setNewFace = (face, artist) => {
+const setNewFaceForArtist = artist => face => {
     face.color.set(artist.color);
     face.data.artist = artist.name;
     face.data.plays = artist.playCount;
@@ -28,28 +28,19 @@ const setNewFace = (face, artist) => {
 
 // TODO: rework into generator
 const runIteration = remaining => {
-    let rando = remaining[0];
-    let artist;
-    let faceInfo;
-    let remainingIndex;
+    const artist = nextArtist();
+    if (!artist) return true;
 
-    // choose random face for each face to paint
-    artist = nextArtist();
-    if (!artist) {
-        // no more faces left for any artist to paint
-        return true;
-    }
-    faceInfo = nextFace(artist, rando);
+    const newFaces = nextFaces(artist, remaining[0]);
+    const setFace = setNewFaceForArtist(artist);
 
-    if (faceInfo.face) {
-        remainingIndex = remaining.indexOf(faceInfo.index);
+    newFaces.map(face => {
+        const remainingIndex = remaining.indexOf(faces().indexOf(face));
         if (remainingIndex > -1) {
             remaining.splice(remainingIndex, 1);
         }
-        if (faceInfo.face !== true) {
-            setNewFace(faceInfo.face, artist);
-        }
-    }
+        setFace(face);
+    });
     return false;
 };
 
