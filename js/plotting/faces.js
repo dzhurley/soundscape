@@ -56,7 +56,6 @@ const handleSwappers = startFace => {
     path.reverse().forEach((face, index) => {
         prevFace = path[index + 1];
         if (prevFace) {
-            // TODO: account for edge info, see expandArtistEdges
             face.data = Object.assign({}, prevFace.data);
             face.color.copy(prevFace.color);
         }
@@ -66,54 +65,43 @@ const handleSwappers = startFace => {
     return goal;
 };
 
-const expandArtistEdges = (artist, edge) => {
-    // remove this edge
-    artist.edges.splice(artist.edges.indexOf(edge), 1);
-    // find the other two outer edges where we're expanding to and add them
-    artist.edges.push(...self.HEDS.restForFirst(edge).map(self.HEDS.pairForEdge));
+const isBorderFace = test => {
+    // TODO: keep separate list on artist for outer faces?
+    // Assume it's not a border face. Once we find a face
+    // with a different artist (or none) we flip to true.
+    return self.HEDS.adjacentFaces(test).reduce((onBorder, face) => {
+        return onBorder || test.data.artist !== face.data.artist;
+    }, false);
 };
 
 const findAdjacentFace = artist => {
-    // use random `artist.edges` to find an adjacent unpainted `face`
-    const randomEdges = randomArray(artist.edges);
-    const match = randomEdges.find(edge => {
-        const face = self.HEDS.faceForEdge(edge);
-        // only match if it's a free face
-        return face && !face.data.artist;
-    });
+    const borderFaces = randomArray(artist.faces.filter(isBorderFace));
 
-    if (match) {
-        const face = self.HEDS.faceForEdge(match);
-        expandArtistEdges(artist, match);
-        return { face, index: faces().indexOf(face) };
+    let match;
+    for (let borderFace of borderFaces) {
+        // check borders for free spot
+        match = self.HEDS.adjacentFaces(borderFace).find(adj => !adj.data.artist);
+        if (match) break;
     }
 
-    const randomFace = self.HEDS.faceForEdge(randomEdges[0]);
-    console.log(`handling swappers for ${randomFace}`);
-    handleSwappers(randomFace);
-    return {
-        // TODO: bad, do something better to return face states
-        face: true,
-        index: faces().indexOf(randomFace)
-    };
+    if (!match) {
+        console.log(`handle artist.faces swappers`);
+        handleSwappers(borderFaces[0]);
+    }
+    return { face: match, index: faces().indexOf(match) };
 };
 
 const nextFace = (artist, rando) => {
     let face = faces()[rando];
-    let paintedInfo = { artist };
 
+    // the face is already painted, we're done
     if (face.data.artist) return { face: false };
 
-    if (!artist.edges.length) {
-        artist.edges.push(...self.HEDS.outerEdgesForFace(face));
-        return { face, index: faces().indexOf(face) };
-    }
+    // we're the first
+    if (!artist.faces.length) return { face, index: faces().indexOf(face) };
 
     // artist has been painted somewhere else
-    while (!paintedInfo.face) {
-        paintedInfo = findAdjacentFace(paintedInfo.artist);
-    }
-    return paintedInfo;
+    return findAdjacentFace(artist);
 };
 
 module.exports = { nextFace };

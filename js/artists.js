@@ -36,13 +36,15 @@ const index = accessStore('index');
 
 // reads
 
-const artistsLeft = () => artists().filter(a => a.faces > 0);
+const notDone = artist => artist.faces.length < artist.faceLimit;
+
+const artistsLeft = () => artists().filter(notDone);
 
 // TODO: rework as generator
 const nextArtist = () => {
     // rearrange artists so we start at next index() and wrap through the rest
     const sorted = [...artists().slice(index()), ...artists().slice(0, index())];
-    const match = sorted.find(a => a.faces > 0);
+    const match = sorted.find(notDone);
 
     // update index() and return artist if they exist
     const matchedIndex = artists().indexOf(match);
@@ -61,7 +63,7 @@ const setArtists = data => {
     data.map((artist, i) => Object.assign(artist, {
         faces: [],
         faceLimit: Math.floor(artist.playCount * totalFaces / totalPlays),
-        color: new Color(spacedColor(data.length, i)).multiplyScalar(normCount(artist))
+        color: new Color(spacedColor(data.length, i)).multiplyScalar(normCount(artist.playCount))
     }));
 
     // don't bother with artists that don't merit faces

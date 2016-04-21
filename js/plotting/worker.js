@@ -14,17 +14,19 @@ const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
+// TODO: really needed? can be computed/inferred from artists?
 self.remaining = [];
 
+// TODO: doesn't belong here
 const setNewFace = (face, artist) => {
-    // TODO: doesn't belong here
     face.color.set(artist.color);
     face.data.artist = artist.name;
     face.data.plays = artist.playCount;
     face.data.pending = true;
-    artist.faces--;
+    artist.faces.push(face);
 };
 
+// TODO: rework into generator
 const runIteration = remaining => {
     let rando = remaining[0];
     let artist;
@@ -104,7 +106,8 @@ const seed = payload => {
 
     // seed the planet
     prepareData(data);
-    let seeds = seedIndices().map(s => iterate([s]));
+    let seeds = seedIndices();
+    seeds.map(s => iterate([s]));
 
     // set remaining faces to paint
     let randos = randomBoundedArray(0, faces().length - 1);
