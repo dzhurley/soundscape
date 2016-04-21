@@ -83,13 +83,11 @@ const findAdjacentFaces = artist => {
         if (match) break;
     }
 
-    if (!match) {
-        console.log(`handle artist.faces swappers`);
-        handleSwappers(borderFaces[0]);
-        // TODO
-        return [];
-    }
-    return [match];
+    if (match) return [match];
+
+    console.log(`handle artist.faces swappers`);
+    handleSwappers(borderFaces[0]);
+    return [];
 };
 
 const nextFaces = (artist, rando) => {

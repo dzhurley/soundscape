@@ -27,32 +27,25 @@ const setNewFaceForArtist = artist => face => {
 };
 
 // TODO: rework into generator
-const runIteration = remaining => {
+const iterate = (remaining = self.remaining) => {
     const artist = nextArtist();
+    // no more artists that need to be painted
     if (!artist) return true;
 
     const newFaces = nextFaces(artist, remaining[0]);
-    const setFace = setNewFaceForArtist(artist);
+    // no paints on this pass, no use trying again
+    if (!newFaces.length) return true;
 
+    const setFace = setNewFaceForArtist(artist);
     newFaces.map(face => {
         const remainingIndex = remaining.indexOf(faces().indexOf(face));
         if (remainingIndex > -1) {
             remaining.splice(remainingIndex, 1);
+            console.log('remaining', remaining.length);
         }
         setFace(face);
     });
     return false;
-};
-
-const iterate = (remaining = self.remaining) => {
-    let startingLength = remaining.length;
-    let iterationResult = runIteration(remaining);
-    if (startingLength === remaining.length) {
-        // no paints on this pass, no use trying again
-        return true;
-    }
-    console.log('remaining', remaining.length);
-    return iterationResult;
 };
 
 const respondWithFaces = (event = 'painted') => {
