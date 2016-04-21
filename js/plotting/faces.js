@@ -52,16 +52,14 @@ const handleSwappers = startFace => {
         path.push(currentFace);
     }
 
-    let prevFace;
-    path.reverse().forEach((face, index) => {
-        prevFace = path[index + 1];
+    return path.reverse().map((face, index) => {
+        let prevFace = path[index + 1];
         if (prevFace) {
             face.data = Object.assign({}, prevFace.data);
             face.color.copy(prevFace.color);
         }
+        return face;
     });
-
-    return goal;
 };
 
 const isBorderFace = test => {
@@ -85,9 +83,8 @@ const findAdjacentFaces = artist => {
 
     if (match) return [match];
 
-    console.log(`handle artist.faces swappers`);
-    handleSwappers(borderFaces[0]);
-    return [];
+    console.log(`handle swappers for ${borderFaces[0]}`);
+    return handleSwappers(borderFaces[0]);
 };
 
 const nextFaces = (artist, rando) => {
