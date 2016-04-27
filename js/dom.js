@@ -2,8 +2,10 @@
 
 /* Interface for the DOM around UI event bindings */
 
-const { withId } = require('./helpers');
+const { faceCentroid, withId } = require('./helpers');
 const { emit, emitOnWorker, on } = require('./dispatch');
+const { getCamera } = require('./three/camera');
+const { faces, globe } = require('./three/globe');
 const HUD = require('./hud');
 const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
 
@@ -81,6 +83,17 @@ const bindHandlers = () => {
     bindClicks(Array.from(withId('actions').querySelectorAll('button')));
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
+
+    // TODO: make autocomplete?
+    withId('actions').querySelector('input').addEventListener('keyup', evt => {
+        if (evt.keyCode === 13) {
+            const cam = getCamera();
+            const match = faces().find(f => f.data.artist === evt.currentTarget.value);
+            // TODO: add easing/animation
+            cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
+            cam.lookAt(globe);
+        }
+    });
 
     on('submitted', () => {
         withId('username').value = '';

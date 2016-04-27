@@ -31,17 +31,13 @@ const findClosestFace = (candidates, target) => {
     return closest;
 };
 
-const findClosestFreeFace = startFace => {
-    return findClosestFace(faces().filter(f => !f.data.artist), startFace);
-};
-
 // Handle case where no free adjacent faces were found to paint.
 // We find an edge-wise path from the face that needs to swap to
 // the nearest free face, then travel back along the path and swap
 // each face with its predecessor until we've bubbled the entire
 // path out.
 const handleSwappers = startFace => {
-    let goal = findClosestFreeFace(startFace);
+    let goal = findClosestFace(faces().filter(f => !f.data.artist), startFace);
     let currentFace = startFace;
     let candidates = [];
     let path = [currentFace];
