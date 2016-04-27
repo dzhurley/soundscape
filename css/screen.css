@@ -61,9 +61,10 @@ ul { list-style: none; }
 #actions {
     position: absolute;
     top: 0;
+    right: 0;
     z-index: 2;
     text-align: center;
-    width: 100%;
+    margin: 0 1.5rem;
 }
 
 #actions button { 
@@ -72,6 +73,11 @@ ul { list-style: none; }
 }
 
 #actions button[data-lab] { display: none; }
+
+#actions input {
+    display: block;
+    width: 100%;
+}
 
 #labs {
     position: absolute;
@@ -82,7 +88,10 @@ ul { list-style: none; }
     background-color: #272727;
 }
 
-#labs button { margin: 1rem; }
+#labs button {
+    display: inline-block;
+    margin: 1rem;
+}
 
 #labs button[data-inactive=true] { background-color: red; }
 #labs button[data-pending=true] { background-color: yellow; }
