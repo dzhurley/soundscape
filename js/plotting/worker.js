@@ -27,13 +27,14 @@ const iterate = (remaining = self.remaining) => {
     // no paints on this pass, no use trying again
     if (!newFaces.length) return true;
 
-    newFaces.map(face => {
-        const remainingIndex = remaining.indexOf(faces().indexOf(face));
-        if (remainingIndex > -1) {
-            remaining.splice(remainingIndex, 1);
-            console.log('remaining', remaining.length);
-        }
-    });
+    // grab first instead of mapping over each because we only care about
+    // removing the goal index from the remaining when we've had to swap
+    const paintedIndex = faces().indexOf(newFaces[0]);
+    const remainingIndex = remaining.indexOf(paintedIndex);
+    if (remainingIndex > -1) {
+        remaining.splice(remainingIndex, 1);
+        console.log('remaining', remaining.length);
+    }
     return false;
 };
 
