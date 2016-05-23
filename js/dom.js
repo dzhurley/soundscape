@@ -86,9 +86,12 @@ const bindHandlers = () => {
 
     // TODO: make autocomplete?
     withId('actions').querySelector('input').addEventListener('keyup', evt => {
-        if (evt.keyCode === 13) {
+        const { keyCode, currentTarget: { value } } = evt;
+        if (keyCode === 13) {
             const cam = getCamera();
-            const match = faces().find(f => f.data.artist === evt.currentTarget.value);
+            const match = faces().find(
+                f => (f.data.artist || '').toLowerCase() === value.toLowerCase()
+            );
             // TODO: add easing/animation
             cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
             cam.lookAt(globe);

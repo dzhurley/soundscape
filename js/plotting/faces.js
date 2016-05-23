@@ -79,7 +79,7 @@ const findAdjacentFaces = artist => {
 
     if (match) return [match];
 
-    console.log(`handle swappers for ${borderFaces[0]}`);
+    console.log(`handle swappers for ${borderFaces[0].data.artist}`);
     return handleSwappers(borderFaces[0]);
 };
 
