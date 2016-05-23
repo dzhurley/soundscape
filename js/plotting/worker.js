@@ -9,7 +9,7 @@
 
 const { nextArtist, artistsLeft } = require('../artists');
 const { faces } = require('../three/globe');
-const { nextFaces } = require('./faces');
+const { handleNextFaces } = require('./faces');
 const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
 
@@ -17,33 +17,22 @@ const { randomBoundedArray } = require('../helpers');
 // TODO: really needed? can be computed/inferred from artists?
 self.remaining = [];
 
-// TODO: doesn't belong here
-const setNewFaceForArtist = artist => face => {
-    face.color.set(artist.color);
-    face.data.artist = artist.name;
-    face.data.plays = artist.playCount;
-    face.data.pending = true;
-    artist.faces.push(face);
-};
-
 // TODO: rework into generator
 const iterate = (remaining = self.remaining) => {
     const artist = nextArtist();
     // no more artists that need to be painted
     if (!artist) return true;
 
-    const newFaces = nextFaces(artist, remaining[0]);
+    const newFaces = handleNextFaces(artist, remaining[0]);
     // no paints on this pass, no use trying again
     if (!newFaces.length) return true;
 
-    const setFace = setNewFaceForArtist(artist);
     newFaces.map(face => {
         const remainingIndex = remaining.indexOf(faces().indexOf(face));
         if (remainingIndex > -1) {
             remaining.splice(remainingIndex, 1);
             console.log('remaining', remaining.length);
         }
-        setFace(face);
     });
     return false;
 };

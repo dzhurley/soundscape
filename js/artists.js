@@ -11,7 +11,7 @@
  *      // annotations
  *      color: THREE.Color,
  *      faceLimit: 0
- *      faces: [faceIndex, faceIndex, ...],
+ *      faces: [face, face, ...],
  * }
  *
  * Aside from forceSeeding, artists are strictly used in the plotting

@@ -83,17 +83,26 @@ const findAdjacentFaces = artist => {
     return handleSwappers(borderFaces[0]);
 };
 
-const nextFaces = (artist, rando) => {
-    let face = faces()[rando];
+const setNewFaceForArtist = artist => face => {
+    face.color.set(artist.color);
+    face.data.artist = artist.name;
+    face.data.plays = artist.playCount;
+    face.data.pending = true;
+    artist.faces.push(face);
+};
+
+const handleNextFaces = (artist, rando) => {
+    const face = faces()[rando];
 
     // the face is already painted, we're done
     if (face.data.artist) return [];
 
-    // we're the first
-    if (!artist.faces.length) return [face];
+    // If we've got faces, we need to find our next adjacent face. Otherwise
+    // this is the first face for the artist so we use it.
+    const newFaces = artist.faces.length ? findAdjacentFaces(artist) : [face];
 
-    // artist has been painted somewhere else
-    return findAdjacentFaces(artist);
+    // paint faces and update artist as we return
+    return newFaces.map(setNewFaceForArtist(artist));
 };
 
-module.exports = { nextFaces };
+module.exports = { handleNextFaces };
