@@ -11,6 +11,16 @@
 
 const { faceCentroid, randomArray } = require('../helpers');
 const { faces, globe } = require('../three/globe');
+const { artistForName } = require('../artists');
+
+const updateFaceAndArtist = (artist, face) => {
+    face.color.set(artist.color);
+    face.data.artist = artist.name;
+    face.data.plays = artist.playCount;
+    face.data.pending = true;
+    artist.faces.push(face);
+    return faces().indexOf(face);
+};
 
 // compute the distance between each one of the candidates and the target
 // to find the closest candidate
@@ -32,30 +42,42 @@ const findClosestFace = (candidates, target) => {
 };
 
 // Handle case where no free adjacent faces were found to paint.
-// We find an edge-wise path from the face that needs to swap to
-// the nearest free face, then travel back along the path and swap
-// each face with its predecessor until we've bubbled the entire
-// path out.
 const handleSwappers = startFace => {
-    let goal = findClosestFace(faces().filter(f => !f.data.artist), startFace);
+    const goal = findClosestFace(faces().filter(f => !f.data.artist), startFace);
     let currentFace = startFace;
-    let candidates = [];
-    let path = [currentFace];
+    const path = [];
 
+    // we find an edge-wise path from startFace to the nearest free face (goal)
     while (currentFace !== goal) {
-        candidates = self.HEDS.adjacentFaces(currentFace);
-        currentFace = findClosestFace(candidates, goal);
         path.push(currentFace);
+        let candidates = self.HEDS.adjacentFaces(currentFace);
+        currentFace = findClosestFace(candidates, goal);
     }
 
+    // travel back along the path and swap each face with its predecessor
+    // until we've bubbled the entire path to make room for the new artist
     return path.reverse().map((face, index) => {
         let prevFace = path[index + 1];
         if (prevFace) {
-            face.data = Object.assign({}, prevFace.data);
-            face.color.copy(prevFace.color);
+            let artist = artistForName(face.data.artist);
+            let prevArtist = artistForName(prevFace.data.artist);
+
+            // remove face from face's artist list in prep for swap
+            if (artist) artist.faces.splice(artist.faces.indexOf(face), 1);
+
+            // swap previous face into current and add to previous face's artist list
+            return updateFaceAndArtist(prevArtist, face);
         }
-        return face;
+        return faces().indexOf(face);
     });
+};
+
+const findAdjacentFaces = borderFaces => {
+    for (let borderFace of borderFaces) {
+        // check borders for free spot
+        let match = self.HEDS.adjacentFaces(borderFace).find(adj => !adj.data.artist);
+        if (match) return [match];
+    }
 };
 
 const isBorderFace = test => {
@@ -67,43 +89,28 @@ const isBorderFace = test => {
     }, false);
 };
 
-const findAdjacentFaces = artist => {
-    const borderFaces = randomArray(artist.faces.filter(isBorderFace));
-
-    let match;
-    for (let borderFace of borderFaces) {
-        // check borders for free spot
-        match = self.HEDS.adjacentFaces(borderFace).find(adj => !adj.data.artist);
-        if (match) break;
-    }
-
-    if (match) return [match];
-
-    console.log(`handle swappers for ${borderFaces[0].data.artist}`);
-    return handleSwappers(borderFaces[0]);
-};
-
-const setNewFaceForArtist = artist => face => {
-    face.color.set(artist.color);
-    face.data.artist = artist.name;
-    face.data.plays = artist.playCount;
-    face.data.pending = true;
-    artist.faces.push(face);
-    return face;
-};
-
 const handleNextFaces = (artist, rando) => {
     const face = faces()[rando];
 
     // the face is already painted, we're done
     if (face.data.artist === artist.name) return [];
 
-    // If we've got faces, we need to find our next adjacent face. Otherwise
-    // this is the first face for the artist so we use it.
-    const newFaces = artist.faces.length ? findAdjacentFaces(artist) : [face];
+    // otherwise this is the first face for the artist so we use it
+    if (!artist.faces.length) return [face].map(face => updateFaceAndArtist(artist, face));
 
-    // paint faces and update artist as we return
-    return newFaces.map(setNewFaceForArtist(artist)).map(f => faces().indexOf(f));
+
+    // if we've got faces, we need to find our next adjacent face
+    const borderFaces = randomArray(artist.faces.filter(isBorderFace));
+    const newFaces = findAdjacentFaces(borderFaces);
+
+    if (!newFaces) {
+        // we didn't find a free adjacent face, so swap out until we find one
+        console.log(`handle swappers for ${borderFaces[0].data.artist}`);
+        return handleSwappers(borderFaces[0]);
+    }
+
+    // paint faces, update artist, and return indices for self.remaining
+    return newFaces.map(face => updateFaceAndArtist(artist, face));
 };
 
 module.exports = { handleNextFaces };

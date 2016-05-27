@@ -39,6 +39,7 @@ const index = accessStore('index');
 const notDone = artist => artist.faces.length < artist.faceLimit;
 
 const artistsLeft = () => artists().filter(notDone);
+const artistForName = name => artists().find(a => a.name === name);
 
 // TODO: rework as generator
 const nextArtist = () => {
@@ -101,6 +102,7 @@ const setArtists = data => {
 
 module.exports = {
     artists,
+    artistForName,
     artistsLeft,
     nextArtist,
     setArtists
