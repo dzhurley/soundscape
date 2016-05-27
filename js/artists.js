@@ -54,20 +54,48 @@ const nextArtist = () => {
 
 // writes
 
+const correctFaceLimits = () => {
+    const artistsLength = artists().length;
+
+    let diff = faces().length - artists().reduce((t, a) => t + a.faceLimit, 0);
+
+    if (diff > 0) {
+        // we've not quite hit faces().length
+        while (diff > 0) {
+            for (let i = 0; i < artistsLength; i++) {
+                artists()[i].faceLimit += 1;
+                if (!--diff) break;
+            }
+        }
+    } else if (diff < 0) {
+        // we've gone over and need to pull it back
+        while (diff < 0) {
+            for (let i = 0; i < artistsLength; i++) {
+                artists()[i].faceLimit -= 1;
+                if (!++diff) break;
+            }
+        }
+    }
+};
+
 const setArtists = data => {
     const totalPlays = data.reduce((m, a) => m + a.playCount, 0);
     const totalFaces = faces().length;
 
     const normCount = normalizeAgainst(data.map(d => d.playCount));
 
-    data.map((artist, i) => Object.assign(artist, {
+    artists(data.map((artist, i) => Object.assign(artist, {
         faces: [],
-        faceLimit: Math.floor(artist.playCount * totalFaces / totalPlays),
+        faceLimit: Math.round(artist.playCount * totalFaces / totalPlays),
         color: new Color(spacedColor(data.length, i)).multiplyScalar(normCount(artist.playCount))
-    }));
+    })));
+
+    // Math.round on each artist doesn't always sum to totalFaces.
+    correctFaceLimits();
 
     // don't bother with artists that don't merit faces
     artists(data.filter(artist => artist.faceLimit > 0));
+
     index(0);
 };
 

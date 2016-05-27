@@ -14,7 +14,6 @@ const { prepareData, seedIndices } = require('./seeder');
 const { randomBoundedArray } = require('../helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
-// TODO: really needed? can be computed/inferred from artists?
 self.remaining = [];
 
 // TODO: rework into generator
@@ -93,7 +92,7 @@ const batch = () => {
 
 const all = () => {
     for (let i = 0; i < self.remaining.length; i++) {
-        if (batch()) break;
+        batch();
     }
 };
 
