@@ -89,20 +89,21 @@ const setNewFaceForArtist = artist => face => {
     face.data.plays = artist.playCount;
     face.data.pending = true;
     artist.faces.push(face);
+    return face;
 };
 
 const handleNextFaces = (artist, rando) => {
     const face = faces()[rando];
 
     // the face is already painted, we're done
-    if (face.data.artist) return [];
+    if (face.data.artist === artist.name) return [];
 
     // If we've got faces, we need to find our next adjacent face. Otherwise
     // this is the first face for the artist so we use it.
     const newFaces = artist.faces.length ? findAdjacentFaces(artist) : [face];
 
     // paint faces and update artist as we return
-    return newFaces.map(setNewFaceForArtist(artist));
+    return newFaces.map(setNewFaceForArtist(artist)).map(f => faces().indexOf(f));
 };
 
 module.exports = { handleNextFaces };

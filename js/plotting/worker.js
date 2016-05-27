@@ -28,12 +28,9 @@ const iterate = (remaining = self.remaining) => {
 
     // grab first instead of mapping over each because we only care about
     // removing the goal index from the remaining when we've had to swap
-    const paintedIndex = faces().indexOf(newFaces[0]);
-    const remainingIndex = remaining.indexOf(paintedIndex);
-    if (remainingIndex > -1) {
-        remaining.splice(remainingIndex, 1);
-        console.log('remaining', remaining.length);
-    }
+    remaining.splice(remaining.indexOf(newFaces[0]), 1);
+    console.log('remaining', remaining.length);
+
     return false;
 };
 
