@@ -1,0 +1,113 @@
+@font-face {
+    font-family: "Inconsolata";
+    font-style: normal;
+    font-weight: normal;
+    src: url("http://themes.googleusercontent.com/static/fonts/inconsolata/v3/BjAYBlHtW3CJxDcjzrnZCIbN6UDyHWBl620a-IRfuBk.woff") format("woff");
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-family: "Inconsolata";
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+ul {
+    list-style: none;
+}
+
+#hud {
+    padding: 10px;
+    color: #d7d7d7;
+    background-color: #272727;
+
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#hud span {
+    display: block;
+    padding: 0.5rem;
+}
+
+#sourcesOverlay {
+    color: #d7d7d7;
+    background-color: #272727;
+
+    width: 100%;
+    height: 50px;
+    position: absolute;
+    top: 50%;
+    margin-top: -25px;
+
+    z-index: 3;
+
+    &.closed {
+        display: none;
+    }
+}
+
+#sources {
+    padding-top: 12.5px;
+    text-align: center;
+
+    button {
+        visibility: hidden;
+    }
+}
+
+#actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    margin: 0 1.5rem;
+
+    button {
+        display: inline-block;
+        margin: 1rem .5rem;
+
+        & [data-lab] {
+            display: none;
+        }
+    }
+
+    input {
+        display: block;
+        width: 100%;
+    }
+}
+
+#labs {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    background-color: #272727;
+
+    button {
+        display: inline-block;
+        margin: 1rem;
+    }
+
+    [data-inactive=true] {
+        background-color: red;
+    }
+    [data-pending=true] {
+        background-color: yellow;
+    }
+    [data-active=true] {
+        background-color: green;
+    }
+}
