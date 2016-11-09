@@ -1,5 +1,3 @@
-'use strict';
-
 /* Conduit for main and worker appwide events
  *
  * Validates against cataloged list of events

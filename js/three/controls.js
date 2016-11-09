@@ -1,5 +1,3 @@
-'use strict';
-
 /* Tie together Orbital and Fly controls into toggle under button */
 
 // TODO find a better way

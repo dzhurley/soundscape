@@ -1,5 +1,3 @@
-'use strict';
-
 /* Adds methods useful in finding seed points for artists and
  * finding the nearest free face from a given face on the mesh
  */

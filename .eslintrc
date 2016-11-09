@@ -1,0 +1,7 @@
+{
+    "extends": "dzhurley",
+
+    "rules": {
+        "no-console": "off"
+    }
+}

@@ -1,5 +1,3 @@
-'use strict';
-
 /* Central store for artists and their relationship to the globe.
  *
  * Artists are annotated with app-specific data as follows:

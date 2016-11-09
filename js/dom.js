@@ -1,5 +1,3 @@
-'use strict';
-
 /* Interface for the DOM around UI event bindings */
 
 const { faceCentroid, withId } = require('./helpers');

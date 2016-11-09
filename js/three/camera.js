@@ -1,5 +1,3 @@
-'use strict';
-
 const { PerspectiveCamera } = require('three');
 const { camera } = require('../constants');
 const renderer = require('./renderer');

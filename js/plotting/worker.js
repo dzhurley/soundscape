@@ -1,5 +1,3 @@
-'use strict';
-
 /* Manages the seeding of the artists on the globe and batches
  * out further painting based on incoming events
  *

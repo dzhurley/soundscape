@@ -1,5 +1,3 @@
-'use strict';
-
 const { Vector3 } = require('three');
 
 // internal

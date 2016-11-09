@@ -1,5 +1,3 @@
-'use strict';
-
 const { WebGLRenderer } = require('three');
 
 const renderer = new WebGLRenderer();

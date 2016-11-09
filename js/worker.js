@@ -1,5 +1,3 @@
-'use strict';
-
 /* WebWorker used for initial seeding and painted of the globe
  *
  * Events funnel in from the main thread's Dispatch.emitOnWorker

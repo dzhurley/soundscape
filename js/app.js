@@ -1,5 +1,3 @@
-'use strict';
-
 const Worker = require('worker!./worker');
 
 const { sources } = require('./constants');

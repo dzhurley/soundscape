@@ -1,5 +1,3 @@
-'use strict';
-
 /* Connector between the form on screen and fetching data for a given user
  *
  * Caches responses in localStorage and manages set of possible sources for

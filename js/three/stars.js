@@ -1,5 +1,3 @@
-'use strict';
-
 const { Sprite, SpriteMaterial } = require('three');
 const { stars } = require('../constants');
 const scene = require('./scene');

@@ -1,5 +1,3 @@
-'use strict';
-
 /* Displays artist and face information on click
  *
  * A constant display for artist info is updated on click

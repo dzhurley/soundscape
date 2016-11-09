@@ -1,5 +1,3 @@
-'use strict';
-
 const { MeshBasicMaterial, SphereGeometry } = require('three');
 const { DoubleSide, FaceColors, FlatShading } = require('three');
 

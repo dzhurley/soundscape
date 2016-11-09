@@ -1,5 +1,3 @@
-'use strict';
-
 /*  Lab format:
  *
  *  - name: identifier for lab

@@ -1,5 +1,3 @@
-'use strict';
-
 const { Mesh, Raycaster, Sprite, SpriteMaterial } = require('three');
 
 const constants = require('../constants');

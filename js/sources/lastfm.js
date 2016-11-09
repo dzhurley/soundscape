@@ -1,5 +1,3 @@
-'use strict';
-
 /* Last.fm specific source */
 
 const baseUrl = 'http://ws.audioscrobbler.com/2.0/';

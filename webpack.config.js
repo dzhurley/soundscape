@@ -1,30 +1,39 @@
-'use strict';
+const path = require('path');
+const webpack = require('webpack');
 
-module.exports = {
+const config = {
     entry: './js/app.js',
-    debug: true,
-    devtool: 'cheap-module-eval-source-map',
+
     output: {
-        path: __dirname + '/build',
-        filename: 'app.js'
+        filename: 'app.js',
+        path: path.resolve(__dirname, 'build'),
+        publicPath: 'build'
     },
+
     resolve: {
-        // Allow to omit extensions when requiring these files
         extensions: ['', '.js'],
-        root: ['js']
+        root: path.resolve(__dirname, 'js')
     },
+
     module: {
         loaders: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loaders: ['babel?experimental']
-            },
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'eslint-loader'
+                loaders: ['babel-loader', 'eslint']
             }
         ]
-    }
+    },
+
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env': { 'NODE_ENV': JSON.stringify(process.env.NODE_ENV) }
+        })
+    ]
 };
+
+if (process.env.NODE_ENV !== 'production') {
+    config.devtool = 'cheap-module-source-map';
+}
+
+module.exports = config;

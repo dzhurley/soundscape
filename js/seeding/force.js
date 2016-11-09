@@ -1,5 +1,3 @@
-'use strict';
-
 /**
   Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization
 

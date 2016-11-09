@@ -1,5 +1,3 @@
-'use strict';
-
 /* Meat of traversal to find the next face to paint for a given artist
  *
  * If this isn't the first paint for an artist, we search through the

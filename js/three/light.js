@@ -1,5 +1,3 @@
-'use strict';
-
 const { AmbientLight } = require('three');
 const { light } = require('../constants');
 const scene = require('./scene');
