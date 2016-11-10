@@ -6,13 +6,13 @@
  * indices for debugging purposes.
  */
 
-const { Raycaster, Sprite, SpriteMaterial, Texture, Vector3 } = require('three');
+const THREE = require('three');
 
-const { labels } = require('./constants');
-const { faceCentroid, withId } = require('./helpers');
-const { getCamera } = require('./three/camera');
-const { faces, globe, vertices } = require('./three/globe');
-const scene = require('./three/scene');
+const { labels } = require('constants');
+const { faceCentroid, withId } = require('helpers');
+const { getCamera } = require('three/camera');
+const { faces, globe, vertices } = require('three/globe');
+const scene = require('three/scene');
 
 // if the value is a string, return it, otherwise return the number as an integer
 const labelProp = key => isNaN(labels[key]) ? labels[key] : +labels[key];
@@ -67,15 +67,15 @@ const makeMark = message => {
     context.textAlign = 'center';
     context.fillText(message, canvas.width / 2, canvas.height / 2);
 
-    const map = new Texture(canvas);
+    const map = new THREE.Texture(canvas);
     map.needsUpdate = true;
-    return new Sprite(new SpriteMaterial({ map, name: 'marker' }));
+    return new THREE.Sprite(new THREE.SpriteMaterial({ map, name: 'marker' }));
 };
 
 const getIntersects = (x, y) => {
     const cam = getCamera();
-    const vector = new Vector3(x, y, 1).unproject(cam);
-    const ray = new Raycaster(cam.position, vector.sub(cam.position).normalize());
+    const vector = new THREE.Vector3(x, y, 1).unproject(cam);
+    const ray = new THREE.Raycaster(cam.position, vector.sub(cam.position).normalize());
     return ray.intersectObject(globe);
 };
 

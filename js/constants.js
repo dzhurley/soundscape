@@ -1,5 +1,4 @@
-const { MeshBasicMaterial, SphereGeometry } = require('three');
-const { DoubleSide, FaceColors, FlatShading } = require('three');
+const THREE = require('three');
 
 const camera = Object.freeze({
     position: { x: 80, y: 80, z: 80 },
@@ -59,9 +58,9 @@ const globe = Object.freeze({
     defaultFaceColor: 0xFFFFFF,
     radius: 50,
     widthAndHeight: 50,
-    shading: FlatShading,
-    side: DoubleSide,
-    vertexColors: FaceColors
+    shading: THREE.FlatShading,
+    side: THREE.DoubleSide,
+    vertexColors: THREE.FaceColors
 });
 
 const labels = Object.freeze({
@@ -103,9 +102,9 @@ const labs = [
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
-    geometry: new SphereGeometry(1.5, 25, 25),
+    geometry: new THREE.SphereGeometry(1.5, 25, 25),
     material(color) {
-        return new MeshBasicMaterial({ color });
+        return new THREE.MeshBasicMaterial({ color });
     }
 });
 

@@ -1,4 +1,4 @@
-const { Vector3 } = require('three');
+const THREE = require('three');
 
 // internal
 
@@ -54,7 +54,7 @@ const equidistantishPointsOnSphere = numPoints => {
 
 // save deprecated face.centroid
 const faceCentroid = (object, face) => {
-    return new Vector3()
+    return new THREE.Vector3()
         .add(object.geometry.vertices[face.a])
         .add(object.geometry.vertices[face.b])
         .add(object.geometry.vertices[face.c])

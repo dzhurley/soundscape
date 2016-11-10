@@ -2,12 +2,12 @@
  * finding the nearest free face from a given face on the mesh
  */
 
-const { Mesh, MeshLambertMaterial, SphereGeometry } = require('three');
+const THREE = require('three');
 
-const constants = require('../constants');
-const { emitOnWorker, on } = require('../dispatch');
-const { isActive } = require('../labs');
-const scene = require('./scene');
+const constants = require('constants');
+const { emitOnWorker, on } = require('dispatch');
+const { isActive } = require('labs');
+const scene = require('three/scene');
 
 const {
     globe: {
@@ -20,9 +20,9 @@ const {
     }
 } = constants;
 
-const globe = new Mesh(
-    new SphereGeometry(radius, widthAndHeight, widthAndHeight),
-    new MeshLambertMaterial({ shading, side, vertexColors })
+const globe = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
+    new THREE.MeshLambertMaterial({ shading, side, vertexColors })
 );
 
 // read

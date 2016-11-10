@@ -1,6 +1,6 @@
-const { PerspectiveCamera } = require('three');
-const { camera } = require('../constants');
-const renderer = require('./renderer');
+const THREE = require('three');
+const { camera } = require('constants');
+const renderer = require('three/renderer');
 
 const { fov, aspect, near, far, position } = camera;
 
@@ -13,7 +13,7 @@ window.addEventListener('resize', () => {
 const getCamera = () => perspectiveCamera;
 
 const replaceCamera = (newPosition=position, newRotation=null) => {
-    perspectiveCamera = new PerspectiveCamera(fov, aspect(), near, far);
+    perspectiveCamera = new THREE.PerspectiveCamera(fov, aspect(), near, far);
     perspectiveCamera.position.set(newPosition.x, newPosition.y, newPosition.z);
     if (newRotation) perspectiveCamera.rotation.copy(newRotation);
     return perspectiveCamera;

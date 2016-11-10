@@ -11,14 +11,14 @@
 onmessage = evt => {
     let { data: { type, payload } } = evt;
     if (!self.started) {
-        self.emit = require('./dispatch').emit;
-        self.on = require('./dispatch').on;
+        self.emit = require('dispatch').emit;
+        self.on = require('dispatch').on;
 
-        const { HalfEdgeStructure } = require('./lib/HalfEdgeStructure');
-        const { geometry } = require('./three/globe');
-        const plotter = require('./plotting/worker');
+        const THREE = require('lib/HalfEdgeStructure');
+        const { geometry } = require('three/globe');
+        const plotter = require('plotting/worker');
 
-        self.HEDS = new HalfEdgeStructure(geometry());
+        self.HEDS = new THREE.HalfEdgeStructure(geometry());
         self.on('plot.*', (method, payload) => plotter[method](payload));
         self.started = true;
     }

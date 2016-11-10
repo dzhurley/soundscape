@@ -7,9 +7,9 @@
  *
  */
 
-const { faceCentroid, randomArray } = require('../helpers');
-const { faces, globe } = require('../three/globe');
-const { artistForName } = require('../artists');
+const { faceCentroid, randomArray } = require('helpers');
+const { faces, globe } = require('three/globe');
+const { artistForName } = require('artists');
 
 const updateFaceAndArtist = (artist, face) => {
     face.color.set(artist.color);

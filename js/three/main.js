@@ -3,21 +3,21 @@
  * This also manages the rebinding of fly/orbital controls
  */
 
-const { AxisHelper, WireframeHelper } = require('three');
-const { globe: { axisSize } } = require('../constants');
-const { on } = require('../dispatch');
-const { isActive } = require('../labs');
+const THREE = require('three');
+const { globe: { axisSize } } = require('constants');
+const { on } = require('dispatch');
+const { isActive } = require('labs');
 
-const { getCamera } = require('./camera');
-const { addLight } = require('./light');
-const renderer = require('./renderer');
-const scene = require('./scene');
-const { updateControls } = require('./controls');
+const { getCamera } = require('three/camera');
+const { addLight } = require('three/light');
+const renderer = require('three/renderer');
+const scene = require('three/scene');
+const { updateControls } = require('three/controls');
 
-const { addGlobe, globe, resetGlobe } = require('./globe');
-const { addStars } = require('./stars');
+const { addGlobe, globe, resetGlobe } = require('three/globe');
+const { addStars } = require('three/stars');
 
-const { iterateForce } = require('../seeding/force');
+const { iterateForce } = require('seeding/force');
 
 // TODO: helpers.js?
 const childWithPrototype = o => scene.children.find(c => c.constructor.prototype === o.prototype);
@@ -25,11 +25,11 @@ const toggleChild = child => state => state ? scene.add(child) : scene.remove(ch
 
 const bindHelpers = () => {
     // red: x, green: y, blue: z
-    if (isActive('AxisHelper')) scene.add(new AxisHelper(axisSize));
-    if (isActive('WireframeHelper')) scene.add(new WireframeHelper(globe));
+    if (isActive('AxisHelper')) scene.add(new THREE.AxisHelper(axisSize));
+    if (isActive('WireframeHelper')) scene.add(new THREE.WireframeHelper(globe));
 
-    on('lab.AxisHelper', toggleChild(childWithPrototype(AxisHelper)));
-    on('lab.WireframeHelper', toggleChild(childWithPrototype(WireframeHelper)));
+    on('lab.AxisHelper', toggleChild(childWithPrototype(THREE.AxisHelper)));
+    on('lab.WireframeHelper', toggleChild(childWithPrototype(THREE.WireframeHelper)));
 };
 
 const setScene = () => {

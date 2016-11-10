@@ -18,9 +18,9 @@
  */
 
 // TODO: fold all three.js and local plugins into separate, singular module
-const { Color } = require('./lib/HalfEdgeStructure');
-const { normalizeAgainst, spacedColor } = require('./helpers');
-const { faces } = require('./three/globe');
+const THREE = require('lib/HalfEdgeStructure');
+const { normalizeAgainst, spacedColor } = require('helpers');
+const { faces } = require('three/globe');
 
 // TODO: find better state solution (localStorage alongside sources?)
 let artistStore = {
@@ -83,11 +83,14 @@ const setArtists = data => {
 
     const normCount = normalizeAgainst(data.map(d => d.playCount));
 
-    artists(data.map((artist, i) => Object.assign(artist, {
-        faces: [],
-        faceLimit: Math.round(artist.playCount * totalFaces / totalPlays),
-        color: new Color(spacedColor(data.length, i)).multiplyScalar(normCount(artist.playCount))
-    })));
+    artists(data.map((artist, i) => {
+        const baseColor = new THREE.Color(spacedColor(data.length, i));
+        return Object.assign(artist, {
+            faces: [],
+            faceLimit: Math.round(artist.playCount * totalFaces / totalPlays),
+            color: baseColor.multiplyScalar(normCount(artist.playCount))
+        });
+    }));
 
     // Math.round on each artist doesn't always sum to totalFaces.
     correctFaceLimits();

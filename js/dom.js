@@ -1,11 +1,11 @@
 /* Interface for the DOM around UI event bindings */
 
-const { faceCentroid, withId } = require('./helpers');
-const { emit, emitOnWorker, on } = require('./dispatch');
-const { getCamera } = require('./three/camera');
-const { faces, globe } = require('./three/globe');
-const HUD = require('./hud');
-const { currentLabs, isActive, isPending, toggleLab } = require('./labs');
+const { faceCentroid, withId } = require('helpers');
+const { emit, emitOnWorker, on } = require('dispatch');
+const { getCamera } = require('three/camera');
+const { faces, globe } = require('three/globe');
+const HUD = require('hud');
+const { currentLabs, isActive, isPending, toggleLab } = require('labs');
 
 const container = withId('scape');
 

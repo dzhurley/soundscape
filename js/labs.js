@@ -6,9 +6,8 @@
  *  - value: on or off boolean state
  */
 
-const { labs } = require('./constants');
-const { events } = require('./constants');
-const { emit, on, stopMainWorker } = require('./dispatch');
+const { events, labs } = require('constants');
+const { emit, on, stopMainWorker } = require('dispatch');
 
 // take frozen values from constants and store locally as mutable array
 let labStore = labs.map(lab => Object.assign({}, lab));

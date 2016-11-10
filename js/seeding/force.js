@@ -5,8 +5,10 @@
   the JUNG implementation.
  */
 
-const { globe: { radius }, normalMax } = require('../constants');
-const { force: { epsilon, maxIterations, initialTemp } } = require('../constants');
+const { force, globe, normalMax } = require('constants');
+
+const { radius } = globe;
+const { epsilon, maxIterations, initialTemp } = force;
 
 let temp = initialTemp;
 let iterations = 0;

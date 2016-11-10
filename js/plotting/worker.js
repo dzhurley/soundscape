@@ -5,11 +5,11 @@
  * are sent back to the main thread for update.
  */
 
-const { nextArtist, artistsLeft } = require('../artists');
-const { faces } = require('../three/globe');
-const { handleNextFaces } = require('./faces');
-const { prepareData, seedIndices } = require('./seeder');
-const { randomBoundedArray } = require('../helpers');
+const { nextArtist, artistsLeft } = require('artists');
+const { faces } = require('three/globe');
+const { handleNextFaces } = require('plotting/faces');
+const { prepareData, seedIndices } = require('plotting/seeder');
+const { randomBoundedArray } = require('helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
 self.remaining = [];

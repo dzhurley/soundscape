@@ -14,11 +14,11 @@
  *     }
  */
 
-const { packUrlParams, randomArray } = require('../helpers');
-const { emit, emitOnWorker, on } = require('../dispatch');
-const { isActive } = require('../labs');
+const { packUrlParams, randomArray } = require('helpers');
+const { emit, emitOnWorker, on } = require('dispatch');
+const { isActive } = require('labs');
 
-const { forceSeed } = require('../plotting/seeder');
+const { forceSeed } = require('plotting/seeder');
 
 // TODO: find better state solution (localStorage?)
 let registered = {};

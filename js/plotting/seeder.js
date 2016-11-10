@@ -1,12 +1,12 @@
-const { Mesh, Raycaster, Sprite, SpriteMaterial } = require('three');
+const THREE = require('three');
 
-const constants = require('../constants');
-const { artists, artistsLeft, setArtists } = require('../artists');
-const { equidistantishPointsOnSphere } = require('../helpers');
-const { faces, globe, position } = require('../three/globe');
-const scene = require('../three/scene');
+const constants = require('constants');
+const { artists, artistsLeft, setArtists } = require('artists');
+const { equidistantishPointsOnSphere } = require('helpers');
+const { faces, globe, position } = require('three/globe');
+const scene = require('three/scene');
 
-const { startForce } = require('../seeding/force');
+const { startForce } = require('seeding/force');
 
 let { globe: { radius }, node: { geometry, material } } = constants;
 
@@ -16,7 +16,7 @@ const prepareData = data => {
 };
 
 const createNode = ({ name, faces: charge, color } = {}) => {
-    let node = new Mesh(geometry, material(color));
+    let node = new THREE.Mesh(geometry, material(color));
     node.name = name;
     node.charge = charge;
     return node;
@@ -45,7 +45,7 @@ const forceSeed = payload => {
 
 const addEquidistantMarks = num => {
     return equidistantishPointsOnSphere(num).map(p => {
-        let mark = new Sprite(new SpriteMaterial());
+        let mark = new THREE.Sprite(new THREE.SpriteMaterial());
         mark.position.set(...p);
         mark.position.multiplyScalar(radius + 2);
         scene.add(mark);
@@ -56,7 +56,7 @@ const addEquidistantMarks = num => {
 const equidistantFaces = numMarkers => {
     // add transient helper marks
     let markers = addEquidistantMarks(numMarkers);
-    let caster = new Raycaster();
+    let caster = new THREE.Raycaster();
     let intersectingFaces = [];
 
     // use the mark's vector as a ray to find the closest face

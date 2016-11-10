@@ -1,2 +1,2 @@
-const { Scene } = require('three');
-module.exports = new Scene();
+const THREE = require('three');
+module.exports = new THREE.Scene();
