@@ -52,7 +52,7 @@ const updateFaces = newFaces => {
 
     let indices = newFaces.map(face => {
         let index = parseInt(Object.keys(face)[0], 10);
-        oldFaces[index].color.copy(face[index].color);
+        oldFaces[index].color.set(face[index].color);
         oldFaces[index].data = face[index].data;
         return index;
     });

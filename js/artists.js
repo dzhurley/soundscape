@@ -18,8 +18,6 @@
  */
 
 const THREE = require('three');
-THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
-
 const { normalizeAgainst, spacedColor } = require('helpers');
 const { faces } = require('three/globe');
 
