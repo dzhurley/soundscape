@@ -18,6 +18,10 @@ const config = {
     module: {
         loaders: [
             {
+                test: /lib\//,
+                loaders: ['imports?THREE=three']
+            },
+            {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loaders: ['babel-loader', 'eslint']

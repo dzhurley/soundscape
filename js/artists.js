@@ -17,8 +17,9 @@
  *
  */
 
-// TODO: fold all three.js and local plugins into separate, singular module
-const THREE = require('lib/HalfEdgeStructure');
+const THREE = require('three');
+THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
+
 const { normalizeAgainst, spacedColor } = require('helpers');
 const { faces } = require('three/globe');
 

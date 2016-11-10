@@ -2,8 +2,6 @@
  * @author James Baicoianu / http://www.baicoianu.com/
  */
 
-var THREE = require('three');
-
 THREE.FlyControls = function ( object, domElement ) {
 
 	this.object = object;
@@ -269,5 +267,3 @@ THREE.FlyControls = function ( object, domElement ) {
 	this.updateRotationVector();
 
 };
-
-module.exports = THREE;

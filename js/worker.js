@@ -14,7 +14,9 @@ onmessage = evt => {
         self.emit = require('dispatch').emit;
         self.on = require('dispatch').on;
 
-        const THREE = require('lib/HalfEdgeStructure');
+        const THREE = require('three');
+        THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
+
         const { geometry } = require('three/globe');
         const plotter = require('plotting/worker');
 

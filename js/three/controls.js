@@ -1,8 +1,8 @@
 /* Tie together Orbital and Fly controls into toggle under button */
 
-// TODO: use imports/exports loader
-let THREE = require('lib/FlyControls');
-THREE = require('lib/OrbitControls');
+const THREE = require('three');
+THREE.FlyControls = require('exports?THREE.FlyControls!lib/FlyControls');
+THREE.OrbitalControls = require('exports?THREE.OrbitalControls!lib/OrbitControls');
 
 const { flyControls, orbitalControls } = require('constants');
 const { on } = require('dispatch');
