@@ -1,6 +1,7 @@
 const THREE = require('three');
 
 const { globe: { axisSize }, labels } = require('constants');
+const { emitOnWorker } = require('dispatch');
 const { faceCentroid, intersectObject } = require('helpers');
 const { getCamera } = require('three/camera');
 const { faces, globe, vertices } = require('three/globe');
@@ -8,7 +9,7 @@ const { renderer } = require('three/main');
 
 const scene = require('three/scene');
 
-let active = false;
+global.debugging = false;
 
 const sceneHelpers = [new THREE.AxisHelper(axisSize)];
 
@@ -80,6 +81,7 @@ const updateMarks = evt => {
 const activate = () => {
     global.THREE = THREE;
     global.scene = scene;
+    global.iterate = kind => emitOnWorker(`plot.${kind}`);
 
     sceneHelpers.map(helper => scene.add(helper));
     objectHelpers.map(({ helper }) => scene.add(helper));
@@ -90,6 +92,7 @@ const activate = () => {
 const deactivate = () => {
     delete global.THREE;
     delete global.scene;
+    delete global.iterate;
 
     sceneHelpers.map(helper => scene.remove(helper));
     objectHelpers.map(({ helper }) => scene.remove(helper));
@@ -99,8 +102,8 @@ const deactivate = () => {
 };
 
 const debug = () => {
-    active = !active;
-    active ? activate() : deactivate();
+    global.debugging = !global.debugging;
+    global.debugging ? activate() : deactivate();
 };
 
 module.exports = debug;

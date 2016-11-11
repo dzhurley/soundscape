@@ -1,7 +1,7 @@
 /* Interface for the DOM around UI event bindings */
 
 const { faceCentroid, intersectObject, withId } = require('helpers');
-const { emit, emitOnWorker, on } = require('dispatch');
+const { emit, on } = require('dispatch');
 const { getCamera } = require('three/camera');
 const { faces, globe } = require('three/globe');
 
@@ -17,16 +17,6 @@ const bindClicks = buttons => {
             let classes = withId('sourcesOverlay').classList;
             classes.toggle('closed');
             if (!classes.contains('closed')) withId('username').focus();
-        },
-
-        one() {
-            emitOnWorker('plot.one');
-        },
-        batch() {
-            emitOnWorker('plot.batch');
-        },
-        all() {
-            emitOnWorker('plot.all');
         }
     }[button.id]));
 };

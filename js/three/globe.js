@@ -5,7 +5,7 @@
 const THREE = require('three');
 
 const constants = require('constants');
-const { on } = require('dispatch');
+const { emitOnWorker, on } = require('dispatch');
 const scene = require('three/scene');
 
 const {
@@ -62,7 +62,10 @@ const updateFaces = ({ faces }) => {
 };
 
 
-on('faces.seeded', updateFaces);
+on('faces.seeded', data => {
+    updateFaces(data);
+    if (!global.debugging) emitOnWorker('plot.all');
+});
 on('faces.painted', updateFaces);
 
 module.exports = {
