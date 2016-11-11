@@ -26,8 +26,10 @@ ul { list-style: none; }
 
     display: block;
     position: absolute;
-    top: 0;
-    left: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+
     z-index: 2;
 }
 
@@ -61,18 +63,19 @@ ul { list-style: none; }
 #actions {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 0;
     z-index: 2;
     text-align: center;
-    margin: 0 1.5rem;
+    margin: 1rem;
 }
 
-#actions button { 
-    display: inline-block;
-    margin: 1rem .5rem;
+#actions > * {
+    margin-bottom: 1rem;
 }
 
-#actions button[data-lab] { display: none; }
+#actions button {
+    display: block;
+}
 
 #actions input {
     display: block;
