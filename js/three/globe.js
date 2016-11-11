@@ -5,7 +5,7 @@
 const THREE = require('three');
 
 const constants = require('constants');
-const { emitOnWorker, on } = require('dispatch');
+const { on } = require('dispatch');
 const scene = require('three/scene');
 
 const {
@@ -46,8 +46,9 @@ const resetGlobe = () => {
     scene.children.filter(c => c.charge).map(c => scene.remove(c));
 };
 
-const updateFaces = newFaces => {
-    let oldFaces = faces();
+const updateFaces = ({ faces }) => {
+    const newFaces = JSON.parse(faces);
+    let oldFaces = geometry().faces;
 
     let indices = newFaces.map(face => {
         let index = parseInt(Object.keys(face)[0], 10);
@@ -60,11 +61,9 @@ const updateFaces = newFaces => {
     markForUpdate();
 };
 
-on('faces.seeded', ({ faces }) => {
-    updateFaces(JSON.parse(faces));
-    emitOnWorker('plot.all');
-});
-on('faces.painted', ({ faces }) => updateFaces(JSON.parse(faces)));
+
+on('faces.seeded', updateFaces);
+on('faces.painted', updateFaces);
 
 module.exports = {
     // extension
