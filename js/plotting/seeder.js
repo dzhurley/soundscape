@@ -1,47 +1,10 @@
 const THREE = require('three');
 
-const constants = require('constants');
-const { artists, artistsLeft, setArtists } = require('artists');
+const { globe: { radius } } = require('constants');
+const { artistsLeft, setArtists } = require('artists');
 const { equidistantishPointsOnSphere } = require('helpers');
 const { faces, globe, position } = require('three/globe');
 const scene = require('three/scene');
-
-const { startForce } = require('seeding/force');
-
-let { globe: { radius }, node: { geometry, material } } = constants;
-
-const prepareData = data => {
-    setArtists(data);
-    faces().map(face => face.data = {});
-};
-
-const createNode = ({ name, faces: charge, color } = {}) => {
-    let node = new THREE.Mesh(geometry, material(color));
-    node.name = name;
-    node.charge = charge;
-    return node;
-};
-
-const createGraph = data => {
-    let nodeSet = new Set();
-    let points = equidistantishPointsOnSphere(data.length);
-
-    for (let i in data) {
-        let targetNode = createNode(data[i]);
-        targetNode.position.set(...points[i]);
-        targetNode.position.multiplyScalar(radius);
-
-        nodeSet.add(targetNode);
-        scene.add(targetNode);
-    }
-
-    startForce(nodeSet);
-};
-
-const forceSeed = payload => {
-    prepareData(JSON.parse(payload));
-    createGraph(artists());
-};
 
 const addEquidistantMarks = num => {
     return equidistantishPointsOnSphere(num).map(p => {
@@ -73,6 +36,11 @@ const equidistantFaces = numMarkers => {
     return intersectingFaces.map(hit => hit[0]);
 };
 
+const prepareData = data => {
+    setArtists(data);
+    faces().map(face => face.data = {});
+};
+
 const seedIndices = () => equidistantFaces(artistsLeft().length).map(seed => seed.faceIndex);
 
-module.exports = { prepareData, seedIndices, forceSeed };
+module.exports = { prepareData, seedIndices };

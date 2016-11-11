@@ -40,13 +40,6 @@ const flyControls = Object.freeze({
     rollSpeed: 0.03
 });
 
-const force = Object.freeze({
-    epsilon: 0.000001,
-    normalMax: 50,
-    maxIterations: 100000,
-    initialTemp: 10000
-});
-
 const globe = Object.freeze({
     axisSize: 75,
     defaultFaceColor: 0xFFFFFF,
@@ -108,7 +101,6 @@ module.exports = Object.freeze({
     camera,
     events,
     flyControls,
-    force,
     globe,
     labels,
     light,

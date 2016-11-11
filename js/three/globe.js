@@ -41,9 +41,6 @@ const resetGlobe = () => {
         f.color.setHex(defaultFaceColor);
     });
     markForUpdate();
-
-    // forceSeeding specific
-    scene.children.filter(c => c.charge).map(c => scene.remove(c));
 };
 
 const updateFaces = ({ faces }) => {

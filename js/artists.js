@@ -12,8 +12,8 @@
  *      faces: [face, face, ...],
  * }
  *
- * Aside from forceSeeding, artists are strictly used in the plotting
- * worker and need no communication or syncing with the main thread.
+ * Artists are strictly used in the plotting worker and need no
+ * communication or syncing with the main thread.
  *
  */
 

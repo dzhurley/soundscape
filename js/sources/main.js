@@ -22,15 +22,13 @@ let registered = {};
 
 const registerSources = sources => sources.map(src => registered[src] = require(`./${src}`));
 
-const seed = d => emitOnWorker('plot.seed', d);
-
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
         let data = localStorage[username];
 
         if (data) {
             emit('submitted');
-            seed(data);
+            emitOnWorker('plot.seed', data);
             return;
         }
     }
@@ -45,7 +43,7 @@ const getArtists = (source, username) => {
             let stringified = JSON.stringify(randomArray(artists));
             localStorage[username] = stringified;
             emit('submitted');
-            seed(stringified);
+            emitOnWorker('plot.seed', stringified);
         }
     };
 
