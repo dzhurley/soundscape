@@ -61,6 +61,15 @@ const faceCentroid = (object, face) => {
         .divideScalar(3);
 };
 
+const intersectObject = (evt, object, camera) => {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera({
+        x: evt.clientX / window.innerWidth * 2 - 1,
+        y: -(evt.clientY / window.innerHeight) * 2 + 1
+    }, camera);
+    return raycaster.intersectObject(object);
+};
+
 const normalizeAgainst = values => {
     const max = Math.max(...values);
     const min = Math.min(...values);
@@ -118,6 +127,7 @@ const withId = s => document.getElementById(s);
 module.exports = {
     equidistantishPointsOnSphere,
     faceCentroid,
+    intersectObject,
     normalizeAgainst,
     packUrlParams,
     randomArray,

@@ -1,10 +1,9 @@
 /* Interface for the DOM around UI event bindings */
 
-const { faceCentroid, withId } = require('helpers');
+const { faceCentroid, intersectObject, withId } = require('helpers');
 const { emit, emitOnWorker, on } = require('dispatch');
 const { getCamera } = require('three/camera');
 const { faces, globe } = require('three/globe');
-const HUD = require('hud');
 
 const container = withId('scape');
 
@@ -32,7 +31,7 @@ const bindClicks = buttons => {
     }[button.id]));
 };
 
-const bindHandlers = () => {
+const bindHandlers = domElement => {
     bindClicks(Array.from(withId('actions').querySelectorAll('button')));
 
     withId('sources').addEventListener('submit', evt => emit('submitting', evt));
@@ -45,10 +44,17 @@ const bindHandlers = () => {
             const match = faces().find(
                 f => (f.data.artist || '').toLowerCase() === value.toLowerCase()
             );
-            // TODO: add easing/animation
+            // TODO: add Tweens
             cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
             cam.lookAt(globe);
         }
+    });
+
+    domElement.addEventListener('click', evt => {
+        const hits = intersectObject(evt, globe, getCamera());
+        withId('hud').innerHTML = hits.length ?
+            `<span>${hits[0].face.data.artist}: ${hits[0].face.data.plays} play(s)</span>` :
+            '';
     });
 
     on('submitted', () => {
@@ -57,10 +63,9 @@ const bindHandlers = () => {
     });
 };
 
-const attachWebGLement = el => {
-    container.appendChild(el);
-    bindHandlers();
-    HUD.bindHandlers(container);
+const bindEvents = domElement => {
+    container.appendChild(domElement);
+    bindHandlers(domElement);
 };
 
-module.exports = { attachWebGLement, container };
+module.exports = { bindEvents, container };
