@@ -78,21 +78,3 @@ ul { list-style: none; }
     display: block;
     width: 100%;
 }
-
-#labs {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    z-index: 2;
-    text-align: center;
-    background-color: #272727;
-}
-
-#labs button {
-    display: inline-block;
-    margin: 1rem;
-}
-
-#labs button[data-inactive=true] { background-color: red; }
-#labs button[data-pending=true] { background-color: yellow; }
-#labs button[data-active=true] { background-color: green; }
