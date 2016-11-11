@@ -72,33 +72,6 @@ const labels = Object.freeze({
     radius: 1.005
 });
 
-const labs = [
-    Object.freeze({
-        name: 'WireframeHelper',
-        reset: false,
-        trigger: '',
-        value: true
-    }),
-    Object.freeze({
-        name: 'AxisHelper',
-        reset: false,
-        trigger: '',
-        value: true
-    }),
-    Object.freeze({
-        name: 'forceSeeding',
-        reset: true,
-        trigger: 'submitted',
-        value: false
-    }),
-    Object.freeze({
-        name: 'iterateControl',
-        reset: true,
-        trigger: '',
-        value: true
-    })
-];
-
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
@@ -144,7 +117,6 @@ module.exports = Object.freeze({
     force,
     globe,
     labels,
-    labs,
     light,
     node,
     orbitalControls,

@@ -6,7 +6,6 @@ const THREE = require('three');
 
 const constants = require('constants');
 const { emitOnWorker, on } = require('dispatch');
-const { isActive } = require('labs');
 const scene = require('three/scene');
 
 const {
@@ -63,7 +62,7 @@ const updateFaces = newFaces => {
 
 on('faces.seeded', ({ faces }) => {
     updateFaces(JSON.parse(faces));
-    if (!isActive('iterateControl')) emitOnWorker('plot.all');
+    emitOnWorker('plot.all');
 });
 on('faces.painted', ({ faces }) => updateFaces(JSON.parse(faces)));
 
