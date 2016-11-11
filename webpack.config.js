@@ -6,8 +6,7 @@ const config = {
 
     output: {
         filename: 'app.js',
-        path: path.resolve(__dirname, 'build'),
-        publicPath: 'build'
+        path: path.resolve(__dirname, 'build')
     },
 
     resolve: {
