@@ -21,7 +21,6 @@ canvas {
 ul { list-style: none; }
 
 #hud {
-    padding: 10px;
     color: #d7d7d7;
     background-color: #272727;
 
@@ -34,6 +33,7 @@ ul { list-style: none; }
 
 #hud span {
     display: block;
+    margin: 1rem;
     padding: 0.5rem;
 }
 
