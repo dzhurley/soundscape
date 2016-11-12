@@ -26,6 +26,7 @@ const events = Object.freeze([
     'plot.one',
     'plot.batch',
     'plot.all',
+    'plot.untilSwap',
 
     // returned from worker to main thread for scene updates
     'faces.*',

@@ -76,8 +76,9 @@ const seed = payload => {
 };
 
 const one = () => {
-    iterate();
+    const done = iterate();
     respondWithFaces();
+    return done;
 };
 
 const batch = () => {
@@ -93,4 +94,10 @@ const all = () => {
     }
 };
 
-module.exports = { seed, one, batch, all };
+const untilSwap = () => {
+    for (let i = 0; i < self.remaining.length; i++) {
+        if (one()) break;
+    }
+};
+
+module.exports = { seed, one, batch, all, untilSwap };
