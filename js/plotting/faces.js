@@ -96,7 +96,6 @@ const handleNextFaces = (artist, rando) => {
     // otherwise this is the first face for the artist so we use it
     if (!artist.faces.length) return [face].map(face => updateFaceAndArtist(artist, face));
 
-
     // if we've got faces, we need to find our next adjacent face
     const borderFaces = randomArray(artist.faces.filter(isBorderFace));
     const newFaces = findAdjacentFaces(borderFaces);

@@ -1,14 +1,14 @@
 const THREE = require('three');
 
 const camera = Object.freeze({
-    position: { x: 80, y: 80, z: 80 },
+    position: { x: 500, y: 500, z: 500 },
     fov: 75,
     aspect() {
         // needs to be callable as constants are used in workers, which don't have window
         return window.innerWidth / window.innerHeight;
     },
     near: 0.1,
-    far: 1000
+    far: 10000
 });
 
 const events = Object.freeze([
@@ -41,9 +41,9 @@ const flyControls = Object.freeze({
 });
 
 const globe = Object.freeze({
-    axisSize: 75,
+    axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
-    radius: 50,
+    radius: 300,
     widthAndHeight: 50,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
@@ -52,31 +52,24 @@ const globe = Object.freeze({
 
 const labels = Object.freeze({
     backgroundColor: '#272727',
-    canvasHeightWidth: 1600,
+    canvasHeightWidth: 2048,
     color: '#d7d7d7',
     fontface: 'Inconsolata',
-    fontsize: '300',
-    radius: 1.005
+    fontsize: 450,
+    radius: 1.005,
+    scaleMultiplier: 16
 });
 
 const light = Object.freeze({ color: 0xf0f0f0 });
 
-const node = Object.freeze({
-    geometry: new THREE.SphereGeometry(1.5, 25, 25),
-    material(color) {
-        return new THREE.MeshBasicMaterial({ color });
-    }
-});
-
 const orbitalControls = Object.freeze({
     zoomSpeed: 0.2,
     rotateSpeed: 0.5,
-    noKeys: true
+    noKeys: true,
+    maxDistance: 1500
 });
 
-const sources = [
-    'lastfm'
-];
+const sources = ['lastfm'];
 
 const stars = Object.freeze({
     number: 1000,
@@ -90,10 +83,10 @@ const stars = Object.freeze({
         return Math.random() * 2 - 1;
     },
     positionMultiplier() {
-        return Math.random() * 100 + 200;
+        return Math.random() * 100 + 1000;
     },
     scaleMultiplier() {
-        return Math.random() * 0.5;
+        return Math.random() * 10;
     }
 });
 
@@ -104,7 +97,6 @@ module.exports = Object.freeze({
     globe,
     labels,
     light,
-    node,
     orbitalControls,
     sources,
     stars

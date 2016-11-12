@@ -49,7 +49,10 @@ const makeMark = message => {
 
     const map = new THREE.Texture(canvas);
     map.needsUpdate = true;
-    return new THREE.Sprite(new THREE.SpriteMaterial({ map, name: 'marker' }));
+
+    const marker = new THREE.Sprite(new THREE.SpriteMaterial({ map, name: 'marker' }));
+    marker.scale.multiplyScalar(labelProps.scaleMultiplier);
+    return marker;
 };
 
 const addVertexMarkers = vs => vs.map(index => {

@@ -1,20 +1,18 @@
 const THREE = require('three');
 
 const { globe: { radius } } = require('constants');
-const { artistsLeft, setArtists } = require('artists');
+const { artistsLeft } = require('artists');
 const { equidistantishPointsOnSphere } = require('helpers');
-const { faces, globe, position } = require('three/globe');
+const { globe, position } = require('three/globe');
 const scene = require('three/scene');
 
-const addEquidistantMarks = num => {
-    return equidistantishPointsOnSphere(num).map(p => {
-        let mark = new THREE.Sprite(new THREE.SpriteMaterial());
-        mark.position.set(...p);
-        mark.position.multiplyScalar(radius + 2);
-        scene.add(mark);
-        return mark;
-    });
-};
+const addEquidistantMarks = num => equidistantishPointsOnSphere(num).map(p => {
+    let mark = new THREE.Sprite(new THREE.SpriteMaterial());
+    mark.position.set(...p);
+    mark.position.multiplyScalar(radius + 2);
+    scene.add(mark);
+    return mark;
+});
 
 const equidistantFaces = numMarkers => {
     // add transient helper marks
@@ -36,11 +34,6 @@ const equidistantFaces = numMarkers => {
     return intersectingFaces.map(hit => hit[0]);
 };
 
-const prepareData = data => {
-    setArtists(data);
-    faces().map(face => face.data = {});
-};
-
 const seedIndices = () => equidistantFaces(artistsLeft().length).map(seed => seed.faceIndex);
 
-module.exports = { prepareData, seedIndices };
+module.exports = seedIndices;

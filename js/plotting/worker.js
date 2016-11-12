@@ -5,10 +5,10 @@
  * are sent back to the main thread for update.
  */
 
-const { nextArtist, artistsLeft } = require('artists');
+const { artistsLeft, nextArtist, setArtists } = require('artists');
 const { faces } = require('three/globe');
 const { handleNextFaces } = require('plotting/faces');
-const { prepareData, seedIndices } = require('plotting/seeder');
+const seedIndices = require('plotting/seeder');
 const { randomBoundedArray } = require('helpers');
 
 // WebWorker-wide list of remaining face indices yet to be painted
@@ -61,8 +61,10 @@ const seed = payload => {
         return [];
     }
 
+    setArtists(data);
+    faces().map(face => face.data = {});
+
     // seed the planet
-    prepareData(data);
     let seeds = seedIndices();
     seeds.map(s => iterate([s]));
 
