@@ -1,11 +1,12 @@
 /* Interface for the DOM around UI event bindings */
 
-const { faceCentroid, intersectObject, withId } = require('helpers');
+const { intersectObject, qs, qsa } = require('helpers');
+const bindAutocomplete = require('autocomplete');
 const { emit, on } = require('dispatch');
 const { getCamera } = require('three/camera');
-const { faces, globe } = require('three/globe');
+const { globe } = require('three/globe');
 
-const container = withId('scape');
+const container = qs('#scape');
 
 const bindClicks = buttons => {
     // bind selected click handlers that match existing button.id values
@@ -14,43 +15,31 @@ const bindClicks = buttons => {
             emit('toggleControls', evt.target.textContent);
         },
         toggleOverlay() {
-            let classes = withId('sourcesOverlay').classList;
+            let classes = qs('#sourcesOverlay').classList;
             classes.toggle('closed');
-            if (!classes.contains('closed')) withId('username').focus();
+            if (!classes.contains('closed')) qs('#username').focus();
         }
     }[button.id]));
 };
 
 const bindHandlers = domElement => {
-    bindClicks(Array.from(withId('actions').querySelectorAll('button')));
+    bindClicks(qsa('#actions button'));
 
-    withId('sources').addEventListener('submit', evt => emit('submitting', evt));
-
-    // TODO: make autocomplete?
-    withId('actions').querySelector('input').addEventListener('keyup', evt => {
-        const { keyCode, currentTarget: { value } } = evt;
-        if (keyCode === 13) {
-            const cam = getCamera();
-            const match = faces().find(
-                f => (f.data.artist || '').toLowerCase() === value.toLowerCase()
-            );
-            // TODO: add Tweens
-            cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
-            cam.lookAt(globe);
-        }
-    });
+    qs('#sources').addEventListener('submit', evt => emit('submitting', evt));
 
     domElement.addEventListener('click', evt => {
         const hits = intersectObject(evt, globe, getCamera());
-        withId('hud').innerHTML = hits.length ?
+        qs('#hud').innerHTML = hits.length ?
             `<span>${hits[0].face.data.artist}: ${hits[0].face.data.plays} play(s)</span>` :
             '';
     });
 
     on('submitted', () => {
-        withId('username').value = '';
-        withId('toggleOverlay').click();
+        qs('#username').value = '';
+        qs('#toggleOverlay').click();
     });
+
+    on('faces.seeded', bindAutocomplete);
 };
 
 const bindEvents = domElement => {

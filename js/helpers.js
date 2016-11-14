@@ -122,7 +122,8 @@ const spacedColor = (numOfSteps, step) => {
     return `#${first}${second}${third}`;
 };
 
-const withId = s => document.getElementById(s);
+const qs = (selector, node=document) => node.querySelector(selector);
+const qsa = (selector, node=document) => Array.from(node.querySelectorAll(selector));
 
 module.exports = {
     equidistantishPointsOnSphere,
@@ -130,8 +131,9 @@ module.exports = {
     intersectObject,
     normalizeAgainst,
     packUrlParams,
+    qs,
+    qsa,
     randomArray,
     randomBoundedArray,
-    spacedColor,
-    withId
+    spacedColor
 };

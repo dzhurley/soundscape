@@ -20,7 +20,7 @@ const parseData = (data = {}) => {
     }
 
     return data.artists.artist.map(artist => ({
-        name: artist.name,
+        name: artist.name.toLowerCase(),
         playCount: Number.parseInt(artist.playcount, 10)
     }));
 };

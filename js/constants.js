@@ -12,7 +12,7 @@ const camera = Object.freeze({
 });
 
 const events = Object.freeze([
-        // on form submission
+    // on form submission
     'submitting',
     // on POST to data source
     'submitted',
