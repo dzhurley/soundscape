@@ -65,19 +65,40 @@ ul { list-style: none; }
     top: 0;
     left: 0;
     z-index: 2;
-    text-align: center;
+    text-align: left;
     margin: 1rem;
 }
 
-#actions > * {
-    margin-bottom: 1rem;
-}
-
 #actions button {
-    display: block;
+    margin-bottom: 1rem;
 }
 
 #actions input {
     display: block;
     width: 100%;
+}
+
+.ac-suggestions {
+    background-color: #D7D7D7;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+
+.ac-suggestions li {
+    padding: 0.25rem 0.5rem;
+}
+
+.ac-suggestions li.active,
+.ac-suggestions li:hover {
+    background-color: #272727;
+    color: #D7D7D7;
+    cursor: pointer;
+}
+
+.ac-suggestions li:first-child {
+    padding-top: 0.5rem;
+}
+.ac-suggestions li:last-child {
+    padding-bottom: 0.5rem;
 }
