@@ -7,7 +7,6 @@ const { registerSources } = require('sources/main');
 const { bindEvents } = require('dom');
 
 global.debug = require('debugger');
-global.debug();
 
 setMainWorker(new Worker());
 

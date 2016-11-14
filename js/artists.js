@@ -100,6 +100,9 @@ const setArtists = data => {
     index(0);
 };
 
+self.artists = artists;
+self.artistForName = artistForName;
+
 module.exports = {
     artists,
     artistForName,

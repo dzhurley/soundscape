@@ -45,28 +45,25 @@ const handleSwappers = startFace => {
     let currentFace = startFace;
     const path = [];
 
-    // we find an edge-wise path from startFace to the nearest free face (goal)
+    // we find an edge-wise path from the first new face to the nearest free face (goal)
     while (currentFace !== goal) {
-        path.push(currentFace);
         let candidates = self.HEDS.adjacentFaces(currentFace);
         currentFace = findClosestFace(candidates, goal);
+        path.push(currentFace);
     }
+    path.push(goal);
 
-    // travel back along the path and swap each face with its predecessor
-    // until we've bubbled the entire path to make room for the new artist
-    return path.reverse().map((face, index) => {
-        let prevFace = path[index + 1];
-        if (prevFace) {
-            let artist = artistForName(face.data.artist);
-            let prevArtist = artistForName(prevFace.data.artist);
+    // bubble out artist and face information along the path to the free face
+    return path.map((face, index) => {
+        let prevFace = index === 0 ? startFace : path[index - 1];
+        let prevArtist = artistForName(prevFace.data.artist);
+        let artist = artistForName(face.data.artist);
 
-            // remove face from face's artist list in prep for swap
-            if (artist) artist.faces.splice(artist.faces.indexOf(face), 1);
+        // remove face from face's artist list in prep for swap
+        if (artist) artist.faces.splice(artist.faces.indexOf(face), 1);
 
-            // swap previous face into current and add to previous face's artist list
-            return updateFaceAndArtist(prevArtist, face);
-        }
-        return faces().indexOf(face);
+        // swap previous face into current and add to previous face's artist list
+        return updateFaceAndArtist(prevArtist, face);
     });
 };
 
@@ -79,9 +76,8 @@ const findAdjacentFaces = borderFaces => {
 };
 
 const isBorderFace = test => {
-    // TODO: keep separate list on artist for outer faces?
-    // Assume it's not a border face. Once we find a face
-    // with a different artist (or none) we flip to true.
+    // Assume it's not a border face. Once we find a face with a different artist
+    // (or none) we flip to true.
     return self.HEDS.adjacentFaces(test).reduce((onBorder, face) => {
         return onBorder || test.data.artist !== face.data.artist;
     }, false);
@@ -103,6 +99,7 @@ const handleNextFaces = (artist, rando) => {
     if (!newFaces) {
         // we didn't find a free adjacent face, so swap out until we find one
         console.log(`handle swappers for ${borderFaces[0].data.artist}`);
+        // TODO: add another pass to find face with shortest distance to free space
         return handleSwappers(borderFaces[0]);
     }
 
