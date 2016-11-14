@@ -20,14 +20,14 @@ const updateFaceAndArtist = (artist, face) => {
     return faces().indexOf(face);
 };
 
+const normal = (mesh, face) => faceCentroid(mesh, face).normalize();
+
 // compute the distance between each one of the candidates and the target
 // to find the closest candidate
 const findClosestFace = (candidates, target) => {
-    let closest, newDistance, lastDistance, targetCentroid;
+    let closest, newDistance, lastDistance;
     for (let i = 0; i < candidates.length; i++) {
-        let faceVector = faceCentroid(globe, candidates[i]).normalize();
-        targetCentroid = faceCentroid(globe, target).normalize();
-        newDistance = targetCentroid.distanceTo(faceVector);
+        newDistance = normal(globe, target).distanceTo(normal(globe, candidates[i]));
         if (!closest) {
             closest = candidates[i];
             lastDistance = newDistance;
@@ -39,10 +39,21 @@ const findClosestFace = (candidates, target) => {
     return closest;
 };
 
+const findShortestPair = (border, free) => border.map(face => {
+    const closest = findClosestFace(free, face);
+    return {
+        distance: normal(globe, closest).distanceTo(normal(globe, face)),
+        goal: closest,
+        start: face
+    };
+}).reduce((memo, pair) => memo.distance > pair.distance ? pair : memo, { distance: 1000 });
+
 // Handle case where no free adjacent faces were found to paint.
-const handleSwappers = startFace => {
-    const goal = findClosestFace(faces().filter(f => !f.data.artist), startFace);
-    let currentFace = startFace;
+const handleSwappers = borderFaces => {
+    const freeFaces = faces().filter(f => !f.data.artist);
+    const { start, goal } = findShortestPair(borderFaces, freeFaces);
+
+    let currentFace = start;
     const path = [];
 
     // we find an edge-wise path from the first new face to the nearest free face (goal)
@@ -55,7 +66,7 @@ const handleSwappers = startFace => {
 
     // bubble out artist and face information along the path to the free face
     return path.map((face, index) => {
-        let prevFace = index === 0 ? startFace : path[index - 1];
+        let prevFace = index === 0 ? start : path[index - 1];
         let prevArtist = artistForName(prevFace.data.artist);
         let artist = artistForName(face.data.artist);
 
@@ -99,8 +110,7 @@ const handleNextFaces = (artist, rando) => {
     if (!newFaces) {
         // we didn't find a free adjacent face, so swap out until we find one
         console.log(`handle swappers for ${borderFaces[0].data.artist}`);
-        // TODO: add another pass to find face with shortest distance to free space
-        return handleSwappers(borderFaces[0]);
+        return handleSwappers(borderFaces);
     }
 
     // paint faces, update artist, and return indices for self.remaining
