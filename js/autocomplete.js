@@ -66,6 +66,10 @@ const bindAutocomplete = () => {
         return memo;
     }, new Set());
 
+    qs('#scape').addEventListener('click', () => {
+        renderFor();
+        input.blur();
+    });
     qs('.autocomplete').addEventListener('keyup', evt => {
         const key = evt.keyCode.toString();
         key in keys ? keys[key](evt) : renderFor(evt.target.value);
