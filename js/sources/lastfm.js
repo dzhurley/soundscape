@@ -1,6 +1,6 @@
 /* Last.fm specific source */
 
-const baseUrl = 'http://ws.audioscrobbler.com/2.0/';
+const baseUrl = 'https://ws.audioscrobbler.com/2.0/';
 
 const defaultParams = Object.freeze({
     'api_key': 'bd366f79f01332a48ae8ce061dba05a9',
