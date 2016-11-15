@@ -53,29 +53,31 @@ const handleSwappers = borderFaces => {
     const freeFaces = faces().filter(f => !f.data.artist);
     const { start, goal } = findShortestPair(borderFaces, freeFaces);
 
-    let currentFace = start;
+    let currentFace = goal;
     const path = [];
 
     // we find an edge-wise path from the first new face to the nearest free face (goal)
-    while (currentFace !== goal) {
-        let candidates = self.HEDS.adjacentFaces(currentFace);
-        currentFace = findClosestFace(candidates, goal);
+    while (currentFace !== start) {
         path.push(currentFace);
+        let candidates = self.HEDS.adjacentFaces(currentFace);
+        currentFace = findClosestFace(candidates, start);
     }
-    path.push(goal);
+    path.push(start);
 
-    // bubble out artist and face information along the path to the free face
-    return path.map((face, index) => {
-        let prevFace = index === 0 ? start : path[index - 1];
-        let prevArtist = artistForName(prevFace.data.artist);
-        let artist = artistForName(face.data.artist);
+    // bubble out artist and face information along the path to the free face,
+    // specifically not doing work on the starting face
+    let swappers = [];
+    for (let i = 0; i < path.length - 2; i++) {
+        let prevArtist = artistForName(path[i + 1].data.artist);
+        let artist = artistForName(path[i].data.artist);
 
         // remove face from face's artist list in prep for swap
-        if (artist) artist.faces.splice(artist.faces.indexOf(face), 1);
+        if (artist) artist.faces.splice(artist.faces.indexOf(path[i]), 1);
 
         // swap previous face into current and add to previous face's artist list
-        return updateFaceAndArtist(prevArtist, face);
-    });
+        swappers.push(updateFaceAndArtist(prevArtist, path[i]));
+    }
+    return swappers;
 };
 
 const findAdjacentFaces = borderFaces => {
