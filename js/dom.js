@@ -27,19 +27,26 @@ const bindHandlers = domElement => {
 
     qs('#sources').addEventListener('submit', evt => emit('submitting', evt));
 
-    domElement.addEventListener('click', evt => {
-        const hits = intersectObject(evt, globe, getCamera());
-        qs('#hud').innerHTML = hits.length ?
-            `<span>${hits[0].face.data.artist}: ${hits[0].face.data.plays} play(s)</span>` :
-            '';
-    });
-
     on('submitted', () => {
         qs('#username').value = '';
         qs('#toggleOverlay').click();
     });
 
-    on('faces.seeded', bindAutocomplete);
+    on('faces.seeded', () => {
+        domElement.addEventListener('mousemove', evt => {
+            const hits = intersectObject(evt, globe, getCamera());
+            qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';
+        });
+
+        domElement.addEventListener('click', evt => {
+            const hits = intersectObject(evt, globe, getCamera());
+            qs('#hud').innerHTML = hits.length ?
+                `<span>${hits[0].face.data.artist}: ${hits[0].face.data.plays} play(s)</span>` :
+                '';
+        });
+
+        bindAutocomplete();
+    });
 };
 
 const bindEvents = domElement => {
