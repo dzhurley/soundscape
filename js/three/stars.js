@@ -3,6 +3,7 @@ const { stars } = require('constants');
 const scene = require('three/scene');
 
 const { number, x, y, z, positionMultiplier, scaleMultiplier } = stars;
+// TODO: should be THREE.Group()
 let field = [];
 let star;
 

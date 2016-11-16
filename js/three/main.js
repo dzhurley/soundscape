@@ -5,6 +5,8 @@
 
 const { on } = require('dispatch');
 
+const nodes = require('seeding/nodes');
+
 const { getCamera } = require('three/camera');
 const { addLight } = require('three/light');
 const renderer = require('three/renderer');
@@ -27,6 +29,7 @@ const setScene = () => {
 
 const animate = () => {
     updateControls(1);
+    nodes.animate();
     renderer.render(scene, getCamera());
     window.requestAnimationFrame(animate);
 };

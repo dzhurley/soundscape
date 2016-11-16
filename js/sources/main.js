@@ -14,8 +14,10 @@
  *     }
  */
 
+const { setArtists } = require('artists');
 const { packUrlParams, randomArray } = require('helpers');
-const { emit, emitOnWorker, on } = require('dispatch');
+const { emit, on } = require('dispatch');
+const nodes = require('seeding/nodes');
 
 // TODO: find better state solution (localStorage?)
 let registered = {};
@@ -24,26 +26,26 @@ const registerSources = sources => sources.map(src => registered[src] = require(
 
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
-        let data = localStorage[username];
+        const data = JSON.parse(localStorage[username]);
 
         if (data) {
             emit('submitted');
-            emitOnWorker('plot.seed', data);
+            nodes.create(setArtists(data));
             return;
         }
     }
 
-    let request = new XMLHttpRequest();
-    let params = Object.assign({}, source.defaultParams, source.paramsForUser(username));
+    const request = new XMLHttpRequest();
+    const params = Object.assign({}, source.defaultParams, source.paramsForUser(username));
     request.open('GET', packUrlParams(source.baseUrl, params), true);
 
     request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
-            let artists = source.parseData(JSON.parse(request.responseText));
-            let stringified = JSON.stringify(randomArray(artists));
+            const artists = randomArray(source.parseData(JSON.parse(request.responseText)));
+            const stringified = JSON.stringify(artists);
             localStorage[username] = stringified;
             emit('submitted');
-            emitOnWorker('plot.seed', stringified);
+            nodes.create(setArtists(artists));
         }
     };
 
@@ -52,8 +54,8 @@ const getArtists = (source, username) => {
 
 const checkSource = evt => {
     evt.preventDefault();
-    let source = evt.target.querySelector('#source').value;
-    let username = evt.target.querySelector('#username').value;
+    const source = evt.target.querySelector('#source').value;
+    const username = evt.target.querySelector('#username').value;
 
     // TODO: be nicer
     if (!Object.keys(registered).indexOf(source) < 0) {

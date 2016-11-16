@@ -17,6 +17,7 @@ const isValidEvent = event => events.some(e => {
     return space === event.split('.')[0] && specific === '*';
 });
 
+// worker lifecycle methods
 const setMainWorker = worker => {
     emitter.worker = worker;
     emitter.worker.onmessage = event => {
@@ -27,9 +28,11 @@ const setMainWorker = worker => {
 };
 const stopMainWorker = () => emitter.worker && emitter.worker.terminate();
 
+// same thread events
 const emit = (type, ...args) => isValidEvent(type) ? emitter.emit(type, ...args) : false;
 const on = (type, fn) => isValidEvent(type) ? emitter.on(type, fn) : false;
 
+// main to worker events
 const emitOnWorker = (type, payload) => isValidEvent(type) ?
     emitter.worker.postMessage({ type, payload }) :
     false;

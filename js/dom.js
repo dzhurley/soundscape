@@ -32,7 +32,7 @@ const bindHandlers = domElement => {
         qs('#toggleOverlay').click();
     });
 
-    on('faces.seeded', () => {
+    on('seeded', () => {
         domElement.addEventListener('mousemove', evt => {
             const hits = intersectObject(evt, globe, getCamera());
             qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';

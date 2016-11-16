@@ -20,19 +20,16 @@ const events = Object.freeze([
     // ui event
     'toggleControls',
 
-    // passed from ui into worker to kick off plotting strategies
-    'plot.*',
-    'plot.seed',
-    'plot.one',
-    'plot.batch',
-    'plot.all',
-    'plot.untilSwap',
-
-    // returned from worker to main thread for scene updates
-    'faces.*',
-    'faces.seeded',
-    'faces.painted'
+    // data events to be used in worker
+    'seed',
+    'seeded'
 ]);
+
+const force = Object.freeze({
+    epsilon: 0.000001,
+    maxIterations: 100000,
+    initialTemp: 10000
+});
 
 const flyControls = Object.freeze({
     autoForward: false,
@@ -51,17 +48,14 @@ const globe = Object.freeze({
     vertexColors: THREE.FaceColors
 });
 
-const labels = Object.freeze({
-    backgroundColor: '#272727',
-    canvasHeightWidth: 2048,
-    color: '#d7d7d7',
-    fontface: 'Inconsolata',
-    fontsize: 450,
-    radius: 1.005,
-    scaleMultiplier: 16
-});
-
 const light = Object.freeze({ color: 0xf0f0f0 });
+
+const node = Object.freeze({
+    geometry: new THREE.SphereGeometry(15, 25, 25),
+    material(color) {
+        return new THREE.MeshBasicMaterial({ color });
+    }
+});
 
 const orbitalControls = Object.freeze({
     zoomSpeed: 0.2,
@@ -95,9 +89,10 @@ module.exports = Object.freeze({
     camera,
     events,
     flyControls,
+    force,
     globe,
-    labels,
     light,
+    node,
     orbitalControls,
     sources,
     stars

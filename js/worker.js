@@ -1,11 +1,7 @@
 /* WebWorker used for initial seeding and painted of the globe
  *
  * Events funnel in from the main thread's Dispatch.emitOnWorker
- * and are pushed out on the worker's Dispatch to seed or batch
- * paint faces on the sphere.
- *
- * A minimal mirror of the main scene is made in startWorker to
- * use in all the plotting module's workings.
+ * and are pushed out on the worker's Dispatch.
  */
 
 onmessage = evt => {
@@ -14,14 +10,7 @@ onmessage = evt => {
         self.emit = require('dispatch').emit;
         self.on = require('dispatch').on;
 
-        const THREE = require('three');
-        THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
-
-        const { geometry } = require('three/globe');
-        const plotter = require('plotting/worker');
-
-        self.HEDS = new THREE.HalfEdgeStructure(geometry());
-        self.on('plot.*', (method, payload) => plotter[method](payload));
+        // TODO: move force seeding here once working?
         self.started = true;
     }
 
