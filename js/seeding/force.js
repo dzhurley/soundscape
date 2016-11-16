@@ -12,6 +12,10 @@ let temp = initialTemp;
 let iterations = 0;
 let nodes = new Set();
 
+// checked in render cycle to start/stop calling iterateForce
+let iterable = false;
+const iterating = () => iterable;
+
 const repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
 
 const applyDiff = (v, u) => {
@@ -21,34 +25,36 @@ const applyDiff = (v, u) => {
 
     if (length <= v.charge) {
         let multiplier = repulse(v.charge, u.charge, length);
-        v.position.add(diff.multiplyScalar(multiplier));
+        v.position.add(diff.multiplyScalar(multiplier * 0.001));
         // bind to surface of globe
         v.position.setLength(radius);
     }
 };
 
 const iterateForce = () => {
-    if (iterations < maxIterations && temp > epsilon) {
-        for (let v of nodes) {
-            for (let u of nodes) {
-                if (u.name === v.name) continue;
-                applyDiff(v, u);
-            }
-        }
-
-        temp *= 1 - iterations / maxIterations;
-        iterations++;
-        return false;
+    if (iterations >= maxIterations || temp <= epsilon) {
+        console.log('forces stable');
+        iterable = false;
+        return;
     }
-    console.log('forces stable');
-    return true;
+
+    for (let v of nodes) {
+        for (let u of nodes) {
+            if (u.name === v.name) continue;
+            applyDiff(v, u);
+        }
+    }
+
+    temp *= 1 - iterations / maxIterations;
+    iterations++;
 };
 
 const startForce = ns => {
-    // normalize charges between 0 and 50
     let maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
-    ns.forEach(n => n.charge = 50 * (n.charge / maxCharge));
+    // normalize charges over radius to only affect nodes in same hemisphere
+    ns.forEach(n => n.charge = radius * (n.charge / maxCharge));
     nodes = ns;
+    iterable = true;
 };
 
-module.exports = { startForce, iterateForce };
+module.exports = { startForce, iterateForce, iterating };

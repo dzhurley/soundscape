@@ -4,24 +4,25 @@ const constants = require('constants');
 const { equidistantishPointsOnSphere } = require('helpers');
 const scene = require('three/scene');
 
-const { startForce } = require('seeding/force');
+const { startForce, iterateForce, iterating } = require('seeding/force');
 
-let { globe: { radius }, node: { geometry, material } } = constants;
+const { globe: { radius }, node: { geometry, material } } = constants;
+
+const nodes = new Set();
 
 const createNode = ({ name, weight, color } = {}) => {
-    let node = new THREE.Mesh(geometry, material(color));
+    const node = new THREE.Mesh(geometry, material(color));
     node.name = name;
     node.charge = weight;
     return node;
 };
 
 const animate = () => {
-    // iterateForce();
+    iterating() && iterateForce();
 };
 
 const create = data => {
-    let nodeSet = new Set();
-    let points = equidistantishPointsOnSphere(data.length);
+    const points = equidistantishPointsOnSphere(data.length);
 
     for (let i in data) {
         let targetNode = createNode(data[i]);
@@ -30,11 +31,11 @@ const create = data => {
 
         targetNode.scale.multiplyScalar(1 + targetNode.charge);
 
-        nodeSet.add(targetNode);
+        nodes.add(targetNode);
         scene.add(targetNode);
     }
 
-    startForce(nodeSet);
+    startForce(nodes);
 };
 
 module.exports = { animate, create };

@@ -25,17 +25,17 @@ const events = Object.freeze([
     'seeded'
 ]);
 
-const force = Object.freeze({
-    epsilon: 0.000001,
-    maxIterations: 100000,
-    initialTemp: 10000
-});
-
 const flyControls = Object.freeze({
     autoForward: false,
     dragToLook: true,
     movementSpeed: 1,
     rollSpeed: 0.03
+});
+
+const force = Object.freeze({
+    epsilon: 0.000001,
+    maxIterations: 10000,
+    initialTemp: 100
 });
 
 const globe = Object.freeze({
@@ -51,7 +51,7 @@ const globe = Object.freeze({
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
-    geometry: new THREE.SphereGeometry(15, 25, 25),
+    geometry: new THREE.SphereGeometry(10, 25, 25),
     material(color) {
         return new THREE.MeshBasicMaterial({ color });
     }
