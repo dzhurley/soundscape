@@ -52,23 +52,17 @@ const getArtists = (source, username) => {
     request.send();
 };
 
-const checkSource = evt => {
-    evt.preventDefault();
-    const source = evt.target.querySelector('#source').value;
-    const username = evt.target.querySelector('#username').value;
-
+const checkSource = (source, username) => {
     // TODO: be nicer
     if (!Object.keys(registered).indexOf(source) < 0) {
         console.error(`Invalid source: ${source}`);
-        return false;
+        return;
     }
     if (username.length === 0) {
         console.error('No username given');
-        return false;
+        return;
     }
-
     getArtists(registered[source], username);
-    return false;
 };
 
 on('submitting', checkSource);

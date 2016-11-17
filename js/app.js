@@ -6,8 +6,6 @@ const { renderer, setScene } = require('three/main');
 const { registerSources } = require('sources/main');
 const { bindEvents } = require('dom');
 
-global.debug = require('debugger');
-
 setMainWorker(new Worker());
 
 registerSources(sources);
@@ -15,3 +13,5 @@ registerSources(sources);
 setScene();
 
 bindEvents(renderer.domElement);
+
+global.debug = require('debugger');

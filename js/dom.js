@@ -25,7 +25,11 @@ const bindClicks = buttons => {
 const bindHandlers = domElement => {
     bindClicks(qsa('#actions button'));
 
-    qs('#sources').addEventListener('submit', evt => emit('submitting', evt));
+    qs('#sources').addEventListener('submit', evt => {
+        evt.preventDefault();
+        emit('submitting', qs('#source').value, qs('#username').value);
+        return false;
+    });
 
     on('submitted', () => {
         qs('#username').value = '';

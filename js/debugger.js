@@ -1,5 +1,6 @@
 const THREE = require('three');
 
+const { emit } = require('dispatch');
 const { globe: { axisSize } } = require('constants');
 const { globe } = require('three/globe');
 
@@ -30,6 +31,9 @@ const deactivate = () => {
 const debug = () => {
     global.debugging = !global.debugging;
     global.debugging ? activate() : deactivate();
+
+    // autosubmit when debug() is flipped
+    emit('submitting', 'lastfm', 'stutterbug42');
 };
 
 module.exports = debug;
