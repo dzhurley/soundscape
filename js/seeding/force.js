@@ -1,9 +1,5 @@
-/**
-  Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization
-
-  Implements a force-directed layout, the algorithm is based on Fruchterman and Reingold and
-  the JUNG implementation.
- */
+// Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization,
+// based on Fruchterman and Reingold and the JUNG implementation.
 
 const { globe: { radius } } = require('constants');
 const { force: { epsilon, maxIterations, initialTemp } } = require('constants');
@@ -16,24 +12,21 @@ let nodes = new Set();
 let iterable = false;
 const iterating = () => iterable;
 
-const repulse = (vCharge, uCharge, distance) => distance / vCharge * uCharge;
-
 const applyDiff = (v, u) => {
     // diff is the difference vector between the positions of the two vertices
-    let diff = v.position.clone().sub(u.position);
-    let length = diff.length();
+    const diff = u.position.clone().sub(v.position);
+    const length = diff.length();
 
     if (length <= v.charge) {
-        let multiplier = repulse(v.charge, u.charge, length);
-        v.position.add(diff.multiplyScalar(multiplier * 0.001));
+        const multiplier = length / (v.charge * u.charge);
+        u.position.add(diff.multiplyScalar(multiplier));
         // bind to surface of globe
-        v.position.setLength(radius);
+        u.position.setLength(radius);
     }
 };
 
 const iterateForce = () => {
     if (iterations >= maxIterations || temp <= epsilon) {
-        console.log('forces stable');
         iterable = false;
         return;
     }
@@ -50,7 +43,7 @@ const iterateForce = () => {
 };
 
 const startForce = ns => {
-    let maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
+    const maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
     // normalize charges over radius to only affect nodes in same hemisphere
     ns.forEach(n => n.charge = radius * (n.charge / maxCharge));
     nodes = ns;

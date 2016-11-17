@@ -10,7 +10,7 @@ global.debugging = false;
 
 const sceneHelpers = [new THREE.AxisHelper(axisSize)];
 
-const objectHelpers = [{ object: globe, helper: new THREE.WireframeHelper(globe) }];
+const objectHelpers = [{ object: globe, helper: new THREE.WireframeHelper(globe, 0x000000) }];
 
 const activate = () => {
     global.THREE = THREE;

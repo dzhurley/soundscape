@@ -34,8 +34,8 @@ const flyControls = Object.freeze({
 
 const force = Object.freeze({
     epsilon: 0.000001,
-    maxIterations: 10000,
-    initialTemp: 100
+    maxIterations: 100000,
+    initialTemp: 1000
 });
 
 const globe = Object.freeze({
