@@ -44,8 +44,8 @@ const iterateForce = () => {
 
 const startForce = ns => {
     const maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
-    // normalize charges over radius to only affect nodes in same hemisphere
-    ns.forEach(n => n.charge = radius * (n.charge / maxCharge));
+    // narrow the range of charges underneath the radius of the globe
+    ns.forEach(n => n.charge = (radius / 1.5) * (n.charge / maxCharge));
     nodes = ns;
     iterable = true;
 };

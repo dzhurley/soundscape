@@ -42,7 +42,7 @@ const globe = Object.freeze({
     axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
     radius: 300,
-    widthAndHeight: 50,
+    widthAndHeight: 100,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
     vertexColors: THREE.FaceColors
