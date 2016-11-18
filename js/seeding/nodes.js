@@ -1,10 +1,12 @@
 const THREE = require('three');
+THREE.ConvexGeometry = require('exports?THREE.ConvexGeometry!three/examples/js/geometries/ConvexGeometry');
 
 const constants = require('constants');
 const { equidistantishPointsOnSphere } = require('helpers');
 const scene = require('three/scene');
 
 const { startForce, iterateForce, iterating } = require('seeding/force');
+const bindPainter = require('seeding/paint');
 
 const { globe: { radius }, node: { geometry, material } } = constants;
 
@@ -37,7 +39,8 @@ const create = data => {
         scene.add(targetNode);
     }
 
+    bindPainter();
     startForce(nodes);
 };
 
-module.exports = { animate, create };
+module.exports = { animate, create, nodes };

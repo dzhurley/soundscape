@@ -21,6 +21,10 @@ const config = {
                 loaders: ['imports?THREE=three']
             },
             {
+                test: /three\/examples/,
+                loaders: ['imports?THREE=three']
+            },
+            {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loaders: ['babel-loader', 'eslint']

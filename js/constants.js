@@ -53,7 +53,7 @@ const light = Object.freeze({ color: 0xf0f0f0 });
 const node = Object.freeze({
     height: 30,
     geometry() {
-        return new THREE.ConeGeometry(10, node.height);
+        return new THREE.ConeGeometry(10, node.height, 20);
     },
     material(color) {
         return new THREE.MeshBasicMaterial({ color });

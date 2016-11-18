@@ -1,6 +1,7 @@
 // Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization,
 // based on Fruchterman and Reingold and the JUNG implementation.
 
+const { emit } = require('dispatch');
 const { globe: { radius }, node: { height } } = require('constants');
 const { force: { epsilon, maxIterations, initialTemp } } = require('constants');
 
@@ -28,6 +29,7 @@ const applyDiff = (v, u) => {
 const iterateForce = () => {
     if (iterations >= maxIterations || temp <= epsilon) {
         iterable = false;
+        emit('seed', Array.from(nodes).map(n => n.position));
         return;
     }
 
