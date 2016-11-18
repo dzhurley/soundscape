@@ -33,8 +33,8 @@ const flyControls = Object.freeze({
 });
 
 const force = Object.freeze({
-    epsilon: 0.000001,
-    maxIterations: 100000,
+    epsilon: 0.00001,
+    maxIterations: 10000,
     initialTemp: 1000
 });
 
@@ -51,7 +51,10 @@ const globe = Object.freeze({
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
-    geometry: new THREE.SphereGeometry(10, 25, 25),
+    height: 30,
+    geometry() {
+        return new THREE.ConeGeometry(10, node.height);
+    },
     material(color) {
         return new THREE.MeshBasicMaterial({ color });
     }

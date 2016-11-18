@@ -1,7 +1,7 @@
 // Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization,
 // based on Fruchterman and Reingold and the JUNG implementation.
 
-const { globe: { radius } } = require('constants');
+const { globe: { radius }, node: { height } } = require('constants');
 const { force: { epsilon, maxIterations, initialTemp } } = require('constants');
 
 let temp = initialTemp;
@@ -20,9 +20,9 @@ const applyDiff = (v, u) => {
     if (length <= v.charge) {
         const multiplier = length / (v.charge * u.charge);
         u.position.add(diff.multiplyScalar(multiplier));
-        // bind to surface of globe
-        u.position.setLength(radius);
     }
+    // bind to surface of globe
+    u.position.setLength(radius + (height / 2));
 };
 
 const iterateForce = () => {
