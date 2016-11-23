@@ -1,13 +1,13 @@
 const { faceCentroid, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
-const { faces, globe } = require('three/globe');
+const { globe } = require('three/globe');
 
 let artists;
 const input = qs('.autocomplete input');
 
 const focus = name => {
     const cam = getCamera();
-    const match = faces().find(f => f.data.artist === name);
+    const match = globe.geometry.faces.find(f => f.data.artist === name && f.data.center);
     // TODO: add Tweens
     cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
     cam.lookAt(globe);
@@ -61,7 +61,7 @@ const keys = {
 };
 
 const bindAutocomplete = () => {
-    artists = faces().reduce((memo, face) => {
+    artists = globe.geometry.faces.reduce((memo, face) => {
         if (face.data.artist) memo.add(face.data.artist);
         return memo;
     }, new Set());

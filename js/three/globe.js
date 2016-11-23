@@ -18,20 +18,14 @@ const globe = new THREE.Mesh(
     new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
     new THREE.MeshLambertMaterial({ shading, side, vertexColors })
 );
-const faces = () => globe.geometry.faces;
 
 const addGlobe = () => scene.add(globe);
 const resetGlobe = () => {
-    faces().map(f => {
+    globe.geometry.faces.map(f => {
         f.data = {};
         f.color.setHex(defaultFaceColor);
     });
     globe.geometry.colorsNeedUpdate = true;
 };
 
-module.exports = {
-    addGlobe,
-    resetGlobe,
-    globe,
-    faces
-};
+module.exports = { addGlobe, resetGlobe, globe };
