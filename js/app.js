@@ -15,4 +15,3 @@ setScene();
 bindEvents(renderer.domElement);
 
 global.debug = require('debugger');
-global.debug();

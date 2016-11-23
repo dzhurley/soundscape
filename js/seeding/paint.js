@@ -2,8 +2,8 @@ const THREE = require('three');
 THREE.ConvexGeometry = require('exports?THREE.ConvexGeometry!three/examples/js/geometries/ConvexGeometry');
 
 const { on } = require('dispatch');
-const { faceCentroid } = require('helpers');
 const scene = require('three/scene');
+const { globe } = require('three/globe');
 
 const convexFor = vertices => {
     const hull = new THREE.Mesh(
@@ -18,12 +18,10 @@ const convexFor = vertices => {
     return hull;
 };
 
-const normal = (mesh, face) => faceCentroid(mesh, face).normalize();
-
-const findClosestSeed = (mesh, candidates, target) => {
+const findClosestSeed = (candidates, target) => {
     let closest, newDistance, lastDistance;
     for (let i = 0; i < candidates.length; i++) {
-        newDistance = normal(mesh, target).distanceTo(candidates[i]);
+        newDistance = target.normal.distanceTo(candidates[i]);
         if (!closest) {
             closest = candidates[i];
             lastDistance = newDistance;
@@ -37,7 +35,7 @@ const findClosestSeed = (mesh, candidates, target) => {
 
 const voronoiFromHull = hull => {
     const voronoi = convexFor(hull.geometry.faces.map(face => face.normal), 0x0000FF);
-    voronoi.scale.multiplyScalar(315);
+    voronoi.scale.multiplyScalar(320);
 
     const caster = new THREE.Raycaster();
     hull.geometry.vertices.map(vertex => {
@@ -46,11 +44,22 @@ const voronoiFromHull = hull => {
     });
 
     voronoi.geometry.faces.map(face => {
-        const closest = findClosestSeed(voronoi, hull.geometry.vertices, face);
+        const closest = findClosestSeed(hull.geometry.vertices, face);
         face.color.set(closest.color);
     });
 
+    voronoi.scale.multiplyScalar(20);
     return voronoi;
+};
+
+const paintGlobe = voronoi => {
+    const caster = new THREE.Raycaster();
+    globe.geometry.faces.map(face => {
+        caster.set(scene.position, face.normal.clone().normalize());
+        const hit = caster.intersectObject(voronoi)[0];
+        face.color.set(hit.face.color);
+    });
+    globe.geometry.colorsNeedUpdate = true;
 };
 
 const paint = seeds => {
@@ -64,8 +73,10 @@ const paint = seeds => {
 
     const voronoi = voronoiFromHull(hull);
     scene.add(voronoi);
+    seeds.map(seed => scene.remove(seed));
 
-    // TODO: paint
+    paintGlobe(voronoi);
+    scene.remove(voronoi);
 };
 
 const bindPainter = () => on('seed', paint);
