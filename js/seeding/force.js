@@ -29,7 +29,7 @@ const applyDiff = (v, u) => {
 const iterateForce = () => {
     if (iterations >= maxIterations || temp <= epsilon) {
         iterable = false;
-        emit('seed', Array.from(nodes).map(n => n.position));
+        emit('seed', Array.from(nodes));
         return;
     }
 
