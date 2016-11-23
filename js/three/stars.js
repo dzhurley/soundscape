@@ -3,8 +3,7 @@ const { stars } = require('constants');
 const scene = require('three/scene');
 
 const { number, x, y, z, positionMultiplier, scaleMultiplier } = stars;
-// TODO: should be THREE.Group()
-let field = [];
+let field = new THREE.Group();
 let star;
 
 for (let i = 0; i < number; ++i) {
@@ -13,9 +12,9 @@ for (let i = 0; i < number; ++i) {
     star.position.normalize();
     star.position.multiplyScalar(positionMultiplier());
     star.scale.multiplyScalar(scaleMultiplier());
-    field.push(star);
+    field.add(star);
 }
 
-const addStars = () => field.map(star => scene.add(star));
+const addStars = () => scene.add(field);
 
 module.exports = { addStars };

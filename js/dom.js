@@ -36,7 +36,7 @@ const bindHandlers = domElement => {
         qs('#toggleOverlay').click();
     });
 
-    on('seeded', () => {
+    on('painted', () => {
         domElement.addEventListener('mousemove', evt => {
             const hits = intersectObject(evt, globe, getCamera());
             qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';
@@ -44,9 +44,7 @@ const bindHandlers = domElement => {
 
         domElement.addEventListener('click', evt => {
             const hits = intersectObject(evt, globe, getCamera());
-            qs('#hud').innerHTML = hits.length ?
-                `<span>${hits[0].face.data.artist}: ${hits[0].face.data.plays} play(s)</span>` :
-                '';
+            qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
         });
 
         bindAutocomplete();

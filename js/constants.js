@@ -22,7 +22,9 @@ const events = Object.freeze([
 
     // data events to be used in worker
     'seed',
-    'seeded'
+    'seeded',
+
+    'painted'
 ]);
 
 const flyControls = Object.freeze({
@@ -42,7 +44,7 @@ const globe = Object.freeze({
     axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
     radius: 300,
-    widthAndHeight: 100,
+    widthAndHeight: 200,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
     vertexColors: THREE.FaceColors

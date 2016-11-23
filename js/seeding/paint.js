@@ -1,9 +1,16 @@
 const THREE = require('three');
 THREE.ConvexGeometry = require('exports?THREE.ConvexGeometry!three/examples/js/geometries/ConvexGeometry');
 
-const { on } = require('dispatch');
+const { emit, on } = require('dispatch');
 const scene = require('three/scene');
 const { globe } = require('three/globe');
+
+const caster = new THREE.Raycaster();
+
+const updateFace = (face, source) => {
+    face.color.set(source.color);
+    Object.assign(face.data, source.data);
+};
 
 const convexFor = vertices => {
     const hull = new THREE.Mesh(
@@ -37,7 +44,6 @@ const voronoiFromHull = hull => {
     const voronoi = convexFor(hull.geometry.faces.map(face => face.normal), 0x0000FF);
     voronoi.scale.multiplyScalar(320);
 
-    const caster = new THREE.Raycaster();
     hull.geometry.vertices.map(vertex => {
         caster.set(scene.position, vertex.clone().normalize());
         caster.intersectObject(voronoi)[0].face.color.set(vertex.color);
@@ -45,7 +51,8 @@ const voronoiFromHull = hull => {
 
     voronoi.geometry.faces.map(face => {
         const closest = findClosestSeed(hull.geometry.vertices, face);
-        face.color.set(closest.color);
+        face.data = {};
+        updateFace(face, closest);
     });
 
     voronoi.scale.multiplyScalar(20);
@@ -53,30 +60,30 @@ const voronoiFromHull = hull => {
 };
 
 const paintGlobe = voronoi => {
-    const caster = new THREE.Raycaster();
     globe.geometry.faces.map(face => {
         caster.set(scene.position, face.normal.clone().normalize());
+        // TODO: handle multiple hits and overlaps (distance from normal?)
         const hit = caster.intersectObject(voronoi)[0];
-        face.color.set(hit.face.color);
+        updateFace(face, hit.face);
     });
     globe.geometry.colorsNeedUpdate = true;
 };
 
 const paint = seeds => {
     const vertices = seeds.map(seed => {
-        seed.position.name = seed.name;
         seed.position.color = seed.material.color;
+        seed.position.data = { artist: seed.name };
         return seed.position;
     });
 
-    const hull = convexFor(vertices);
-
-    const voronoi = voronoiFromHull(hull);
-    scene.add(voronoi);
+    const voronoi = voronoiFromHull(convexFor(vertices));
     seeds.map(seed => scene.remove(seed));
+    scene.add(voronoi);
 
     paintGlobe(voronoi);
     scene.remove(voronoi);
+
+    emit('painted');
 };
 
 const bindPainter = () => on('seed', paint);
