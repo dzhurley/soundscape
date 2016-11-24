@@ -24,6 +24,7 @@ const events = Object.freeze([
     'seed',
     'seeded',
 
+    'paint',
     'painted'
 ]);
 

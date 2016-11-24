@@ -13,5 +13,3 @@ registerSources(sources);
 setScene();
 
 bindEvents(renderer.domElement);
-
-global.debug = require('debugger');

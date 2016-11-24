@@ -6,32 +6,11 @@ const { nodes } = require('seeding/nodes');
 
 const scene = require('three/scene');
 
-global.debugging = false;
+global.THREE = THREE;
+global.scene = scene;
+global.nodes = nodes;
 
-const sceneHelpers = [new THREE.AxisHelper(axisSize)];
+[new THREE.AxisHelper(axisSize)].map(helper => scene.add(helper));
 
-const activate = () => {
-    global.THREE = THREE;
-    global.scene = scene;
-    global.nodes = nodes;
-
-    sceneHelpers.map(helper => scene.add(helper));
-};
-
-const deactivate = () => {
-    delete global.THREE;
-    delete global.scene;
-    delete global.nodes;
-
-    sceneHelpers.map(helper => scene.remove(helper));
-};
-
-const debug = () => {
-    global.debugging = !global.debugging;
-    global.debugging ? activate() : deactivate();
-
-    // autosubmit when debug() is flipped
-    emit('submitting', 'lastfm', 'stutterbug42');
-};
-
-module.exports = debug;
+// autosubmit when debug() is flipped
+emit('submitting', 'lastfm', 'stutterbug42');

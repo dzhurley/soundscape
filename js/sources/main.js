@@ -14,23 +14,24 @@
  *     }
  */
 
-const { setArtists } = require('artists');
 const { packUrlParams, randomArray } = require('helpers');
-const { emit, on } = require('dispatch');
-const nodes = require('seeding/nodes');
+const { emit, emitOnWorker, on } = require('dispatch');
 
 // TODO: find better state solution (localStorage?)
 let registered = {};
 
-const registerSources = sources => sources.map(src => registered[src] = require(`./${src}`));
+const registerSources = sources => {
+    sources.map(src => registered[src] = require(`./${src}`));
+};
 
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
         const data = JSON.parse(localStorage[username]);
 
+        // TODO: check without parsing?
         if (data) {
             emit('submitted');
-            nodes.create(setArtists(data));
+            emitOnWorker('seed', JSON.stringify(data));
             return;
         }
     }
@@ -45,7 +46,7 @@ const getArtists = (source, username) => {
             const stringified = JSON.stringify(artists);
             localStorage[username] = stringified;
             emit('submitted');
-            nodes.create(setArtists(artists));
+            emitOnWorker('seed', stringified);
         }
     };
 

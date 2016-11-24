@@ -1,8 +1,13 @@
-const { emit, on } = require('dispatch');
-const scene = require('three/scene');
-const { globe } = require('three/globe');
+const THREE = require('three');
 
-// { [name]: { faceIndex, distance } }
+const { globe: { radius, widthAndHeight } } = require('constants');
+const { on } = require('dispatch');
+const scene = require('three/scene');
+
+// local geometry-only globe so main/worker globes aren't shared
+const globe = new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight);
+
+// { [name]: { distance, index } }
 const artistCenters = {};
 
 const findClosestSeed = (candidates, target) => {
@@ -20,10 +25,10 @@ const findClosestSeed = (candidates, target) => {
     return { closest, distance: lastDistance };
 };
 
-const updateArtistCenter = (face, distance) => {
-    const entry = artistCenters[face.data.artist];
+const updateArtistCenter = (artist, distance, index) => {
+    const entry = artistCenters[artist];
     if (!entry || entry.distance >= distance) {
-        artistCenters[face.data.artist] = { distance, index: globe.geometry.faces.indexOf(face) };
+        artistCenters[artist] = { distance, index };
     }
 };
 
@@ -35,24 +40,19 @@ const paint = seeds => {
     });
 
     // paint each face the color of the closest seed
-    globe.geometry.faces.map(face => {
+    const pending = globe.faces.map((face, index) => {
         const { closest, distance } = findClosestSeed(vertices, face);
-        face.color.set(closest.color);
-        Object.assign(face.data, closest.data);
-        updateArtistCenter(face, distance);
+        updateArtistCenter(face, distance, index);
+        return { color: closest.color, data: closest.data, index };
     });
 
     // mark center of artist territory (used in autocomplete)
-    Object.keys(artistCenters).map(artist => {
-        globe.geometry.faces[artistCenters[artist].index].data.center = true;
-    });
+    pending.map((face, index) => face.center = index === face.index);
 
     seeds.map(seed => scene.remove(seed));
-    globe.geometry.colorsNeedUpdate = true;
-
-    emit('painted');
+    postMessage({ type: 'paint', payload: pending });
 };
 
-const bindPainter = () => on('seed', paint);
+const bindPainter = () => on('paint', paint);
 
 module.exports = bindPainter;

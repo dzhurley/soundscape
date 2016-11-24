@@ -29,7 +29,7 @@ const applyDiff = (v, u) => {
 const iterateForce = () => {
     if (iterations >= maxIterations || temp <= epsilon) {
         iterable = false;
-        emit('seed', Array.from(nodes));
+        emit('paint', Array.from(nodes));
         return;
     }
 
@@ -50,6 +50,8 @@ const startForce = ns => {
     ns.forEach(n => n.charge = (radius / 1.5) * (n.charge / maxCharge));
     nodes = ns;
     iterable = true;
+
+    while (iterating()) iterateForce();
 };
 
 module.exports = { startForce, iterateForce, iterating };

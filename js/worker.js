@@ -10,7 +10,7 @@ onmessage = evt => {
         self.emit = require('dispatch').emit;
         self.on = require('dispatch').on;
 
-        // TODO: move force seeding here once working?
+        self.nodes = require('seeding/nodes');
         self.started = true;
     }
 

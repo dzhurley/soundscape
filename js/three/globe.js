@@ -1,5 +1,6 @@
 const THREE = require('three');
 
+const { emit, on } = require('dispatch');
 const constants = require('constants');
 const scene = require('three/scene');
 
@@ -27,5 +28,16 @@ const resetGlobe = () => {
     });
     globe.geometry.colorsNeedUpdate = true;
 };
+
+on('paint', pending => {
+    pending.map(update => {
+        const face = globe.geometry.faces[update.index];
+        const { r, g, b } = update.color;
+        face.color.setRGB(r, g, b);
+        face.data = update.data;
+    });
+    globe.geometry.colorsNeedUpdate = true;
+    emit('painted');
+});
 
 module.exports = { addGlobe, resetGlobe, globe };
