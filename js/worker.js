@@ -14,8 +14,5 @@ onmessage = evt => {
         self.started = true;
     }
 
-    // expose namespaced method as first arg to callback
-    type.includes('.') ?
-        self.emit(type, type.split('.')[1], payload) :
-        self.emit(type, payload);
+    self.emit(type, payload);
 };

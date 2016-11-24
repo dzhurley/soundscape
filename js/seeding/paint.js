@@ -39,20 +39,25 @@ const paint = seeds => {
         return seed.position;
     });
 
-    // paint each face the color of the closest seed
+    // paint each face the color of the closest seed, giving each face should
+    //have its own copy of the closest data
     const pending = globe.faces.map((face, index) => {
         const { closest, distance } = findClosestSeed(vertices, face);
-        updateArtistCenter(face, distance, index);
-        return { color: closest.color, data: closest.data, index };
+        updateArtistCenter(closest.data.artist, distance, index);
+        return { color: closest.color, data: Object.assign({}, closest.data), index };
     });
 
     // mark center of artist territory (used in autocomplete)
-    pending.map((face, index) => face.center = index === face.index);
+    Object.keys(artistCenters).map(artist => {
+        pending[artistCenters[artist].index].data.center = true;
+    });
 
     seeds.map(seed => scene.remove(seed));
+
+    // TODO: this takes 5 seconds and should be faster
     postMessage({ type: 'paint', payload: pending });
 };
 
-const bindPainter = () => on('paint', paint);
+const bindPainter = () => on('seeded', paint);
 
 module.exports = bindPainter;

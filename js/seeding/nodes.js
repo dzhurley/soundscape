@@ -24,7 +24,6 @@ const processArtists = data => {
     return data.map((artist, i) => {
         const weight = normCount(artist.playCount);
         const baseColor = new THREE.Color(spacedColor(data.length, i));
-        // TODO: need to multiply?
         return Object.assign(artist, { color: baseColor.multiplyScalar(weight), weight });
     });
 };
@@ -43,7 +42,6 @@ const create = data => {
     }
 
     bindPainter();
-
     startForce(nodes);
 };
 

@@ -20,10 +20,9 @@ const events = Object.freeze([
     // ui event
     'toggleControls',
 
-    // data events to be used in worker
+    // globe setup events
     'seed',
     'seeded',
-
     'paint',
     'painted'
 ]);
