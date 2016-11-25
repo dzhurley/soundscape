@@ -1,8 +1,7 @@
 const THREE = require('three');
 
 const { globe: { radius, widthAndHeight } } = require('constants');
-const { on } = require('dispatch');
-const scene = require('three/scene');
+const { emitOnMain, on } = require('dispatch');
 
 // local geometry-only globe so main/worker globes aren't shared
 const globe = new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight);
@@ -32,15 +31,9 @@ const updateArtistCenter = (artist, distance, index) => {
     }
 };
 
-const paint = seeds => {
-    const vertices = seeds.map(seed => {
-        seed.position.color = seed.material.color;
-        seed.position.data = { artist: seed.name };
-        return seed.position;
-    });
-
+const paint = vertices => {
     // paint each face the color of the closest seed, giving each face should
-    //have its own copy of the closest data
+    // have its own copy of the closest data
     const pending = globe.faces.map((face, index) => {
         const { closest, distance } = findClosestSeed(vertices, face);
         updateArtistCenter(closest.data.artist, distance, index);
@@ -52,10 +45,8 @@ const paint = seeds => {
         pending[artistCenters[artist].index].data.center = true;
     });
 
-    seeds.map(seed => scene.remove(seed));
-
     // TODO: this takes 5 seconds and should be faster
-    postMessage({ type: 'paint', payload: pending });
+    emitOnMain('paint', pending);
 };
 
 const bindPainter = () => on('seeded', paint);

@@ -32,4 +32,9 @@ const emitOnWorker = (type, payload) => {
     isValidEvent(type) && emitter.worker.postMessage({ type, payload });
 };
 
-module.exports = { setMainWorker, stopMainWorker, emit, emitOnWorker, on };
+// worker to main events
+const emitOnMain = (type, payload) => {
+    isValidEvent(type) && postMessage({ type, payload });
+};
+
+module.exports = { setMainWorker, stopMainWorker, emit, emitOnMain, emitOnWorker, on };

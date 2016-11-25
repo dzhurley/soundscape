@@ -44,7 +44,8 @@ const globe = Object.freeze({
     axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
     radius: 300,
-    widthAndHeight: 400,
+    // TODO: bump up if speed can improve between main/worker (transferrable object?)
+    widthAndHeight: 300,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
     vertexColors: THREE.FaceColors

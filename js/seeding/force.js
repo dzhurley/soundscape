@@ -1,9 +1,15 @@
 // Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization,
 // based on Fruchterman and Reingold and the JUNG implementation.
 
-const { emit } = require('dispatch');
-const { globe: { radius }, node: { height } } = require('constants');
-const { force: { epsilon, maxIterations, initialTemp } } = require('constants');
+const { emit, emitOnMain } = require('dispatch');
+const constants = require('constants');
+const scene = require('three/scene');
+
+const {
+    force: { epsilon, maxIterations, initialTemp },
+    globe: { radius },
+    node: { height }
+} = constants;
 
 let temp = initialTemp;
 let iterations = 0;
@@ -12,6 +18,20 @@ let nodes = new Set();
 // checked in render cycle to start/stop calling iterateForce
 let iterable = false;
 const iterating = () => iterable;
+
+const finish = () => {
+    iterable = false;
+
+    const positions = Array.from(nodes).map(node => {
+        scene.remove(node);
+        node.position.color = node.material.color;
+        node.position.data = { artist: node.name };
+        return node.position;
+    });
+
+    emitOnMain('seeded', positions);
+    emit('seeded', positions);
+};
 
 const applyDiff = (v, u) => {
     // diff is the difference vector between the positions of the two vertices
@@ -27,11 +47,7 @@ const applyDiff = (v, u) => {
 };
 
 const iterateForce = () => {
-    if (iterations >= maxIterations || temp <= epsilon) {
-        iterable = false;
-        emit('seeded', Array.from(nodes));
-        return;
-    }
+    if (iterations >= maxIterations || temp <= epsilon) return finish();
 
     for (let v of nodes) {
         for (let u of nodes) {

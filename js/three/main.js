@@ -13,6 +13,7 @@ const { updateControls } = require('three/controls');
 
 const { addGlobe, resetGlobe } = require('three/globe');
 const { addStars } = require('three/stars');
+const { positionSeeds, showSeeds } = require('three/seeds');
 
 const setScene = () => {
     addLight();
@@ -20,6 +21,9 @@ const setScene = () => {
     addGlobe();
 
     on('submitted', resetGlobe);
+
+    on('seed', showSeeds);
+    on('seeded', positionSeeds);
 
     getCamera().lookAt(scene.position);
     animate();

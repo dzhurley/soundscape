@@ -1,7 +1,7 @@
 const THREE = require('three');
 
 const constants = require('constants');
-const { on } = require('dispatch');
+const { emitOnMain, on } = require('dispatch');
 const { equidistantishPointsOnSphere, normalizeAgainst, spacedColor } = require('helpers');
 const scene = require('three/scene');
 
@@ -30,6 +30,8 @@ const processArtists = data => {
 
 const create = data => {
     const points = equidistantishPointsOnSphere(data.length);
+    emitOnMain('seed', points);
+
     const artists = processArtists(data);
 
     for (let i in artists) {
