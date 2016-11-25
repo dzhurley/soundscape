@@ -15,8 +15,14 @@ const positionSeeds = positions => {
 
         const { x, y, z } = position;
         const target = seeds.children[index].position;
-        const align = new TWEEN.Tween(target).to({ x, y, z }, 6000);
-        const sink = new TWEEN.Tween(target).to({ x: 0, y: 0, z: 0 }, 12000).delay(2000);
+        const align = new TWEEN.Tween(target).to(
+            { x, y, z },
+            8000
+        ).easing(TWEEN.Easing.Elastic.InOut);
+        const sink = new TWEEN.Tween(target).to(
+            { x: x / 1.5, y: y / 1.5, z: z / 1.5 },
+            8000
+        ).delay(2000);
         align.chain(sink).start();
     });
 };
@@ -24,15 +30,16 @@ const positionSeeds = positions => {
 const showSeeds = positions => {
     positions.map(position => {
         const seed = new THREE.Mesh(
-            new THREE.SphereBufferGeometry(20, 20, 20),
-            new THREE.MeshBasicMaterial({ color: 0xFF0000 })
+            new THREE.SphereBufferGeometry(10, 10, 10),
+            new THREE.MeshBasicMaterial({ color: 0x888888, morphTargets: true })
         );
+
         seed.position.set(...position);
         seed.position.multiplyScalar(radius - 40);
         seeds.add(seed);
 
         const { x, y, z } = seed.position.clone().multiplyScalar(1.25);
-        new TWEEN.Tween(seed.position).to({ x, y, z }, 2000).start();
+        new TWEEN.Tween(seed.position).to({ x, y, z }, 2000).easing(TWEEN.Easing.Bounce.Out).start();
     });
 
     scene.add(seeds);
@@ -41,6 +48,8 @@ const showSeeds = positions => {
 
 const animate = () => {
     TWEEN.update();
+    const time = Date.now() * 0.001;
+    seeds.children.map(seed => seed.morphTargetInfluences = [Math.sin(4 * time) / 4]);
 };
 
 const create = () => {
