@@ -13,17 +13,17 @@ const { updateControls } = require('three/controls');
 
 const { addGlobe, resetGlobe } = require('three/globe');
 const { addStars } = require('three/stars');
-const { positionSeeds, showSeeds } = require('three/seeds');
+const seeds = require('three/seeds');
 
 const setScene = () => {
+    // TODO: convert to create/animate standard
     addLight();
     addStars();
     addGlobe();
 
-    on('submitted', resetGlobe);
+    seeds.create();
 
-    on('seed', showSeeds);
-    on('seeded', positionSeeds);
+    on('submitted', resetGlobe);
 
     getCamera().lookAt(scene.position);
     animate();
@@ -31,6 +31,7 @@ const setScene = () => {
 
 const animate = () => {
     updateControls(1);
+    seeds.animate();
     renderer.render(scene, getCamera());
     window.requestAnimationFrame(animate);
 };

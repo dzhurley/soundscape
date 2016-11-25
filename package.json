@@ -11,7 +11,8 @@
   "homepage": "https://shiftfoc.us/soundscape",
   "dependencies": {
     "eventemitter2": "^0.4.14",
-    "three": "^0.81.2"
+    "three": "^0.81.2",
+    "tween.js": "^16.3.5"
   },
   "devDependencies": {
     "babel-core": "^6.11.4",

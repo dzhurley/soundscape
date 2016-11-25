@@ -30,9 +30,9 @@ const processArtists = data => {
 
 const create = data => {
     const points = equidistantishPointsOnSphere(data.length);
-    emitOnMain('seed', points);
-
     const artists = processArtists(data);
+
+    emitOnMain('seed', points);
 
     for (let i in artists) {
         let targetNode = createNode(artists[i]);
