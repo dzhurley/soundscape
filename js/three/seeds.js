@@ -15,10 +15,7 @@ const positionSeeds = positions => {
 
         const { x, y, z } = position;
         const target = seeds.children[index].position;
-        const align = new TWEEN.Tween(target).to(
-            { x, y, z },
-            8000
-        ).easing(TWEEN.Easing.Elastic.InOut);
+        const align = new TWEEN.Tween(target).to({ x, y, z }, 8000);
         const sink = new TWEEN.Tween(target).to(
             { x: x / 1.5, y: y / 1.5, z: z / 1.5 },
             8000
@@ -39,7 +36,10 @@ const showSeeds = positions => {
         seeds.add(seed);
 
         const { x, y, z } = seed.position.clone().multiplyScalar(1.25);
-        new TWEEN.Tween(seed.position).to({ x, y, z }, 2000).easing(TWEEN.Easing.Bounce.Out).start();
+        new TWEEN.Tween(seed.position).to(
+            { x, y, z },
+            2000
+        ).easing(TWEEN.Easing.Bounce.Out).delay(Math.random() * 1000).start();
     });
 
     scene.add(seeds);
