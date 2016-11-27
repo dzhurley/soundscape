@@ -14,13 +14,10 @@ const positionSeeds = positions => {
         seeds.children[index].data = position.data;
 
         const { x, y, z } = position;
-        const target = seeds.children[index].position;
-        const align = new TWEEN.Tween(target).to({ x, y, z }, 8000);
-        const sink = new TWEEN.Tween(target).to(
-            { x: x / 1.5, y: y / 1.5, z: z / 1.5 },
-            8000
-        ).delay(2000);
-        align.chain(sink).start();
+        new TWEEN.Tween(seeds.children[index].position)
+            .to({ x, y, z }, 1000)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .start();
     });
 };
 
@@ -36,14 +33,14 @@ const showSeeds = positions => {
         seeds.add(seed);
 
         const { x, y, z } = seed.position.clone().multiplyScalar(1.25);
-        new TWEEN.Tween(seed.position).to(
-            { x, y, z },
-            2000
-        ).easing(TWEEN.Easing.Bounce.Out).delay(Math.random() * 1000).start();
+        new TWEEN.Tween(seed.position)
+            .to({ x, y, z }, 1000)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .delay(Math.random() * 1000)
+            .start();
     });
 
     scene.add(seeds);
-    on('paint', () => scene.remove(seeds));
 };
 
 const animate = () => {
@@ -55,6 +52,7 @@ const animate = () => {
 const create = () => {
     on('seed', showSeeds);
     on('seeded', positionSeeds);
+    on('gaps', () => scene.remove(seeds));
 };
 
 module.exports = { animate, create };

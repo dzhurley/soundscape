@@ -29,7 +29,7 @@ const resetGlobe = () => {
     globe.geometry.colorsNeedUpdate = true;
 };
 
-on('paint', pending => {
+const paint = pending => {
     pending.map(update => {
         const face = globe.geometry.faces[update.index];
         const { r, g, b } = update.color;
@@ -37,6 +37,11 @@ on('paint', pending => {
         face.data = update.data;
     });
     globe.geometry.colorsNeedUpdate = true;
+};
+
+on('paint', paint);
+on('gaps', pending => {
+    paint(pending);
     emit('painted');
 });
 
