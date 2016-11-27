@@ -7,6 +7,7 @@ const scene = require('three/scene');
 
 const seeds = new THREE.Group();
 
+// TODO: constants throughout
 const positionSeeds = positions => {
     positions.map((position, index) => {
         const { r, g, b } = position.color;
@@ -43,6 +44,18 @@ const showSeeds = positions => {
     scene.add(seeds);
 };
 
+const sink = (artist, paintFaces) => {
+    const seed = seeds.children.find(seed => seed.data.artist === artist);
+    new TWEEN.Tween(seed.position)
+        .to({
+            x: seed.position.x / 1.1,
+            y: seed.position.y / 1.1,
+            z: seed.position.z / 1.1,
+        }, 1000)
+        .onComplete(paintFaces)
+        .start();
+};
+
 const animate = () => {
     TWEEN.update();
     const time = Date.now() * 0.001;
@@ -52,7 +65,7 @@ const animate = () => {
 const create = () => {
     on('seed', showSeeds);
     on('seeded', positionSeeds);
-    on('gaps', () => scene.remove(seeds));
+    on('painted', () => scene.remove(seeds));
 };
 
-module.exports = { animate, create };
+module.exports = { animate, create, sink };

@@ -7,8 +7,7 @@ const scene = require('three/scene');
 
 const {
     force: { epsilon, maxIterations, initialTemp },
-    globe: { radius },
-    node: { height }
+    globe: { radius }
 } = constants;
 
 let temp = initialTemp;
@@ -43,7 +42,8 @@ const applyDiff = (v, u) => {
         u.position.add(diff.multiplyScalar(multiplier));
     }
     // bind to surface of globe
-    u.position.setLength(radius + (height / 2));
+    // TODO: constants
+    u.position.setLength(radius + 15);
 };
 
 const iterateForce = () => {

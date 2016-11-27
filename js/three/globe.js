@@ -3,6 +3,7 @@ const THREE = require('three');
 const { emit, on } = require('dispatch');
 const constants = require('constants');
 const scene = require('three/scene');
+const { sink } = require('three/seeds');
 
 const {
     globe: {
@@ -39,7 +40,7 @@ const paint = pending => {
     globe.geometry.colorsNeedUpdate = true;
 };
 
-on('paint', paint);
+on('paint', pending => sink(pending[0].data.artist, () => paint(pending)));
 on('gaps', pending => {
     paint(pending);
     emit('painted');

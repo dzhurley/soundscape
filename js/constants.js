@@ -55,10 +55,7 @@ const globe = Object.freeze({
 const light = Object.freeze({ color: 0xf0f0f0 });
 
 const node = Object.freeze({
-    height: 30,
-    geometry() {
-        return new THREE.ConeGeometry(10, node.height, 20);
-    },
+    geometry: new THREE.SphereBufferGeometry(15, 3, 2),
     material(color) {
         return new THREE.MeshBasicMaterial({ color });
     }

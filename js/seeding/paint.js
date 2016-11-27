@@ -15,10 +15,7 @@ const findClosestSeed = (candidates, target) => {
     let closest, newDistance, lastDistance;
     for (let i = 0; i < candidates.length; i++) {
         newDistance = target.normal.distanceTo(candidates[i]);
-        if (!closest) {
-            closest = candidates[i];
-            lastDistance = newDistance;
-        } else if (newDistance < lastDistance) {
+        if (!closest || newDistance < lastDistance) {
             closest = candidates[i];
             lastDistance = newDistance;
         }
@@ -54,6 +51,7 @@ const paint = vertices => {
         const searched = [center];
         searched[0].distance = 0;
 
+        // keep track of distanced faces to progressively send back to paint
         const pending = [];
         pending.push(mainInfoFor(center));
 
@@ -69,7 +67,6 @@ const paint = vertices => {
             }
         }
 
-        // TODO: this takes 5 seconds and should be faster
         emitOnMain('paint', pending);
     });
 
