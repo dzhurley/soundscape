@@ -1,6 +1,9 @@
+const TWEEN = require('tween.js');
+
 const { faceCentroid, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
+const scene = require('three/scene');
 
 let artists;
 const input = qs('.autocomplete input');
@@ -8,9 +11,20 @@ const input = qs('.autocomplete input');
 const focus = name => {
     const cam = getCamera();
     const match = globe.geometry.faces.find(f => f.data.artist === name && f.data.center);
-    // TODO: add Tweens
-    cam.position.copy(faceCentroid(globe, match).setLength(cam.position.length()));
-    cam.lookAt(globe);
+
+    const length = cam.position.length();
+    const { x, y, z } = faceCentroid(globe, match).setLength(length);
+    new TWEEN.Tween({ x: cam.position.x, y: cam.position.y, z: cam.position.z })
+        .to({ x, y, z }, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .onUpdate(() => {
+            cam.position.set(this.x, this.y, this.z);
+            cam.position.setLength(length);
+            cam.lookAt(scene.position);
+        })
+        .onComplete(() => cam.lookAt(scene.position))
+        .start();
+
     renderFor();
     input.value = name;
 };

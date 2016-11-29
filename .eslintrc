@@ -2,6 +2,8 @@
     "extends": "dzhurley",
 
     "rules": {
-        "no-console": "off"
+        "no-console": "off",
+        // to work with TWEEN callbacks
+        "no-invalid-this": "off"
     }
 }
