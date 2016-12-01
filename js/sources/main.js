@@ -17,21 +17,21 @@
 const { packUrlParams, randomArray } = require('helpers');
 const { emit, emitOnWorker, on } = require('dispatch');
 
-// TODO: find better state solution (localStorage?)
 let registered = {};
 
 const registerSources = sources => {
     sources.map(src => registered[src] = require(`./${src}`));
 };
 
+const trigger = artists => {
+    emit('submitted');
+    emitOnWorker('seed', artists);
+};
+
 const getArtists = (source, username) => {
     if (Object.keys(localStorage).indexOf(username) > -1) {
-        const data = JSON.parse(localStorage[username]);
-
-        // TODO: check without parsing?
-        if (data) {
-            emit('submitted');
-            emitOnWorker('seed', JSON.stringify(data));
+        if (localStorage[username]) {
+            trigger(localStorage[username]);
             return;
         }
     }
@@ -43,10 +43,8 @@ const getArtists = (source, username) => {
     request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
             const artists = randomArray(source.parseData(JSON.parse(request.responseText)));
-            const stringified = JSON.stringify(artists);
-            localStorage[username] = stringified;
-            emit('submitted');
-            emitOnWorker('seed', stringified);
+            localStorage[username] = JSON.stringify(artists);
+            trigger(localStorage[username]);
         }
     };
 
