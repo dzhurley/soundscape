@@ -1,11 +1,12 @@
 const THREE = require('three');
 const TWEEN = require('tween.js');
 
-const { on } = require('dispatch');
+const animations = require('animations');
 const constants = require('constants');
+const { on } = require('dispatch');
 const scene = require('three/scene');
 
-const { seeds: { animations, geometry, material, morphTargetInfluences } } = constants;
+const { seeds: { geometry, material, morphTargetInfluences } } = constants;
 
 let seeds;
 
@@ -14,7 +15,7 @@ const move = positions => {
         const { r, g, b } = position.color;
         seeds.children[index].material.color.setRGB(r, g, b);
         seeds.children[index].data = position.data;
-        animations.move(seeds.children[index].position, position).start();
+        animations.seeds.move(seeds.children[index].position, position).start();
     });
 };
 
@@ -25,7 +26,7 @@ const show = positions => {
         const seed = new THREE.Mesh(geometry, material());
         seed.position.set(...position);
 
-        animations.show(seed.position).start();
+        animations.seeds.show(seed.position).start();
         seeds.add(seed);
     });
 
@@ -34,7 +35,7 @@ const show = positions => {
 
 const sink = (artist, paintFaces) => {
     const seed = seeds.children.find(seed => seed.data.artist === artist);
-    animations.sink(seed.position).onComplete(paintFaces).start();
+    animations.seeds.sink(seed.position).onComplete(paintFaces).start();
 };
 
 const animate = () => {

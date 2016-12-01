@@ -75,7 +75,6 @@ const paint = vertices => {
         const pending = breadthFirstPaint(center, heds);
 
         // cheap stepped loop to chunk out artists that have too many faces
-        // TODO: there has to be a native method for this
         for (let i = 1; i < pending.length; i++) {
             const chunk = pending.slice(pendingFaceChunk * (i - 1), pendingFaceChunk * i);
             emitOnMain('paint', chunk);
