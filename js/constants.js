@@ -1,4 +1,5 @@
 const THREE = require('three');
+const TWEEN = require('tween.js');
 
 const camera = Object.freeze({
     position: { x: 500, y: 500, z: 500 },
@@ -72,6 +73,37 @@ const orbitalControls = Object.freeze({
     maxDistance: 1500
 });
 
+const seeds = Object.freeze({
+    animations: Object.freeze({
+        move(from, to) {
+            const { x, y, z } = to;
+            return new TWEEN.Tween(from)
+                .to({ x, y, z }, 1000)
+                .easing(TWEEN.Easing.Elastic.Out);
+        },
+        show(from) {
+            from.multiplyScalar(globe.radius - 40);
+            const { x, y, z } = from.clone().multiplyScalar(1.25);
+            return new TWEEN.Tween(from)
+                .to({ x, y, z }, 1000)
+                .easing(TWEEN.Easing.Bounce.Out)
+                .delay(Math.random() * 1000);
+        },
+        sink(from) {
+            return new TWEEN.Tween(from)
+                .to({ x: from.x / 1.1, y: from.y / 1.1, z: from.z / 1.1 }, 1000);
+        }
+    }),
+
+    geometry: new THREE.SphereBufferGeometry(10, 10, 10),
+    material() {
+        return new THREE.MeshBasicMaterial({ color: 0x888888, morphTargets: true });
+    },
+    morphTargetInfluences(seed) {
+        seed.morphTargetInfluences = [Math.sin(4 * Date.now() * 0.001) / 4];
+    }
+});
+
 const sources = ['lastfm'];
 
 const stars = Object.freeze({
@@ -102,6 +134,7 @@ module.exports = Object.freeze({
     light,
     node,
     orbitalControls,
+    seeds,
     sources,
     stars
 });

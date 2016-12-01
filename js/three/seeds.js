@@ -2,45 +2,31 @@ const THREE = require('three');
 const TWEEN = require('tween.js');
 
 const { on } = require('dispatch');
-const { globe: { radius } } = require('constants');
+const constants = require('constants');
 const scene = require('three/scene');
+
+const { seeds: { animations, geometry, material, morphTargetInfluences } } = constants;
 
 let seeds;
 
-// TODO: constants throughout
-const positionSeeds = positions => {
+const move = positions => {
     positions.map((position, index) => {
         const { r, g, b } = position.color;
         seeds.children[index].material.color.setRGB(r, g, b);
         seeds.children[index].data = position.data;
-
-        const { x, y, z } = position;
-        new TWEEN.Tween(seeds.children[index].position)
-            .to({ x, y, z }, 1000)
-            .easing(TWEEN.Easing.Elastic.Out)
-            .start();
+        animations.move(seeds.children[index].position, position).start();
     });
 };
 
-const showSeeds = positions => {
+const show = positions => {
     seeds = new THREE.Group();
 
     positions.map(position => {
-        const seed = new THREE.Mesh(
-            new THREE.SphereBufferGeometry(10, 10, 10),
-            new THREE.MeshBasicMaterial({ color: 0x888888, morphTargets: true })
-        );
-
+        const seed = new THREE.Mesh(geometry, material());
         seed.position.set(...position);
-        seed.position.multiplyScalar(radius - 40);
-        seeds.add(seed);
 
-        const { x, y, z } = seed.position.clone().multiplyScalar(1.25);
-        new TWEEN.Tween(seed.position)
-            .to({ x, y, z }, 1000)
-            .easing(TWEEN.Easing.Bounce.Out)
-            .delay(Math.random() * 1000)
-            .start();
+        animations.show(seed.position).start();
+        seeds.add(seed);
     });
 
     scene.add(seeds);
@@ -48,25 +34,17 @@ const showSeeds = positions => {
 
 const sink = (artist, paintFaces) => {
     const seed = seeds.children.find(seed => seed.data.artist === artist);
-    new TWEEN.Tween(seed.position)
-        .to({
-            x: seed.position.x / 1.1,
-            y: seed.position.y / 1.1,
-            z: seed.position.z / 1.1,
-        }, 1000)
-        .onComplete(paintFaces)
-        .start();
+    animations.sink(seed.position).onComplete(paintFaces).start();
 };
 
 const animate = () => {
     TWEEN.update();
-    const time = Date.now() * 0.001;
-    if (seeds) seeds.children.map(seed => seed.morphTargetInfluences = [Math.sin(4 * time) / 4]);
+    if (seeds) seeds.children.map(morphTargetInfluences);
 };
 
 const create = () => {
-    on('seed', showSeeds);
-    on('seeded', positionSeeds);
+    on('seed', show);
+    on('seeded', move);
     on('painted', () => scene.remove(seeds));
 };
 

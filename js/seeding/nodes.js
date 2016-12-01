@@ -27,7 +27,6 @@ const processArtists = data => {
 };
 
 const create = data => {
-    // TODO: move to main while user types form to show faster
     const points = equidistantishPointsOnSphere(data.length);
     emitOnMain('seed', points);
 
