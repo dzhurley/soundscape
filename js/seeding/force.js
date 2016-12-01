@@ -1,9 +1,11 @@
 // Adapted from davidpiegza's work at http://github.com/davidpiegza/Graph-Visualization,
 // based on Fruchterman and Reingold and the JUNG implementation.
 
-const { emit, emitOnMain } = require('dispatch');
+const { emitOnMain } = require('dispatch');
 const constants = require('constants');
 const scene = require('three/scene');
+
+const { paint } = require('seeding/paint');
 
 const {
     force: { epsilon, globeDivisor, initialTemp, maxIterations },
@@ -30,7 +32,7 @@ const finish = () => {
     });
 
     emitOnMain('seeded', positions);
-    emit('seeded', positions);
+    paint(positions);
 };
 
 const applyDiff = (v, u) => {

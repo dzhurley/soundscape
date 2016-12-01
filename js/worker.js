@@ -8,9 +8,10 @@ onmessage = evt => {
     let { data: { type, payload } } = evt;
     if (!self.started) {
         self.emit = require('dispatch').emit;
-        self.on = require('dispatch').on;
 
         self.nodes = require('seeding/nodes');
+        self.nodes.create();
+
         self.started = true;
     }
 

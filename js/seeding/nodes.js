@@ -6,7 +6,6 @@ const { equidistantishPointsOnSphere, normalizeAgainst, spacedColor } = require(
 const scene = require('three/scene');
 
 const { startForce } = require('seeding/force');
-const bindPainter = require('seeding/paint');
 
 const { globe: { radius }, node: { geometry, material } } = constants;
 
@@ -26,7 +25,7 @@ const processArtists = data => {
     });
 };
 
-const create = data => {
+const seed = data => {
     const points = equidistantishPointsOnSphere(data.length);
     emitOnMain('seed', points);
 
@@ -42,10 +41,9 @@ const create = data => {
         scene.add(targetNode);
     }
 
-    bindPainter();
     startForce(nodes);
 };
 
-on('seed', data => create(JSON.parse(data)));
+const create = () => on('seed', data => seed(JSON.parse(data)));
 
 module.exports = { create };

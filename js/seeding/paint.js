@@ -92,6 +92,4 @@ const paint = vertices => {
     }, []));
 };
 
-const bindPainter = () => on('seeded', paint);
-
-module.exports = bindPainter;
+module.exports = { paint };
