@@ -45,10 +45,11 @@ const force = Object.freeze({
 const globe = Object.freeze({
     axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
+    pendingFaceChunk: 5000,
     radius: 300,
-    widthAndHeight: 300,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
+    widthAndHeight: 300,
     vertexColors: THREE.FaceColors
 });
 

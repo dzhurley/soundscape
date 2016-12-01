@@ -1,7 +1,7 @@
 const THREE = require('three');
 THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
 
-const { globe: { radius, widthAndHeight } } = require('constants');
+const { globe: { pendingFaceChunk, radius, widthAndHeight } } = require('constants');
 const { emitOnMain, on } = require('dispatch');
 
 // local geometry-only globe so main/worker globes aren't shared
@@ -67,7 +67,13 @@ const paint = vertices => {
             }
         }
 
-        emitOnMain('paint', pending);
+        // cheap stepped loop to chunk out artists that have too many faces
+        // TODO: there has to be a native method for this
+        for (let i = 1; i < pending.length; i++) {
+            const chunk = pending.slice(pendingFaceChunk * (i - 1), pendingFaceChunk * i);
+            emitOnMain('paint', chunk);
+            if (chunk.length < pendingFaceChunk) break;
+        }
     });
 
     // grab any faces the bfs adjacency checks might have missed
