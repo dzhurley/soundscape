@@ -4,12 +4,8 @@ THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeS
 const { globe: { pendingFaceChunk, radius, widthAndHeight } } = require('constants');
 const { emitOnMain, on } = require('dispatch');
 
-// local geometry-only globe so main/worker globes aren't shared
-const globe = new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight);
-const heds = new THREE.HalfEdgeStructure(globe);
-
 // { [name]: { distance, index } }
-const artistCenters = {};
+let artistCenters;
 
 const findClosestSeed = (candidates, target) => {
     let closest, newDistance, lastDistance;
@@ -32,7 +28,35 @@ const updateArtistCenter = (artist, distance, index) => {
 
 const mainInfoFor = face => ({ color: face.color, data: face.data, index: face.index });
 
+const breadthFirstPaint = (center, heds) => {
+    const searched = [center];
+    searched[0].distance = 0;
+
+    // keep track of distanced faces to progressively send back to paint
+    const pending = [];
+    pending.push(mainInfoFor(center));
+
+    while (searched.length) {
+        let current = searched.shift();
+        for (let adj of heds.adjacentFaces(current)) {
+            if (typeof adj.distance == 'undefined' && adj.data.artist === center.data.artist) {
+                adj.distance = current.distance + 1;
+                adj.parent = current;
+                searched.push(adj);
+                pending.push(mainInfoFor(adj));
+            }
+        }
+    }
+
+    return pending;
+};
+
 const paint = vertices => {
+    artistCenters = {};
+    // local geometry-only globe so main/worker globes aren't shared
+    const globe = new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight);
+    const heds = new THREE.HalfEdgeStructure(globe);
+
     // paint each face the color of the closest seed, giving each face should
     // have its own copy of the closest data
     globe.faces.map((face, index) => {
@@ -48,24 +72,7 @@ const paint = vertices => {
         const center = globe.faces[artistCenters[artist].index];
         center.data.center = true;
 
-        const searched = [center];
-        searched[0].distance = 0;
-
-        // keep track of distanced faces to progressively send back to paint
-        const pending = [];
-        pending.push(mainInfoFor(center));
-
-        while (searched.length) {
-            let current = searched.shift();
-            for (let adj of heds.adjacentFaces(current)) {
-                if (typeof adj.distance == 'undefined' && adj.data.artist === center.data.artist) {
-                    adj.distance = current.distance + 1;
-                    adj.parent = current;
-                    searched.push(adj);
-                    pending.push(mainInfoFor(adj));
-                }
-            }
-        }
+        const pending = breadthFirstPaint(center, heds);
 
         // cheap stepped loop to chunk out artists that have too many faces
         // TODO: there has to be a native method for this

@@ -10,8 +10,6 @@ const bindPainter = require('seeding/paint');
 
 const { globe: { radius }, node: { geometry, material } } = constants;
 
-const nodes = new Set();
-
 const createNode = ({ name, weight, color } = {}) => {
     const node = new THREE.Mesh(geometry(), material(color));
     node.name = name;
@@ -34,6 +32,7 @@ const create = data => {
     emitOnMain('seed', points);
 
     const artists = processArtists(data);
+    const nodes = new Set();
 
     for (let i in artists) {
         let targetNode = createNode(artists[i]);
@@ -50,4 +49,4 @@ const create = data => {
 
 on('seed', data => create(JSON.parse(data)));
 
-module.exports = { create, nodes };
+module.exports = { create };

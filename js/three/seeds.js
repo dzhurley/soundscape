@@ -5,7 +5,7 @@ const { on } = require('dispatch');
 const { globe: { radius } } = require('constants');
 const scene = require('three/scene');
 
-const seeds = new THREE.Group();
+let seeds;
 
 // TODO: constants throughout
 const positionSeeds = positions => {
@@ -23,6 +23,8 @@ const positionSeeds = positions => {
 };
 
 const showSeeds = positions => {
+    seeds = new THREE.Group();
+
     positions.map(position => {
         const seed = new THREE.Mesh(
             new THREE.SphereBufferGeometry(10, 10, 10),
@@ -59,7 +61,7 @@ const sink = (artist, paintFaces) => {
 const animate = () => {
     TWEEN.update();
     const time = Date.now() * 0.001;
-    seeds.children.map(seed => seed.morphTargetInfluences = [Math.sin(4 * time) / 4]);
+    if (seeds) seeds.children.map(seed => seed.morphTargetInfluences = [Math.sin(4 * time) / 4]);
 };
 
 const create = () => {

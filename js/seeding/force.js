@@ -11,9 +11,9 @@ const {
     node
 } = constants;
 
-let temp = initialTemp;
-let iterations = 0;
-let nodes = new Set();
+let iterations;
+let nodes;
+let temp;
 
 // checked in render cycle to start/stop calling iterateForce
 let iterable = false;
@@ -64,8 +64,11 @@ const startForce = ns => {
     const maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
     // narrow the range of charges underneath the radius of the globe
     ns.forEach(n => n.charge = (globe.radius / globeDivisor) * (n.charge / maxCharge));
-    nodes = ns;
+
     iterable = true;
+    iterations = 0;
+    nodes = ns;
+    temp = initialTemp;
 
     while (iterating()) iterateForce();
 };

@@ -34,16 +34,16 @@ const bindHandlers = domElement => {
     on('submitted', () => {
         qs('#username').value = '';
         qs('#toggleOverlay').click();
+    });
 
-        domElement.addEventListener('mousemove', evt => {
-            const hits = intersectObject(evt, globe, getCamera());
-            qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';
-        });
+    domElement.addEventListener('mousemove', evt => {
+        const hits = intersectObject(evt, globe, getCamera());
+        qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';
+    });
 
-        domElement.addEventListener('click', evt => {
-            const hits = intersectObject(evt, globe, getCamera());
-            qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
-        });
+    domElement.addEventListener('click', evt => {
+        const hits = intersectObject(evt, globe, getCamera());
+        qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
     });
 
     // TODO: allow for incremental update
