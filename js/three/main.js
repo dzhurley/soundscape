@@ -3,27 +3,22 @@
  * This also manages the rebinding of fly/orbital controls
  */
 
-const { on } = require('dispatch');
-
 const { getCamera } = require('three/camera');
-const { addLight } = require('three/light');
+const light = require('three/light');
 const renderer = require('three/renderer');
 const scene = require('three/scene');
 const { updateControls } = require('three/controls');
 
-const { addGlobe, resetGlobe } = require('three/globe');
-const { addStars } = require('three/stars');
+const globe = require('three/globe');
+const stars = require('three/stars');
 const seeds = require('three/seeds');
 
 const setScene = () => {
-    // TODO: convert to create/animate standard
-    addLight();
-    addStars();
-    addGlobe();
+    light.create();
 
+    globe.create();
     seeds.create();
-
-    on('submitted', resetGlobe);
+    stars.create();
 
     getCamera().lookAt(scene.position);
     animate();

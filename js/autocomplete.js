@@ -17,7 +17,7 @@ const focus = name => {
     new TWEEN.Tween({ x: cam.position.x, y: cam.position.y, z: cam.position.z })
         .to({ x, y, z }, 1000)
         .easing(TWEEN.Easing.Quadratic.InOut)
-        .onUpdate(() => {
+        .onUpdate(function() {
             cam.position.set(this.x, this.y, this.z);
             cam.position.setLength(length);
             cam.lookAt(scene.position);

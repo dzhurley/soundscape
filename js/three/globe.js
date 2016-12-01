@@ -21,15 +21,6 @@ const globe = new THREE.Mesh(
     new THREE.MeshLambertMaterial({ shading, side, vertexColors })
 );
 
-const addGlobe = () => scene.add(globe);
-const resetGlobe = () => {
-    globe.geometry.faces.map(f => {
-        f.data = {};
-        f.color.setHex(defaultFaceColor);
-    });
-    globe.geometry.colorsNeedUpdate = true;
-};
-
 const paint = pending => {
     pending.map(update => {
         const face = globe.geometry.faces[update.index];
@@ -40,10 +31,23 @@ const paint = pending => {
     globe.geometry.colorsNeedUpdate = true;
 };
 
-on('paint', pending => sink(pending[0].data.artist, () => paint(pending)));
-on('gaps', pending => {
-    paint(pending);
-    emit('painted');
-});
+const reset = () => {
+    globe.geometry.faces.map(f => {
+        f.data = {};
+        f.color.setHex(defaultFaceColor);
+    });
+    globe.geometry.colorsNeedUpdate = true;
+};
 
-module.exports = { addGlobe, resetGlobe, globe };
+const create = () => {
+    on('submitted', reset);
+    on('paint', pending => sink(pending[0].data.artist, () => paint(pending)));
+    on('gaps', pending => {
+        paint(pending);
+        emit('painted');
+    });
+
+    scene.add(globe);
+};
+
+module.exports = { create, globe };
