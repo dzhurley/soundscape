@@ -74,12 +74,14 @@ const keys = {
     '13': evt => artists.has(evt.target.value) && focus(evt.target.value)
 };
 
-const bindAutocomplete = () => {
+const update = () => {
     artists = globe.geometry.faces.reduce((memo, face) => {
         if (face.data.artist) memo.add(face.data.artist);
         return memo;
     }, new Set());
+};
 
+const create = () => {
     qs('#scape').addEventListener('click', () => {
         renderFor();
         input.blur();
@@ -90,4 +92,4 @@ const bindAutocomplete = () => {
     });
 };
 
-module.exports = bindAutocomplete;
+module.exports = { create, update };

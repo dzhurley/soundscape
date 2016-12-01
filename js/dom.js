@@ -1,8 +1,8 @@
 /* Interface for the DOM around UI event bindings */
 
-const { intersectObject, qs, qsa } = require('helpers');
-const bindAutocomplete = require('autocomplete');
+const autocomplete = require('autocomplete');
 const { emit, on } = require('dispatch');
+const { intersectObject, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
 
@@ -46,8 +46,8 @@ const bindHandlers = domElement => {
         qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
     });
 
-    // TODO: allow for incremental update
-    on('painted', bindAutocomplete);
+    autocomplete.create();
+    on('painted', autocomplete.update);
 };
 
 const bindEvents = domElement => {
