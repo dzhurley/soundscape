@@ -13,7 +13,7 @@ const { globe: { radius }, node: { geometry, material } } = constants;
 const nodes = new Set();
 
 const createNode = ({ name, weight, color } = {}) => {
-    const node = new THREE.Mesh(geometry, material(color));
+    const node = new THREE.Mesh(geometry(), material(color));
     node.name = name;
     node.charge = weight;
     return node;

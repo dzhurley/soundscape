@@ -6,8 +6,9 @@ const constants = require('constants');
 const scene = require('three/scene');
 
 const {
-    force: { epsilon, maxIterations, initialTemp },
-    globe: { radius }
+    force: { epsilon, globeDivisor, initialTemp, maxIterations },
+    globe,
+    node
 } = constants;
 
 let temp = initialTemp;
@@ -42,8 +43,7 @@ const applyDiff = (v, u) => {
         u.position.add(diff.multiplyScalar(multiplier));
     }
     // bind to surface of globe
-    // TODO: constants
-    u.position.setLength(radius + 15);
+    u.position.setLength(globe.radius + node.radius);
 };
 
 const iterateForce = () => {
@@ -63,7 +63,7 @@ const iterateForce = () => {
 const startForce = ns => {
     const maxCharge = Math.max(...Array.from(ns).map(n => n.charge));
     // narrow the range of charges underneath the radius of the globe
-    ns.forEach(n => n.charge = (radius / 1.5) * (n.charge / maxCharge));
+    ns.forEach(n => n.charge = (globe.radius / globeDivisor) * (n.charge / maxCharge));
     nodes = ns;
     iterable = true;
 
