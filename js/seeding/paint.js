@@ -2,11 +2,13 @@ const THREE = require('three');
 THREE.HalfEdgeStructure = require('exports?THREE.HalfEdgeStructure!lib/HalfEdgeStructure');
 
 const { globe: { pendingFaceChunk, radius, widthAndHeight } } = require('constants');
-const { emitOnMain, on } = require('dispatch');
+const { emitOnMain } = require('dispatch');
 
-// { [name]: { distance, index } }
+// object keyed by artist containing the closest face index to a given seed,
+// of the form: { [name]: { distance, index }, ... }
 let artistCenters;
 
+// check distance between target and all candidates to find closest one
 const findClosestSeed = (candidates, target) => {
     let closest, newDistance, lastDistance;
     for (let i = 0; i < candidates.length; i++) {
@@ -19,6 +21,7 @@ const findClosestSeed = (candidates, target) => {
     return { closest, distance: lastDistance };
 };
 
+// track artistCenters with outcomes of findClosestSeed
 const updateArtistCenter = (artist, distance, index) => {
     const entry = artistCenters[artist];
     if (!entry || entry.distance >= distance) {
@@ -26,13 +29,16 @@ const updateArtistCenter = (artist, distance, index) => {
     }
 };
 
+// deal in serializable data instead of potentially cyclic THREE types
 const mainInfoFor = face => ({ color: face.color, data: face.data, index: face.index });
 
+// apply a breadth first search using the HalfEdgeStructure to map out, in order,
+// all faces that belong to a specific artist for painting in the main thread
 const breadthFirstPaint = (center, heds) => {
     const searched = [center];
     searched[0].distance = 0;
 
-    // keep track of distanced faces to progressively send back to paint
+    // keep track of distanced faces
     const pending = [];
     pending.push(mainInfoFor(center));
 
@@ -52,7 +58,9 @@ const breadthFirstPaint = (center, heds) => {
 };
 
 const paint = vertices => {
+    // reset on each paint for each new user
     artistCenters = {};
+
     // local geometry-only globe so main/worker globes aren't shared
     const globe = new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight);
     const heds = new THREE.HalfEdgeStructure(globe);

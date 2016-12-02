@@ -1,15 +1,13 @@
-/* Conduit for main and worker appwide events
- *
- * Validates against cataloged list of events
- *
- * TODO: needs to be able to manage multiple workers
- */
+// App-wide (main and worker threads) event delegation using EventEmitter2
+//
+// TODO: needs to be able to manage multiple workers
 
 const EventEmitter = require('eventemitter2');
 const { events } = require('constants');
 
 const emitter = new EventEmitter({ wildcard: true });
 
+// ensure an event, triggered or bound to, is known
 const isValidEvent = event => events.some(e => event === e);
 
 // worker lifecycle methods

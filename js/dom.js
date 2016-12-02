@@ -1,4 +1,4 @@
-/* Interface for the DOM around UI event bindings */
+// Interface for the DOM around UI event bindings
 
 const autocomplete = require('autocomplete');
 const { emit, on } = require('dispatch');
@@ -31,6 +31,7 @@ const bindHandlers = domElement => {
         return false;
     });
 
+    // clear form and close once we've successfully submitted
     on('submitted', () => {
         qs('#username').value = '';
         qs('#toggleOverlay').click();
@@ -41,12 +42,14 @@ const bindHandlers = domElement => {
         qs('#scape').style.cursor = hits.length ? 'pointer' : 'move';
     });
 
+    // show artist info when clicking region on globe
     domElement.addEventListener('click', evt => {
         const hits = intersectObject(evt, globe, getCamera());
         qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
     });
 
     autocomplete.create();
+    // reset autocomplete whenever we repaint
     on('painted', autocomplete.update);
 };
 

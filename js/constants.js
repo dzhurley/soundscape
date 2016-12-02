@@ -1,17 +1,22 @@
+// App-wide (main and worker threads) location for numbers, strings, and other
+// constants that could get lost in deeply nested files somewhere.
+//
+// Functions are needed to either generate a new instance each use, to facilitate
+// sharing in workers that don't have access to window, or rely on other constants
+// at runtime.
 const THREE = require('three');
 
-const camera = Object.freeze({
+const camera = {
     position: { x: 500, y: 500, z: 500 },
     fov: 75,
     aspect() {
-        // needs to be callable as constants are used in workers, which don't have window
         return window.innerWidth / window.innerHeight;
     },
     near: 0.1,
     far: 10000
-});
+};
 
-const events = Object.freeze([
+const events = [
     // on form submission
     'submitting',
     // on POST to data source
@@ -20,42 +25,56 @@ const events = Object.freeze([
     // ui event
     'toggleControls',
 
-    // globe setup events
+    // artist info is ready for the globe
     'seed',
-    'seeded',
-    'paint',
-    'gaps',
-    'painted'
-]);
 
-const flyControls = Object.freeze({
+    // forces have finished
+    'seeded',
+
+    // faces of globe need painting
+    'paint',
+
+    // final faces need painting
+    'gaps',
+
+    // globe is covered
+    'painted'
+];
+
+const flyControls = {
     autoForward: false,
     dragToLook: true,
     movementSpeed: 1,
     rollSpeed: 0.03
-});
+};
 
-const force = Object.freeze({
+const force = {
     epsilon: 0.00001,
+
+    // help normalize charge values on nodes before force iteration
     globeDivisor: 1.5,
+
     initialTemp: 1000,
     maxIterations: 10000
-});
+};
 
-const globe = Object.freeze({
+const globe = {
     axisSize: 800,
     defaultFaceColor: 0xFFFFFF,
+
+    // max number of faces to send from worker to main for painting at a time
     pendingFaceChunk: 5000,
+
     radius: 300,
     shading: THREE.FlatShading,
     side: THREE.DoubleSide,
     widthAndHeight: 300,
     vertexColors: THREE.FaceColors
-});
+};
 
-const light = Object.freeze({ color: 0xf0f0f0 });
+const light = { color: 0xf0f0f0 };
 
-const node = Object.freeze({
+const node = {
     geometry() {
         return new THREE.SphereBufferGeometry(node.radius, 3, 2);
     },
@@ -63,16 +82,16 @@ const node = Object.freeze({
         return new THREE.MeshBasicMaterial({ color });
     },
     radius: 15
-});
+};
 
-const orbitalControls = Object.freeze({
+const orbitalControls = {
     zoomSpeed: 0.2,
     rotateSpeed: 0.5,
     noKeys: true,
     maxDistance: 1500
-});
+};
 
-const seeds = Object.freeze({
+const seeds = {
     geometry: new THREE.SphereBufferGeometry(10, 10, 10),
     material() {
         return new THREE.MeshBasicMaterial({ color: 0x888888, morphTargets: true });
@@ -80,11 +99,11 @@ const seeds = Object.freeze({
     morphTargetInfluences(seed) {
         seed.morphTargetInfluences = [Math.sin(4 * Date.now() * 0.001) / 4];
     }
-});
+};
 
 const sources = ['lastfm'];
 
-const stars = Object.freeze({
+const stars = {
     number: 1000,
     x() {
         return Math.random() * 2 - 1;
@@ -101,9 +120,9 @@ const stars = Object.freeze({
     scaleMultiplier() {
         return Math.random() * 10;
     }
-});
+};
 
-module.exports = Object.freeze({
+module.exports = {
     camera,
     events,
     flyControls,
@@ -115,4 +134,4 @@ module.exports = Object.freeze({
     seeds,
     sources,
     stars
-});
+};

@@ -1,5 +1,3 @@
-/* Last.fm specific source */
-
 const baseUrl = 'https://ws.audioscrobbler.com/2.0/';
 
 const defaultParams = Object.freeze({
@@ -19,6 +17,7 @@ const parseData = (data = {}) => {
         return {};
     }
 
+    // TODO: avoid lowercasing artists
     return data.artists.artist.map(artist => ({
         name: artist.name.toLowerCase(),
         playCount: Number.parseInt(artist.playcount, 10)

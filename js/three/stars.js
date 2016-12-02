@@ -1,3 +1,5 @@
+// Field of stars surrounding the globe, randomly scattered
+
 const THREE = require('three');
 const { stars } = require('constants');
 const scene = require('three/scene');

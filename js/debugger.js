@@ -1,3 +1,7 @@
+// Exposes certain globals for interaction in browser.
+//
+// Drop a require('debugger') in app.js to use, it's a one way flip.
+
 const THREE = require('three');
 
 const { emit } = require('dispatch');
@@ -8,7 +12,7 @@ const scene = require('three/scene');
 global.THREE = THREE;
 global.scene = scene;
 
-[new THREE.AxisHelper(axisSize)].map(helper => scene.add(helper));
+scene.add(new THREE.AxisHelper(axisSize));
 
-// autosubmit when debug() is flipped
+// autosubmit when required
 emit('submitting', 'lastfm', 'stutterbug42');

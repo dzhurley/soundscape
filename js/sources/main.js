@@ -1,21 +1,18 @@
-/* Connector between the form on screen and fetching data for a given user
- *
- * Caches responses in localStorage and manages set of possible sources for
- * artist data. Once data is received, the plotting worker is kicked off
- * with the dataset.
- *
- * Each source must expose the following API:
- *
- *     {
- *         baseUrl: '',
- *         defaultParams: {},
- *         paramsForUser: fn,
- *         parseData: fn
- *     }
- */
+// Connector between the form on screen and fetching data for a given user
+//
+// Caches responses in localStorage and manages set of possible sources for
+// artist data. Once data is received, the seeding worker is kicked off with
+// artist data. Each source must expose the following API:
+//
+// {
+//     baseUrl: '',
+//     defaultParams: {},
+//     paramsForUser: function,
+//     parseData: function
+// }
 
-const { packUrlParams, randomArray } = require('helpers');
 const { emit, emitOnWorker, on } = require('dispatch');
+const { packUrlParams, randomArray } = require('helpers');
 
 let registered = {};
 
@@ -23,12 +20,14 @@ const registerSources = sources => {
     sources.map(src => registered[src] = require(`./${src}`));
 };
 
+// kick off app with valid artists
 const trigger = artists => {
     emit('submitted');
     emitOnWorker('seed', artists);
 };
 
 const getArtists = (source, username) => {
+    // check localStorage and use info if present
     if (Object.keys(localStorage).indexOf(username) > -1) {
         if (localStorage[username]) {
             trigger(localStorage[username]);
@@ -36,13 +35,17 @@ const getArtists = (source, username) => {
         }
     }
 
+    // otherwise request from source
     const request = new XMLHttpRequest();
     const params = Object.assign({}, source.defaultParams, source.paramsForUser(username));
     request.open('GET', packUrlParams(source.baseUrl, params), true);
 
     request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
+            // randomize to avoid alphabetical globe seeding
             const artists = randomArray(source.parseData(JSON.parse(request.responseText)));
+            // store for next time
+            // TODO: expiry?
             localStorage[username] = JSON.stringify(artists);
             trigger(localStorage[username]);
         }
@@ -51,6 +54,7 @@ const getArtists = (source, username) => {
     request.send();
 };
 
+// process form before submitting to source
 const checkSource = (source, username) => {
     // TODO: be nicer
     if (!Object.keys(registered).indexOf(source) < 0) {

@@ -1,4 +1,4 @@
-/* Tie together Orbital and Fly controls into toggle under button */
+// Tie together Orbital and Fly controls into toggle under button
 
 const THREE = require('three');
 THREE.FlyControls = require('exports?THREE.FlyControls!lib/FlyControls');
@@ -22,6 +22,7 @@ const setups = {
 };
 
 const toggleControls = label => {
+    // ensure the camera is replaced for new controls
     setups[`setup${label}`](replaceCamera(getCamera().position, getCamera().rotation));
     label = label === 'Orbital' ? 'Fly' : 'Orbital';
     document.getElementById('toggleControls').textContent = label;

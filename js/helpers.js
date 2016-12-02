@@ -3,7 +3,7 @@ const THREE = require('three');
 // internal
 
 const boundedArray = (min = 0, max = 0) => {
-    // enumerates numbers between `min` and `max` inclusive and returns the array
+    // enumerates numbers between `min` and `max` inclusive
     let bounded = [];
     for (let i = min; i <= max; ++i) {
         bounded.push(i);
@@ -25,7 +25,7 @@ const evenlySpacedInRange = (min, max, num) => {
 
 // external
 
-const equidistantishPointsOnSphere = numPoints => {
+const equidistantPointsOnSphere = numPoints => {
     // Find points in terms of x, y, z that are roughly equidistant from
     // each other on a sphere. This applies Vogel's method, adapted from
     // http://blog.marmakoide.org/?p=1
@@ -61,6 +61,7 @@ const faceCentroid = (object, face) => {
         .divideScalar(3);
 };
 
+// find object underneath current mouse position
 const intersectObject = (evt, object, camera) => {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera({
@@ -70,6 +71,7 @@ const intersectObject = (evt, object, camera) => {
     return raycaster.intersectObject(object);
 };
 
+// preload a normalize function with its min/max to progressively normalize
 const normalizeAgainst = values => {
     const max = Math.max(...values);
     const min = Math.min(...values);
@@ -77,16 +79,16 @@ const normalizeAgainst = values => {
     return item => (item - min) / denom;
 };
 
+// pack key/values into encoded url params, delimited by '&'
 const packUrlParams = (base, params) => {
-    // pack key/values into encoded url params, delimited by '&'
     let encodedPairs = Object.keys(params).map(
         key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
     );
     return `${base}?${encodedPairs.join('&')}`;
 };
 
+// pulled from underscore.js
 const randomArray = array => {
-    // pulled from underscore.js
     const length = array.length;
     let shuffled = Array(length);
     for (let i = 0, rand; i < length; i++) {
@@ -99,8 +101,8 @@ const randomArray = array => {
 
 const randomBoundedArray = (min, max) => randomArray(boundedArray(min, max));
 
+// http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html
 const spacedColor = (numOfSteps, step) => {
-    // http://blog.adamcole.ca/2011/11/simple-javascript-rainbow-color.html
     let r, g, b;
     let h = step / numOfSteps;
     let i = ~~(h * 6);
@@ -122,11 +124,12 @@ const spacedColor = (numOfSteps, step) => {
     return `#${first}${second}${third}`;
 };
 
+// shorthand
 const qs = (selector, node=document) => node.querySelector(selector);
 const qsa = (selector, node=document) => Array.from(node.querySelectorAll(selector));
 
 module.exports = {
-    equidistantishPointsOnSphere,
+    equidistantPointsOnSphere,
     faceCentroid,
     intersectObject,
     normalizeAgainst,

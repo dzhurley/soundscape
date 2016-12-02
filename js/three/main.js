@@ -1,7 +1,4 @@
-/* Meat of the THREE.js integration and rendering loop
- *
- * This also manages the rebinding of fly/orbital controls
- */
+// Meat of the THREE.js integration and rendering loop
 
 const { getCamera } = require('three/camera');
 const light = require('three/light');

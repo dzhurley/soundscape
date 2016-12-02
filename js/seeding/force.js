@@ -24,6 +24,7 @@ const iterating = () => iterable;
 const finish = () => {
     iterable = false;
 
+    // extract node information to hand off for painting and display
     const positions = Array.from(nodes).map(node => {
         scene.remove(node);
         node.position.color = node.material.color;
@@ -40,6 +41,7 @@ const applyDiff = (v, u) => {
     const diff = u.position.clone().sub(v.position);
     const length = diff.length();
 
+    // repel one node (u) based on combination of two interacting nodes
     if (length <= v.charge) {
         const multiplier = length / (v.charge * u.charge);
         u.position.add(diff.multiplyScalar(multiplier));
@@ -49,8 +51,10 @@ const applyDiff = (v, u) => {
 };
 
 const iterateForce = () => {
+    // cap the number of times this can run if we don't cool fast enough
     if (iterations >= maxIterations || temp <= epsilon) return finish();
 
+    // match each node against all others
     for (let v of nodes) {
         for (let u of nodes) {
             if (u.name === v.name) continue;
@@ -58,6 +62,7 @@ const iterateForce = () => {
         }
     }
 
+    // cool each iteration to approach epsilon
     temp *= 1 - iterations / maxIterations;
     iterations++;
 };
