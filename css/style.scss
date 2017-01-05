@@ -1,3 +1,6 @@
+$background-color: #272727;
+$color: #D7D7D7;
+
 @font-face {
     font-family: "Inconsolata";
     font-style: normal;
@@ -21,8 +24,8 @@ canvas {
 ul { list-style: none; }
 
 #hud {
-    color: #d7d7d7;
-    background-color: #272727;
+    color: $color;
+    background-color: $background-color;
 
     display: block;
     position: absolute;
@@ -31,17 +34,17 @@ ul { list-style: none; }
     transform: translate(-50%);
 
     z-index: 2;
-}
 
-#hud span {
-    display: block;
-    margin: 1rem;
-    padding: 0.5rem;
+    span {
+        display: block;
+        margin: 1rem;
+        padding: 0.5rem;
+    }
 }
 
 #sourcesOverlay {
-    color: #d7d7d7;
-    background-color: #272727;
+    color: $color;
+    background-color: $background-color;
 
     width: 100%;
     height: 50px;
@@ -50,15 +53,16 @@ ul { list-style: none; }
     margin-top: -25px;
 
     z-index: 3;
-}
 
-#sourcesOverlay.closed { display: none; }
+    &.closed { display: none; }
+}
 
 #sources {
     padding-top: 12.5px;
     text-align: center;
+
+    button { visibility: hidden; }
 }
-#sources button { visibility: hidden; }
 
 #actions {
     position: absolute;
@@ -67,38 +71,35 @@ ul { list-style: none; }
     z-index: 2;
     text-align: left;
     margin: 1rem;
-}
 
-#actions button {
-    margin-bottom: 1rem;
-}
+    button {
+        margin-bottom: 1rem;
+    }
 
-#actions input {
-    display: block;
-    width: 100%;
+    input {
+        display: block;
+        width: 100%;
+    }
 }
 
 .ac-suggestions {
-    background-color: #D7D7D7;
+    background-color: $color;
     text-align: left;
     margin: 0;
     padding: 0;
+
+    li {
+        padding: 0.25rem 0.5rem;
+
+        &.active,
+        &:hover {
+            background-color: $background-color;
+            color: $color;
+            cursor: pointer;
+        }
+
+        &:first-child { padding-top: 0.5rem; }
+        &:last-child { padding-bottom: 0.5rem; }
+    }
 }
 
-.ac-suggestions li {
-    padding: 0.25rem 0.5rem;
-}
-
-.ac-suggestions li.active,
-.ac-suggestions li:hover {
-    background-color: #272727;
-    color: #D7D7D7;
-    cursor: pointer;
-}
-
-.ac-suggestions li:first-child {
-    padding-top: 0.5rem;
-}
-.ac-suggestions li:last-child {
-    padding-bottom: 0.5rem;
-}

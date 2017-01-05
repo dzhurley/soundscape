@@ -1,3 +1,5 @@
+require('style');
+
 const Worker = require('worker!worker');
 
 const { sources } = require('constants');
