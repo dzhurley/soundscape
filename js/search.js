@@ -36,7 +36,7 @@ const suggest = name => {
     return artists
         .filter(artist => artist.startsWith(name))
         .sort()
-        .reduce((memo, artist) => memo += `<li>${artist}</li>`, '');
+        .reduce((memo, artist) => memo += `<li class="search-result">${artist}</li>`, '');
 };
 
 const renderFor = name => {

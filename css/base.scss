@@ -29,4 +29,13 @@ a:visited, a:active {
     color: $color;
 }
 
-ul { list-style: none; }
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+svg {
+    height: 100%;
+    width: 100%;
+}
