@@ -22,7 +22,19 @@ const bindClicks = buttons => {
     }[button.id]));
 };
 
+// TODO: collect nicer with other bindings?
+const bindAbout = () => {
+    let isOpen = false;
+    ['.about-close', '.about-toggle'].map(el => qs(el).addEventListener('click', evt => {
+        evt.preventDefault();
+        isOpen = !isOpen;
+        document.querySelector('.about').style.display = isOpen ? 'block' : '';
+    }, false));
+};
+
 const bindHandlers = domElement => {
+    bindAbout();
+
     bindClicks(qsa('#actions button'));
 
     qs('#sources').addEventListener('submit', evt => {

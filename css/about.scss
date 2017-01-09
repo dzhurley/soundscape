@@ -1,3 +1,59 @@
-.about {
+.about,
+.about-close,
+.about-toggle {
     position: absolute;
+}
+
+.about {
+    display: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* TODO: mobile */
+    width: 50%;
+    padding: 0 2rem;
+
+    background-color: $background-color;
+    color: $color;
+    border: 1px solid $color;
+
+    /* TODO: remove to wrap ui-redo up */
+    z-index: 4;
+
+    .about-source {
+        text-align: right;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.about-close {
+    top: 0;
+    right: 0;
+
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+
+    svg {
+        height: 100%;
+        width: 100%;
+    }
+
+    path {
+        stroke: $color;
+        fill: $background-color;
+        stroke-width: 1;
+    }
+}
+
+.about-toggle {
+    top: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    font-size: 1.5rem;
+
+    background-color: transparent;
+    color: $color;
+    border: none;
 }
