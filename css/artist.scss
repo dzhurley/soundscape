@@ -1,0 +1,18 @@
+#hud {
+    color: $color;
+    background-color: $background-color;
+
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+
+    z-index: 2;
+
+    span {
+        display: block;
+        margin: 1rem;
+        padding: 0.5rem;
+    }
+}

@@ -1,0 +1,20 @@
+.ac-suggestions {
+    background-color: $color;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+
+    li {
+        padding: 0.25rem 0.5rem;
+
+        &.active,
+        &:hover {
+            background-color: $background-color;
+            color: $color;
+            cursor: pointer;
+        }
+
+        &:first-child { padding-top: 0.5rem; }
+        &:last-child { padding-bottom: 0.5rem; }
+    }
+}

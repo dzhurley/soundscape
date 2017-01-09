@@ -1,0 +1,21 @@
+#sourcesOverlay {
+    color: $color;
+    background-color: $background-color;
+
+    width: 100%;
+    height: 50px;
+    position: absolute;
+    top: 50%;
+    margin-top: -25px;
+
+    z-index: 3;
+
+    &.closed { display: none; }
+}
+
+#sources {
+    padding-top: 12.5px;
+    text-align: center;
+
+    button { visibility: hidden; }
+}
