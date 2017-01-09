@@ -76,7 +76,7 @@ const paint = vertices => {
     });
 
     Object.keys(artistCenters).map(artist => {
-        // mark center of artist territory (used in autocomplete)
+        // mark center of artist territory (used in search)
         const center = globe.faces[artistCenters[artist].index];
         center.data.center = true;
 

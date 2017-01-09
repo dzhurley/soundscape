@@ -5,7 +5,7 @@ const TWEEN = require('tween.js');
 
 const { globe: { radius } } = require('constants');
 
-const autocomplete = {
+const search = {
     focus(from, to) {
         return new TWEEN.Tween(from).to(to, 1000).easing(TWEEN.Easing.Quadratic.InOut);
     }
@@ -29,4 +29,4 @@ const seeds = {
     }
 };
 
-module.exports = { autocomplete, seeds };
+module.exports = { search, seeds };

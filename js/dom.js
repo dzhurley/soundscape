@@ -1,6 +1,6 @@
 // Interface for the DOM around UI event bindings
 
-const autocomplete = require('autocomplete');
+const search = require('search');
 const { emit, on } = require('dispatch');
 const { intersectObject, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
@@ -60,9 +60,9 @@ const bindHandlers = domElement => {
         qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
     });
 
-    autocomplete.create();
-    // reset autocomplete whenever we repaint
-    on('painted', autocomplete.update);
+    search.create();
+    // reset search whenever we repaint
+    on('painted', search.update);
 };
 
 const bindEvents = domElement => {

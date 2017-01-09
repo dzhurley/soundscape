@@ -1,6 +1,11 @@
-.ac-suggestions {
+.search {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.search-list {
     background-color: $color;
-    text-align: left;
     margin: 0;
     padding: 0;
 

@@ -4,10 +4,10 @@ const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
 const scene = require('three/scene');
 
-// current artist data backing autocomplete results
+// current artist data backing search results
 let artists;
 
-const input = qs('.autocomplete input');
+const input = qs('.search input');
 
 const focus = name => {
     const cam = getCamera();
@@ -18,7 +18,7 @@ const focus = name => {
     const final = faceCentroid(globe, match).setLength(length);
 
     // animate camera to artist's location
-    animations.autocomplete.focus(cam.position, final)
+    animations.search.focus(cam.position, final)
         .onUpdate(function() {
             cam.position.set(this.x, this.y, this.z);
             cam.position.setLength(length);
@@ -27,7 +27,7 @@ const focus = name => {
         .onComplete(() => cam.lookAt(scene.position))
         .start();
 
-    // close suggestions with match filled in input
+    // close list with match filled in input
     renderFor();
     input.value = name;
 };
@@ -40,7 +40,7 @@ const suggest = name => {
 };
 
 const renderFor = name => {
-    const list = qs('.ac-suggestions');
+    const list = qs('.search-list');
 
     if (!name) return list.innerHTML = '';
 
@@ -50,8 +50,8 @@ const renderFor = name => {
 
 const handleArrow = offset => {
     return () => {
-        const list = qsa('.ac-suggestions li');
-        const active = qs('.ac-suggestions .active');
+        const list = qsa('.search-list li');
+        const active = qs('.search-list .active');
 
         // enter into list if we're still active in input
         if (!active) {
@@ -88,13 +88,13 @@ const update = () => {
 };
 
 const create = () => {
-    // click off autocomplete
+    // click off search
     qs('#scape').addEventListener('click', () => {
         renderFor();
         input.blur();
     });
 
-    qs('.autocomplete').addEventListener('keyup', evt => {
+    qs('.search').addEventListener('keyup', evt => {
         const key = evt.keyCode.toString();
         key in keys ? keys[key](evt) : renderFor(evt.target.value);
     });
