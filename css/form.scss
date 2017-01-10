@@ -17,6 +17,18 @@
     outline: none;
 }
 
+.user-form-error {
+    position: absolute;
+    top: -2rem;
+    left: 50%;
+    transform: translate(-50%);
+
+    width: 100%;
+    text-align: center;
+
+    color: $color;
+}
+
 .user-form-username {
     font-size: 1rem;
     padding: 0.5rem;

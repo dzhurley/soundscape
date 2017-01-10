@@ -24,6 +24,7 @@ const events = [
 
     // ui event
     'controls',
+    'formError',
 
     // artist info is ready for the globe
     'seed',

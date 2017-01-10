@@ -1,3 +1,5 @@
+const { emit } = require('dispatch');
+
 const baseUrl = 'https://ws.audioscrobbler.com/2.0/';
 
 const defaultParams = Object.freeze({
@@ -13,13 +15,13 @@ const paramsForUser = user => ({ user });
 const parseData = (data = {}) => {
     if (data.error === 6) {
         // TODO: find a nicer way
-        console.error('not a user');
+        emit('formError', 'not a user');
         return;
     }
 
     if (!data.artists.artist.length) {
         // TODO: find a nicer way
-        console.error('no artists scrobbled for user');
+        emit('formError', 'no artists for user');
         return;
     }
 

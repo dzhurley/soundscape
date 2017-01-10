@@ -20,11 +20,13 @@ const bindAbout = () => {
 
 const bindForm = () => {
     const input = qs('.user-form-username');
+    const error = qs('.user-form-error');
     let used = false;
     let lastUser = '';
 
     qs('.user-form').addEventListener('submit', evt => {
         evt.preventDefault();
+        error.textContent = '';
         emit('submitting', input.value);
         return false;
     });
@@ -33,10 +35,13 @@ const bindForm = () => {
 
     input.addEventListener('focus', () => {
         if (used) input.value = '';
+        error.textContent = '';
+        error.style.display = 'block';
     });
 
     input.addEventListener('blur', () => {
         if (used) input.value = lastUser;
+        error.style.display = 'none';
     });
 
     on('submitted', () => {
@@ -44,6 +49,11 @@ const bindForm = () => {
         lastUser = input.value;
         input.blur();
         qs('.search').style.display = 'block';
+    });
+
+    on('formError', (message, ...args) => {
+        console.error(`thrown: ${message}`, args);
+        error.textContent = message;
     });
 };
 
@@ -64,7 +74,10 @@ const bindHandlers = domElement => {
     });
 
     // on key 'c', toggle controls between orbital and fly
-    window.addEventListener('keyup', evt => evt.keyCode === 67 && emit('controls'));
+    window.addEventListener('keyup', evt => {
+        // ensure we only trigger on 'c' when not in an input
+        if (evt.target.nodeName !== 'INPUT' && evt.keyCode === 67) emit('controls');
+    });
 
     search.create();
     // reset search whenever we repaint

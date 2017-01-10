@@ -53,7 +53,8 @@ const getArtists = (source, username) => {
 
             trigger(localStorage[username]);
         } else {
-            console.error('invalid response', request.responseText);
+            emit('formError', 'invalid response', request.responseText);
+            return;
         }
     };
 
@@ -63,7 +64,7 @@ const getArtists = (source, username) => {
 // process form before submitting to source
 const validate = username => {
     if (username.length === 0) {
-        console.error('no username given');
+        emit('formError', 'no username given');
         return;
     }
     // TODO: explore more sources
