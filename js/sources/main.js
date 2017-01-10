@@ -55,19 +55,15 @@ const getArtists = (source, username) => {
 };
 
 // process form before submitting to source
-const checkSource = (source, username) => {
-    // TODO: be nicer
-    if (!Object.keys(registered).indexOf(source) < 0) {
-        console.error(`Invalid source: ${source}`);
-        return;
-    }
+const validate = username => {
     if (username.length === 0) {
         console.error('No username given');
         return;
     }
-    getArtists(registered[source], username);
+    // TODO: explore more sources
+    getArtists(registered.lastfm, username);
 };
 
-on('submitting', checkSource);
+on('submitting', validate);
 
 module.exports = { registerSources };

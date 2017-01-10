@@ -2,22 +2,11 @@
 
 const search = require('search');
 const { emit, on } = require('dispatch');
-const { intersectObject, qs, qsa } = require('helpers');
+const { intersectObject, qs } = require('helpers');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
 
 const container = qs('#scape');
-
-const bindClicks = buttons => {
-    // bind selected click handlers that match existing button.id values
-    buttons.map(button => button.addEventListener('click', {
-        toggleOverlay() {
-            let classes = qs('#sourcesOverlay').classList;
-            classes.toggle('closed');
-            if (!classes.contains('closed')) qs('#username').focus();
-        }
-    }[button.id]));
-};
 
 // TODO: collect nicer with other bindings?
 const bindAbout = () => {
@@ -29,23 +18,27 @@ const bindAbout = () => {
     }, false));
 };
 
+const bindForm = () => {
+    const input = qs('.user-form-username');
+
+    qs('.user-form').addEventListener('submit', evt => {
+        evt.preventDefault();
+        emit('submitting', input.value);
+        return false;
+    });
+
+    qs('#scape').addEventListener('click', () => input.blur());
+
+    on('submitted', () => {
+        input.blur();
+        qs('.search').style.display = 'block';
+    });
+};
 
 const bindHandlers = domElement => {
     bindAbout();
 
-    bindClicks(qsa('#actions button'));
-
-    qs('#sources').addEventListener('submit', evt => {
-        evt.preventDefault();
-        emit('submitting', qs('#source').value, qs('#username').value);
-        return false;
-    });
-
-    // clear form and close once we've successfully submitted
-    on('submitted', () => {
-        qs('#username').value = '';
-        qs('#toggleOverlay').click();
-    });
+    bindForm();
 
     domElement.addEventListener('mousemove', evt => {
         const hits = intersectObject(evt, globe, getCamera());
