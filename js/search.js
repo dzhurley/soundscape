@@ -94,6 +94,12 @@ const create = () => {
         input.blur();
     });
 
+    // clicking search icon should focus on first match
+    qs('.search-icon').addEventListener('click', () => {
+        keys['40']();
+        focus(input.value);
+    });
+
     qs('.search').addEventListener('keyup', evt => {
         const key = evt.keyCode.toString();
         key in keys ? keys[key](evt) : renderFor(evt.target.value);

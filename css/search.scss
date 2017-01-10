@@ -19,6 +19,15 @@
     svg, path {
         fill: $color;
     }
+
+    &:hover,
+    &:active {
+        background-color: $color;
+
+        svg, path {
+            fill: $background-color;
+        }
+    }
 }
 
 .search-input {
