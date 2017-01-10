@@ -42,12 +42,18 @@ const getArtists = (source, username) => {
 
     request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
+            const parsed = source.parseData(JSON.parse(request.responseText));
+            if (!parsed) return;
+
             // randomize to avoid alphabetical globe seeding
-            const artists = randomArray(source.parseData(JSON.parse(request.responseText)));
+            const artists = randomArray(parsed);
             // store for next time
             // TODO: expiry?
             localStorage[username] = JSON.stringify(artists);
+
             trigger(localStorage[username]);
+        } else {
+            console.error('invalid response', request.responseText);
         }
     };
 
@@ -57,7 +63,7 @@ const getArtists = (source, username) => {
 // process form before submitting to source
 const validate = username => {
     if (username.length === 0) {
-        console.error('No username given');
+        console.error('no username given');
         return;
     }
     // TODO: explore more sources

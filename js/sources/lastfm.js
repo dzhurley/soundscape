@@ -14,7 +14,13 @@ const parseData = (data = {}) => {
     if (data.error === 6) {
         // TODO: find a nicer way
         console.error('not a user');
-        return {};
+        return;
+    }
+
+    if (!data.artists.artist.length) {
+        // TODO: find a nicer way
+        console.error('no artists scrobbled for user');
+        return;
     }
 
     // TODO: avoid lowercasing artists

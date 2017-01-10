@@ -20,6 +20,8 @@ const bindAbout = () => {
 
 const bindForm = () => {
     const input = qs('.user-form-username');
+    let used = false;
+    let lastUser = '';
 
     qs('.user-form').addEventListener('submit', evt => {
         evt.preventDefault();
@@ -29,7 +31,17 @@ const bindForm = () => {
 
     qs('#scape').addEventListener('click', () => input.blur());
 
+    input.addEventListener('focus', () => {
+        if (used) input.value = '';
+    });
+
+    input.addEventListener('blur', () => {
+        if (used) input.value = lastUser;
+    });
+
     on('submitted', () => {
+        used = true;
+        lastUser = input.value;
         input.blur();
         qs('.search').style.display = 'block';
     });
@@ -52,7 +64,7 @@ const bindHandlers = domElement => {
     });
 
     // on key 'c', toggle controls between orbital and fly
-    window.addEventListener('keyup', evt => evt.keyCode === 67 && emit('controls'), false);
+    window.addEventListener('keyup', evt => evt.keyCode === 67 && emit('controls'));
 
     search.create();
     // reset search whenever we repaint
