@@ -23,7 +23,7 @@ const events = [
     'submitted',
 
     // ui event
-    'toggleControls',
+    'controls',
 
     // artist info is ready for the globe
     'seed',

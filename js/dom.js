@@ -11,9 +11,6 @@ const container = qs('#scape');
 const bindClicks = buttons => {
     // bind selected click handlers that match existing button.id values
     buttons.map(button => button.addEventListener('click', {
-        toggleControls(evt) {
-            emit('toggleControls', evt.target.textContent);
-        },
         toggleOverlay() {
             let classes = qs('#sourcesOverlay').classList;
             classes.toggle('closed');
@@ -31,6 +28,7 @@ const bindAbout = () => {
         document.querySelector('.about').style.display = isOpen ? 'block' : '';
     }, false));
 };
+
 
 const bindHandlers = domElement => {
     bindAbout();
@@ -59,6 +57,9 @@ const bindHandlers = domElement => {
         const hits = intersectObject(evt, globe, getCamera());
         qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
     });
+
+    // on key 'c', toggle controls between orbital and fly
+    window.addEventListener('keyup', evt => evt.keyCode === 67 && emit('controls'), false);
 
     search.create();
     // reset search whenever we repaint
