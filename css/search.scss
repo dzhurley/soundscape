@@ -28,8 +28,7 @@
 .search-list {
     background-color: $background-color;
     color: $color;
-    border-top: 1px solid $color;
-    border-bottom: 1px solid $color;
+    box-shadow: 0 0 0 1px $color;
 
     max-height: 75vh;
     overflow: scroll;
@@ -46,11 +45,14 @@
 
 .search-result {
     padding: 0.25rem 0.5rem;
-    border: 1px solid $color;
-    border-bottom: none;
+    border-bottom: 1px solid $color;
 
     &:first-of-type {
         border-top: none;
+    }
+
+    &:last-of-type {
+        border-bottom: none;
     }
 
     &.active,
