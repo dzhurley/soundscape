@@ -9,7 +9,6 @@ const { sink } = require('three/seeds');
 
 const {
     globe: {
-        defaultFaceColor,
         radius,
         widthAndHeight,
         shading,
@@ -22,6 +21,13 @@ const globe = new THREE.Mesh(
     new THREE.SphereGeometry(radius, widthAndHeight, widthAndHeight),
     new THREE.MeshLambertMaterial({ shading, side, vertexColors })
 );
+const defaultFaces = () => {
+    globe.geometry.faces.map(f => {
+        const channel = Math.random();
+        f.color.setRGB(channel, channel, channel);
+        f.data = {};
+    });
+};
 
 // update pending faces with info painted in worker
 const paint = pending => {
@@ -34,17 +40,16 @@ const paint = pending => {
     globe.geometry.colorsNeedUpdate = true;
 };
 
-// clear the globe on each form submit for a new user's artists
-const reset = () => {
-    globe.geometry.faces.map(f => {
-        f.data = {};
-        f.color.setHex(defaultFaceColor);
-    });
-    globe.geometry.colorsNeedUpdate = true;
-};
-
 const create = () => {
-    on('submitted', reset);
+    let prestine = true;
+    on('submitted', () => {
+        if (prestine) {
+            prestine = false;
+            return;
+        }
+        // clear the globe on each form submit for a new user's artists
+        globe.geometry.faces.map(f => f.data = {});
+    });
 
     // coordinate with sinking seeds animation to paint faces
     on('paint', pending => sink(pending[0].data.artist, () => paint(pending)));
@@ -54,6 +59,7 @@ const create = () => {
         emit('painted');
     });
 
+    defaultFaces();
     scene.add(globe);
 };
 

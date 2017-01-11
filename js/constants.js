@@ -61,7 +61,6 @@ const force = {
 
 const globe = {
     axisSize: 800,
-    defaultFaceColor: 0xFFFFFF,
 
     // max number of faces to send from worker to main for painting at a time
     pendingFaceChunk: 5000,
