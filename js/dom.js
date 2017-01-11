@@ -34,7 +34,7 @@ const bindHandlers = domElement => {
         const hits = intersectObject(evt, globe, getCamera());
         const artist = qs('.artist-info');
 
-        if (hits.length) {
+        if (hits.length && hits[0].face.data.artist) {
             artist.innerHTML = `<span>artist: ${hits[0].face.data.artist}</span>`;
             artist.style.display = 'flex';
         } else {
