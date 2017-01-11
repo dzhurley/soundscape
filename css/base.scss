@@ -21,6 +21,7 @@ canvas {
 button {
     cursor: pointer;
     outline: none;
+    font-family: "Inconsolata";
 }
 
 a, a:visited, a:active {
@@ -37,4 +38,8 @@ ul {
 svg {
     height: 100%;
     width: 100%;
+}
+
+input {
+    font-family: "Inconsolata";
 }

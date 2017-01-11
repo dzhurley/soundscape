@@ -1,14 +1,12 @@
+.username,
 .user-form {
     position: absolute;
     bottom: 1rem;
     left: 50%;
     transform: translate(-50%);
-
-    height: 2rem;
-
-    display: flex;
 }
 
+.username,
 .user-form-username,
 .user-form-button {
     background-color: $background-color;
@@ -16,6 +14,31 @@
 
     border: 1px solid $color;
     outline: none;
+}
+
+.username {
+    display: none;
+
+    font-size: 1rem;
+    padding: 0.5rem;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.user-form {
+    height: 2rem;
+    display: flex;
+}
+
+.user-form-username {
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    vertical-align: top;
+}
+
+.user-form-username {
+    display: inline-block;
 }
 
 .user-form-error {
@@ -30,13 +53,6 @@
     color: $color;
 }
 
-.user-form-username {
-    font-size: 1rem;
-    padding: 0.5rem;
-    vertical-align: top;
-    display: inline-block;
-}
-
 .user-form-button {
     height: 2rem;
     width: 2rem;
@@ -45,9 +61,7 @@
     padding-left: 0.1rem;
     border-left: none;
 
-    svg, path {
-        fill: $color;
-    }
+    svg, path { fill: $color; }
 
     &:hover {
         background-color: $color;

@@ -1,13 +1,29 @@
 const { emit, on } = require('dispatch');
 const { qs } = require('helpers');
 
+const field = qs('.user-form');
 const input = qs('.user-form-username');
-const error = qs('.user-form-error');
+const name = qs('.username');
 
-let used = false;
-let lastUser = '';
+// TODO: reinstate
+// const error = qs('.user-form-error');
+// const setError = (msg='') => error.textContent = msg;
+// const errorOn = () => error.style.display = 'block';
+// const errorOff = () => error.style.display = 'none';
+
+const showField = () => {
+    field.style.display = 'flex';
+    name.style.display = 'none';
+    input.focus();
+};
+
+const showName = () => {
+    field.style.display = 'none';
+    name.style.display = 'inline-block';
+};
 
 const create = () => {
+    qs('.username').addEventListener('click', showField);
     qs('.user-form').addEventListener('submit', evt => {
         evt.preventDefault();
         emit('submitting', input.value);
@@ -16,29 +32,13 @@ const create = () => {
 
     qs('#scape').addEventListener('click', () => input.blur());
 
-    input.addEventListener('focus', () => {
-        if (used) input.value = '';
-        error.textContent = '';
-        error.style.display = 'block';
-    });
-
-    input.addEventListener('blur', () => {
-        if (used) input.value = lastUser;
-        error.style.display = 'none';
-    });
-
     on('submitted', () => {
-        used = true;
-        error.textContent = '';
-        lastUser = input.value;
-        input.blur();
+        qs('.username').textContent = input.value;
+        showName();
         qs('.search').style.display = 'block';
     });
 
-    on('formError', (message, ...args) => {
-        console.error(`thrown: ${message}`, args);
-        error.textContent = message;
-    });
+    on('formError', (message, ...args) => console.error(`thrown: ${message}`, args));
 };
 
 
