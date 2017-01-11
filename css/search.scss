@@ -1,22 +1,15 @@
 .search {
+    top: 0.5rem;
+    left: 0.5rem;
     display: none;
 
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    height: 1.5rem;
-    padding: 0.5rem;
+    @mixin box
 }
 
 .search-icon {
-    background-color: $background-color;
-    border: 1px solid $color;
-    border-left: none;
-
-    height: 1.75rem;
-    width: 1.75rem;
-    margin-left: -0.5rem;
+    height: 2rem;
+    width: 2rem;
+    border-left: 1px solid $color;
 
     svg, path {
         fill: $color;
@@ -30,18 +23,6 @@
             fill: $background-color;
         }
     }
-}
-
-.search-input {
-    background-color: $background-color;
-    color: $color;
-
-    border: 1px solid $color;
-    outline: none;
-
-    font-size: 1rem;
-    padding: 0.25rem 0.5rem;
-    vertical-align: top;
 }
 
 .search-list {

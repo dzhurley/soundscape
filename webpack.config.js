@@ -43,6 +43,7 @@ const config = {
         return [
             require('postcss-import')({ addDependencyTo: wp }),
             require('autoprefixer'),
+            require('postcss-mixins'),
             require('postcss-nested'),
             require('postcss-simple-vars')
         ];

@@ -1,0 +1,12 @@
+@define-mixin box {
+    position: absolute;
+    height: 2rem;
+
+    background-color: $background-color;
+    color: $color;
+
+    border: 1px solid $color;
+    outline: none;
+
+    font-size: 1rem;
+};

@@ -1,16 +1,14 @@
 .artist-info {
-    background-color: $background-color;
-    color: $color;
-
-    position: absolute;
+    display: none;
     bottom: 1rem;
     left: 0.5rem;
 
-    border: 1px solid $color;
+    padding: 0 0.5rem;
+    line-height: 2;
+
+    @mixin box;
 
     span {
         display: block;
-        font-size: 1rem;
-        padding: 0.2rem 0.5rem;
     }
 }

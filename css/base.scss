@@ -20,8 +20,12 @@ canvas {
 
 button {
     cursor: pointer;
-    outline: none;
     font-family: "Inconsolata";
+
+    background-color: inherit;
+    color: inherit;
+    border: none;
+    outline: none;
 }
 
 a, a:visited, a:active {
@@ -42,4 +46,11 @@ svg {
 
 input {
     font-family: "Inconsolata";
+    font-size: 1rem;
+
+    background-color: inherit;
+    color: inherit;
+    border: none;
+
+    padding: 0 0.5rem;
 }

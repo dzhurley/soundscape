@@ -35,7 +35,7 @@ const create = () => {
     on('submitted', () => {
         qs('.username').textContent = input.value;
         showName();
-        qs('.search').style.display = 'block';
+        qs('.search').style.display = 'flex';
     });
 
     on('formError', (message, ...args) => console.error(`thrown: ${message}`, args));
