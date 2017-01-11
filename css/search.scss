@@ -28,18 +28,30 @@
 .search-list {
     background-color: $background-color;
     color: $color;
+    border-top: 1px solid $color;
     border-bottom: 1px solid $color;
-
-    margin-top: -0.25rem;
 
     max-height: 75vh;
     overflow: scroll;
+
+    position: absolute;
+    top: 2.5rem;
+    left: 0;
+    width: 100%;
+
+    &:empty {
+        display: none;
+    }
 }
 
 .search-result {
     padding: 0.25rem 0.5rem;
     border: 1px solid $color;
     border-bottom: none;
+
+    &:first-of-type {
+        border-top: none;
+    }
 
     &.active,
     &:hover {
