@@ -4,34 +4,49 @@
     <meta charset="utf-8">
     <title>soundscape</title>
     <link rel="icon" href="img/favicon.ico?v=2" /> 
-    <link rel="stylesheet" href="css/screen.css" />
+    <link rel="stylesheet" href="style.css" />
     <meta name="viewport" content="width=device-width">
   </head>
 
   <body>
     <section id="scape"></section>
 
-    <section id="hud"></section>
-
-    <section id="sourcesOverlay">
-      <form id="sources">
-        <select id="source">
-          <option value="lastfm">last.fm</option>
-        </select>
-        <span> for </span>
-        <input type="text" placeholder="username" id="username" />
-        <button type="submit">Go</button>
-      </form>
+    <section class="search">
+      <input class="search-input" placeholder="artist to focus..." />
+      <button class="search-icon">
+        <svg viewBox="0 0 56.966 56.966">
+          <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"></path>
+        </svg>
+      </button>
+      <ul class="search-list"></ul>
     </section>
 
-    <section id="actions">
-      <button id="toggleControls">Fly</button>
-      <button id="toggleOverlay">Form</button>
-      <div class="autocomplete">
-        <input placeholder="artist to focus..." />
-        <ul class="ac-suggestions">
-        </ul>
-      </div>
+    <section class="artist-info"></section>
+
+    <span class="username"></span>
+    <form class="user-form">
+      <span class="user-form-error"></span>
+      <!-- TODO: expand to select/option for sources once more are integrated -->
+      <input class="user-form-username" type="text" placeholder="last.fm username" />
+      <button class="user-form-button" type="submit">
+        <svg viewBox="0 0 475 475">
+          <path d="M306,0h-51v255h51V0z M397.8,61.2l-35.7,35.7    c40.801,28.05,71.4,76.5,71.4,132.6c0,84.15-68.85,153-153,153c-84.15,0-153-68.85-153-153c0-56.1,30.6-104.55,73.95-130.05    L163.2,61.2c-51,38.25-86.7,99.45-86.7,168.3c0,112.2,91.8,204,204,204s204-91.8,204-204C484.5,160.65,448.8,99.45,397.8,61.2z"></path>
+        </svg>
+      </button>
+    </form>
+
+    <section class="about-toggle"><button>?</button></section>
+    <section class="about">
+      <h1>soundscape</h1>
+      <p class="about-desc">
+        The music we listen to takes on many different shapes and contains many connections. Here you can (re)discover those shapes and connections by navigating a planet that's been terraformed by your listening habits. A literal soundscape, music you've listened to more will cover more surface area of the planet. Happy exploring!
+      </p>
+      <p class="about-source">
+        (<a href="https://github.com/dzhurley/soundscape" target="_blank">source code</a>)
+      </p>
+      <span class="about-close">
+        <svg viewbox="0 0 30 30"><path d="M 10,10 L 20,20 M 20,10 L 10,20" /></svg>
+      </span>
     </section>
 
     <script src="app.js"></script>
