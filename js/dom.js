@@ -44,6 +44,7 @@ const bindHandlers = domElement => {
     });
 
     // on key 'c', toggle controls between orbital and fly
+    // TODO: tell user about this
     window.addEventListener('keyup', evt => {
         // ensure we only trigger on 'c' when not in an input
         if (evt.target.nodeName !== 'INPUT' && evt.keyCode === 67) emit('controls');

@@ -1,4 +1,4 @@
-// Tie together Orbital and Fly controls into toggle under radio buttons
+// Tie together Orbital and Fly controls into toggle under 'c'
 
 const THREE = require('three');
 THREE.FlyControls = require('exports?THREE.FlyControls!lib/FlyControls');
