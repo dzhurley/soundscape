@@ -45,10 +45,19 @@
 .about-toggle {
     top: 0;
     right: 0;
-    padding: 0.5rem 1rem;
-    font-size: 1.5rem;
+    margin: 0.5rem;
+    height: 1.75rem;
+    width: 1.75rem;
 
-    background-color: transparent;
+    font-size: 1.25rem;
+    border: 1px solid $color;
+    outline: none;
+
+    background-color: $background-color;
     color: $color;
-    border: none;
+
+    &:hover {
+        background-color: $color;
+        color: $background-color;
+    }
 }
