@@ -24,10 +24,9 @@
 .user-form-error {
     position: absolute;
     top: -2rem;
-    left: 50%;
-    transform: translate(-50%);
+    left: 0;
 
-    width: 100%;
+    width: calc(100% - 2rem);
     text-align: center;
 
     color: $color;
