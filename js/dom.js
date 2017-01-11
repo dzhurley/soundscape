@@ -70,7 +70,9 @@ const bindHandlers = domElement => {
     // show artist info when clicking region on globe
     domElement.addEventListener('click', evt => {
         const hits = intersectObject(evt, globe, getCamera());
-        qs('#hud').innerHTML = hits.length ? `<span>${hits[0].face.data.artist}</span>` : '';
+        qs('.artist-info').innerHTML = hits.length ?
+            `<span>artist: ${hits[0].face.data.artist}</span>` :
+            '';
     });
 
     // on key 'c', toggle controls between orbital and fly
