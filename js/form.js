@@ -1,25 +1,30 @@
 const { emit, on } = require('dispatch');
 const { qs } = require('helpers');
 
+const name = qs('.username');
 const field = qs('.user-form');
 const input = qs('.user-form-username');
-const name = qs('.username');
+const error = qs('.user-form-error');
 
-// TODO: reinstate
-// const error = qs('.user-form-error');
-// const setError = (msg='') => error.textContent = msg;
-// const errorOn = () => error.style.display = 'block';
-// const errorOff = () => error.style.display = 'none';
+const errorOn = () => error.style.display = 'block';
+const errorOff = () => error.style.display = 'none';
+
+const setError = (msg='') => {
+    error.textContent = msg;
+    errorOn();
+};
 
 const showField = () => {
     field.style.display = 'flex';
     name.style.display = 'none';
+    input.value = '';
     input.focus();
 };
 
 const showName = () => {
     field.style.display = 'none';
-    name.style.display = 'inline-block';
+    name.style.display = 'block';
+    errorOff();
 };
 
 const create = () => {
@@ -30,7 +35,10 @@ const create = () => {
         return false;
     });
 
-    qs('#scape').addEventListener('click', () => input.blur());
+    qs('#scape').addEventListener('click', () => {
+        input.blur();
+        if (name.textContent) showName();
+    });
 
     on('submitted', () => {
         qs('.username').textContent = input.value;
@@ -38,7 +46,7 @@ const create = () => {
         qs('.search').style.display = 'flex';
     });
 
-    on('formError', (message, ...args) => console.error(`thrown: ${message}`, args));
+    on('formError', setError);
 };
 
 
