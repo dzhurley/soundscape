@@ -1,6 +1,7 @@
 // Interface for the DOM around UI event bindings
 
 const search = require('search');
+const form = require('form');
 const { emit, on } = require('dispatch');
 const { intersectObject, qs } = require('helpers');
 const { getCamera } = require('three/camera');
@@ -18,49 +19,10 @@ const bindAbout = () => {
     }, false));
 };
 
-const bindForm = () => {
-    const input = qs('.user-form-username');
-    const error = qs('.user-form-error');
-    let used = false;
-    let lastUser = '';
-
-    qs('.user-form').addEventListener('submit', evt => {
-        evt.preventDefault();
-        error.textContent = '';
-        emit('submitting', input.value);
-        return false;
-    });
-
-    qs('#scape').addEventListener('click', () => input.blur());
-
-    input.addEventListener('focus', () => {
-        if (used) input.value = '';
-        error.textContent = '';
-        error.style.display = 'block';
-    });
-
-    input.addEventListener('blur', () => {
-        if (used) input.value = lastUser;
-        error.style.display = 'none';
-    });
-
-    on('submitted', () => {
-        used = true;
-        lastUser = input.value;
-        input.blur();
-        qs('.search').style.display = 'block';
-    });
-
-    on('formError', (message, ...args) => {
-        console.error(`thrown: ${message}`, args);
-        error.textContent = message;
-    });
-};
-
 const bindHandlers = domElement => {
     bindAbout();
 
-    bindForm();
+    form.create();
 
     domElement.addEventListener('mousemove', evt => {
         const hits = intersectObject(evt, globe, getCamera());

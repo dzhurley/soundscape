@@ -5,7 +5,8 @@
     transform: translate(-50%);
 
     height: 2rem;
-    padding: 0.25rem 0.5rem;
+
+    display: flex;
 }
 
 .user-form-username,
@@ -34,21 +35,11 @@
     padding: 0.5rem;
     vertical-align: top;
     display: inline-block;
-    text-align: center;
-
-    &:focus + .user-form-button {
-        display: block;
-    }
 }
 
 .user-form-button {
-    display: none;
-
-    height: 2.25rem;
-    width: 2.25rem;
-    position: absolute;
-    bottom: 0;
-    right: -1.75rem;
+    height: 2rem;
+    width: 2rem;
 
     padding: 0.3rem;
     padding-left: 0.1rem;

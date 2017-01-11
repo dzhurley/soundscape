@@ -18,9 +18,6 @@
     color: $color;
     border: 1px solid $color;
 
-    /* TODO: remove to wrap ui-redo up */
-    z-index: 4;
-
     .about-source {
         text-align: right;
         margin-bottom: 1.5rem;
