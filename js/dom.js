@@ -2,7 +2,7 @@
 
 const search = require('search');
 const form = require('form');
-const { emit, on } = require('dispatch');
+const { emit } = require('dispatch');
 const { intersectObject, qs } = require('helpers');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
@@ -51,8 +51,6 @@ const bindHandlers = domElement => {
     });
 
     search.create();
-    // reset search whenever we repaint
-    on('painted', search.update);
 };
 
 const bindEvents = domElement => {

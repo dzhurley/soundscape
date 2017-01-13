@@ -1,4 +1,5 @@
 const animations = require('animations');
+const { on } = require('dispatch');
 const { faceCentroid, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
@@ -80,13 +81,6 @@ const keys = {
     '13': evt => artists.includes(evt.target.value) && focus(evt.target.value)
 };
 
-const update = () => {
-    artists = Array.from(globe.geometry.faces.reduce((memo, face) => {
-        if (face.data.artist) memo.add(face.data.artist);
-        return memo;
-    }, new Set()));
-};
-
 const create = () => {
     // click off search
     qs('#scape').addEventListener('click', () => {
@@ -104,6 +98,12 @@ const create = () => {
         const key = evt.keyCode.toString();
         key in keys ? keys[key](evt) : renderFor(evt.target.value);
     });
+
+    on('submitted', () => artists = []);
+    on('paint', faces => {
+        const name = faces[0].data.artist;
+        if (!artists.includes(name)) artists.push(name);
+    });
 };
 
-module.exports = { create, update };
+module.exports = { create };
