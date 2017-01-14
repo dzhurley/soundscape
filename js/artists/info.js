@@ -28,7 +28,7 @@ const parseInfo = json => ({
     name: json.artist.name,
     ontour: !!parseInt(json.artist.ontour, 10),
     similar: json.artist.similar.artist.map(artist => artist.name),
-    tags: json.artist.tags.tag.map(tag => tag.name),
+    tags: json.artist.tags.tag,
     url: json.artist.url
 });
 
@@ -78,10 +78,10 @@ const renderInfo = artist => {
     if (!info || !info.loaded) return `<span>artist: ${artist}</span>`;
 
     return `
-<img class="artist-info-image" src="${info.image}" />
-<h2 class="artist-info-name"><a href="${info.url}">${info.name}</a></h2>
+<a target="_blank" href="${info.url}"><img class="artist-info-image" src="${info.image}" /></a>
+<h1 class="artist-info-name"><a target="_blank" href="${info.url}">${info.name}</a></h1>
 <ul class="artist-info-tags">
-${info.tags.map(tag => `  <li>${tag}</li>`).join('\n')}
+${info.tags.map(tag => `  <li><a target="_blank" href="${tag.url}">${tag.name}</a></li>`).join('\n')}
 </ul>
 <p class="artist-info-bio">${info.bio}</p>
 `;

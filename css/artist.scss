@@ -1,14 +1,59 @@
 .artist-info {
+    position: absolute;
+    background-color: $background-color;
+    color: $color;
+
     display: none;
     bottom: 1rem;
     left: 0.5rem;
 
-    padding: 0 0.5rem;
-    line-height: 2;
+    max-height: 75vh;
+    /* match last.fm image sizes */
+    max-width: 300px;
+    height: 100%;
+    padding: 1rem;
 
-    @mixin box;
+    box-shadow: 0 0 0 1px $color;
+    overflow: scroll;
+}
 
-    span {
-        display: block;
+.artist-info-image,
+.artist-info-tags,
+.artist-info-bio {
+    display: inline-block;
+}
+
+.artist-info-image {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.artist-info-name {
+    display: inline-block;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.artist-info-tags {
+    li {
+        border: 1px solid $color;
+        display: inline-block;
+        padding: 0 0.25rem;
+        margin-bottom: 0.5rem;
+
+        &:hover {
+            background-color: $color;
+            color: $background-color;
+            cursor: pointer;
+
+            a {
+                color: $background-color;
+            }
+        }
     }
+}
+
+.artist-info-bio {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }

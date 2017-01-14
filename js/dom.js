@@ -36,7 +36,7 @@ const bindHandlers = domElement => {
 
         if (hits.length && hits[0].face.data.artist) {
             artist.innerHTML = renderInfo(hits[0].face.data.artist);
-            artist.style.display = 'flex';
+            artist.style.display = 'block';
         } else {
             artist.innerHTML = '';
             artist.style.display = 'none';

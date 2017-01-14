@@ -4,8 +4,9 @@
 
 const THREE = require('three');
 
-const { emit } = require('dispatch');
 const { globe: { axisSize } } = require('constants');
+const { emit } = require('dispatch');
+const { qs } = require('helpers');
 
 const scene = require('three/scene');
 
@@ -15,4 +16,6 @@ global.scene = scene;
 scene.add(new THREE.AxisHelper(axisSize));
 
 // autosubmit when required
-emit('submitting', 'lastfm', 'stutterbug42');
+const testUser = 'stutterbug42';
+emit('submitting', testUser);
+qs('.username').textContent = testUser;
