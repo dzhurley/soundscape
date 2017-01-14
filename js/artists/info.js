@@ -15,8 +15,13 @@ const url = {
     }
 };
 
-// TODO: preload images
-const text = item => item ? item['#text'] : '';
+const preload = url => {
+    const image = new window.Image();
+    // setting source here triggers browser to fetch image contents
+    image.src = url;
+    return url;
+};
+const imgFromText = item => item ? preload(item['#text']) : '';
 
 // TODO: handle similar for future exploration
 // TODO: handle ontour
@@ -24,7 +29,7 @@ const text = item => item ? item['#text'] : '';
 const parseInfo = json => ({
     bio: json.artist.bio.content,
     loaded: true,
-    image: text(json.artist.image.find(img => img.size === 'extralarge')),
+    image: imgFromText(json.artist.image.find(img => img.size === 'extralarge')),
     name: json.artist.name,
     ontour: !!parseInt(json.artist.ontour, 10),
     similar: json.artist.similar.artist.map(artist => artist.name),
