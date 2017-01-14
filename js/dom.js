@@ -1,15 +1,15 @@
 // Interface for the DOM around UI event bindings
 
-const search = require('search');
-const form = require('form');
+const { renderInfo } = require('artists/info');
 const { emit } = require('dispatch');
+const form = require('form');
 const { intersectObject, qs } = require('helpers');
+const search = require('search');
 const { getCamera } = require('three/camera');
 const { globe } = require('three/globe');
 
 const container = qs('#scape');
 
-// TODO: collect nicer with other bindings?
 const bindAbout = () => {
     let isOpen = false;
     ['.about-close', '.about-toggle'].map(el => qs(el).addEventListener('click', evt => {
@@ -35,7 +35,7 @@ const bindHandlers = domElement => {
         const artist = qs('.artist-info');
 
         if (hits.length && hits[0].face.data.artist) {
-            artist.innerHTML = `<span>artist: ${hits[0].face.data.artist}</span>`;
+            artist.innerHTML = renderInfo(hits[0].face.data.artist);
             artist.style.display = 'flex';
         } else {
             artist.innerHTML = '';

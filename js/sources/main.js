@@ -11,6 +11,7 @@
 //     parseData: function
 // }
 
+const { storageKeys } = require('constants');
 const { emit, emitOnWorker, on } = require('dispatch');
 const { packUrlParams, randomArray } = require('helpers');
 
@@ -22,15 +23,17 @@ const registerSources = sources => {
 
 // kick off app with valid artists
 const trigger = artists => {
-    emit('submitted');
+    emit('submitted', artists);
     emitOnWorker('seed', artists);
 };
 
 const getArtists = (source, username) => {
+    const key = storageKeys.username(username);
+
     // check localStorage and use info if present
-    if (Object.keys(localStorage).indexOf(username) > -1) {
-        if (localStorage[username]) {
-            trigger(localStorage[username]);
+    if (Object.keys(localStorage).indexOf(key) > -1) {
+        if (localStorage[key]) {
+            trigger(localStorage[key]);
             return;
         }
     }
@@ -49,9 +52,9 @@ const getArtists = (source, username) => {
             const artists = randomArray(parsed);
             // store for next time
             // TODO: expiry?
-            localStorage[username] = JSON.stringify(artists);
+            localStorage[key] = JSON.stringify(artists);
 
-            trigger(localStorage[username]);
+            trigger(localStorage[key]);
         } else {
             emit('formError', 'invalid response');
             console.error(request.responseText);

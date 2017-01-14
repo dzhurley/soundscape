@@ -72,6 +72,8 @@ const globe = {
     vertexColors: THREE.FaceColors
 };
 
+const lastfmToken = 'bd366f79f01332a48ae8ce061dba05a9';
+
 const light = { color: 0xf0f0f0 };
 
 const node = {
@@ -122,16 +124,27 @@ const stars = {
     }
 };
 
+const storageKeys = {
+    artist(name) {
+        return `soundscape-artist-${name}`;
+    },
+    username(name) {
+        return `soundscape-username-${name}`;
+    }
+};
+
 module.exports = {
     camera,
     events,
     flyControls,
     force,
     globe,
+    lastfmToken,
     light,
     node,
     orbitalControls,
     seeds,
     sources,
-    stars
+    stars,
+    storageKeys
 };
