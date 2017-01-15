@@ -15,21 +15,21 @@ const url = {
     }
 };
 
-const preload = url => {
+const parseImg = item => {
+    if (!item) return '';
     const image = new window.Image();
     // setting source here triggers browser to fetch image contents
-    image.src = url;
-    return url;
+    image.src = item['#text'];
+    return image.src;
 };
-const imgFromText = item => item ? preload(item['#text']) : '';
 
 // TODO: handle similar for future exploration
 // TODO: handle ontour
-// TODO: handle 'read more' embeds on bios
 const parseInfo = json => ({
-    bio: json.artist.bio.content,
+    // trim 'read more' links and disclaimers injected by last.fm
+    bio: json.artist.bio.content.replace(/ <a.*/, ''),
     loaded: true,
-    image: imgFromText(json.artist.image.find(img => img.size === 'extralarge')),
+    image: parseImg(json.artist.image.find(img => img.size === 'extralarge')),
     name: json.artist.name,
     ontour: !!parseInt(json.artist.ontour, 10),
     similar: json.artist.similar.artist.map(artist => artist.name),
