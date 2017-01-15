@@ -1,4 +1,5 @@
 const animations = require('animations');
+const { renderInfo } = require('artists/info');
 const { on } = require('dispatch');
 const { faceCentroid, qs, qsa } = require('helpers');
 const { getCamera } = require('three/camera');
@@ -20,12 +21,16 @@ const focus = name => {
 
     // animate camera to artist's location
     animations.search.focus(cam.position, final)
+        .onStart(() => renderInfo())
         .onUpdate(function() {
             cam.position.set(this.x, this.y, this.z);
             cam.position.setLength(length);
             cam.lookAt(scene.position);
         })
-        .onComplete(() => cam.lookAt(scene.position))
+        .onComplete(() => {
+            cam.lookAt(scene.position);
+            renderInfo(name);
+        })
         .start();
 
     // close list with match filled in input
