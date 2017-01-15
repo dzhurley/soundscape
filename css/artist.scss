@@ -1,20 +1,35 @@
 .artist-info {
-    position: absolute;
-    background-color: $background-color;
-    color: $color;
-
     display: none;
+    flex-direction: column;
+
+    position: absolute;
     top: 1rem;
     right: 1rem;
 
-    max-height: 75vh;
+    max-height: 84vh;
     /* match last.fm image sizes */
     max-width: 300px;
     height: 100%;
     padding: 1rem;
 
+    overflow: hidden;
+
+    background-color: $background-color;
+    color: $color;
     box-shadow: 0 0 0 1px $color;
-    overflow: scroll;
+}
+
+.artist-info-ontour {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    background-color: $color;
+    color: $background-color;
+
+    padding: 0.25rem 0.75rem;
+    user-select: none;
+    cursor: default;
 }
 
 .artist-info-image,
@@ -59,4 +74,6 @@
     margin-top: 0.5rem;
     margin-bottom: 0;
     word-break: break-word;
+
+    overflow: scroll;
 }

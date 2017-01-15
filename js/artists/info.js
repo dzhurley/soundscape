@@ -6,7 +6,7 @@ const { artistInfo, updateInfo } = require('artists/data');
 const node = qs('.artist-info');
 const showInfo = info => {
     node.innerHTML = info;
-    node.style.display = 'block';
+    node.style.display = 'flex';
 };
 const hideInfo = () => {
     node.innerHTML = '';
@@ -20,6 +20,7 @@ const renderInfo = artist => {
     if (!info || !info.loaded) return showInfo(`<span>artist: ${artist}</span>`);
 
     return showInfo(`
+${info.ontour ? '<span class="artist-info-ontour">on tour</span>' : ''}
 <a target="_blank" href="${info.url}"><img class="artist-info-image" src="${info.image}" /></a>
 <h1 class="artist-info-name"><a target="_blank" href="${info.url}">${info.name}</a></h1>
 <ul class="artist-info-tags">
